@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Typography, CircularProgress, Box, Divider } from '@mui/material';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+//const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function MovieComments({ movieId, token }) {
   const [comments, setComments] = useState([]);
