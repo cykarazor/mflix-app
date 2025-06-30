@@ -4,8 +4,7 @@ import axios from 'axios';
 import { TextField, Button, Box, Typography } from '@mui/material';
 import { UserContext } from './UserContext';
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || 'https://mflix-backend-ysnw.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -16,7 +15,6 @@ export default function LoginForm() {
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user) navigate('/');
   }, [user, navigate]);
@@ -31,7 +29,7 @@ export default function LoginForm() {
         password,
       });
       login(res.data.user, res.data.token);
-      navigate('/'); // You can change this to "/dashboard" if you have that route
+      navigate('/');
     } catch (err) {
       setMsg(err.response?.data?.error || 'Login failed');
     } finally {

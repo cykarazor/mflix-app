@@ -14,7 +14,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import EditMovieForm from './EditMovieForm';
-import MovieComments from './MovieComments'; // ✅ Added import for comments component
+import MovieComments from './MovieComments';
 import axios from 'axios';
 import { UserContext } from './UserContext';
 import { useNavigate } from 'react-router-dom';
@@ -44,6 +44,8 @@ export default function MovieList() {
   const [editMovieId, setEditMovieId] = useState(null);
   const [detailsMovie, setDetailsMovie] = useState(null);
 
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     switch (sort) {
       case 'title': setAscending(true); break;
@@ -72,7 +74,7 @@ export default function MovieList() {
           search,
         });
         const res = await axios.get(
-          `https://mflix-backend-ysnw.onrender.com/api/movies?${params.toString()}`,
+          `${API_BASE_URL}/api/movies?${params.toString()}`,
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
         setMovies(res.data.movies || []);
@@ -84,7 +86,7 @@ export default function MovieList() {
       }
     };
     fetchMovies();
-  }, [page, sort, ascending, search, user, navigate]);
+  }, [page, sort, ascending, search, user, navigate, API_BASE_URL]);
 
   const handleCloseEditModal = () => setEditMovieId(null);
   const handleMovieUpdated = () => setPage(1);
@@ -226,50 +228,19 @@ export default function MovieList() {
             },
           }}
         >
-          <Button
-            variant="outlined"
-            onClick={() => setPage(1)}
-            disabled={page === 1}
-            startIcon={<FirstPageIcon />}
-          >
+          <Button variant="outlined" onClick={() => setPage(1)} disabled={page === 1} startIcon={<FirstPageIcon />}>
             <Box display={{ xs: 'none', sm: 'inline' }}>First</Box>
           </Button>
-
-          <Button
-            variant="outlined"
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-            disabled={page === 1}
-            startIcon={<NavigateBeforeIcon />}
-          >
+          <Button variant="outlined" onClick={() => setPage((prev) => Math.max(prev - 1, 1))} disabled={page === 1} startIcon={<NavigateBeforeIcon />}>
             <Box display={{ xs: 'none', sm: 'inline' }}>Prev</Box>
           </Button>
-
-          <Typography
-            variant="body2"
-            sx={{
-              alignSelf: 'center',
-              px: 1,
-              fontSize: { xs: '0.75rem', sm: '1rem' },
-            }}
-          >
+          <Typography variant="body2" sx={{ alignSelf: 'center', px: 1, fontSize: { xs: '0.75rem', sm: '1rem' } }}>
             Page {page} of {totalPages}
           </Typography>
-
-          <Button
-            variant="outlined"
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={page === totalPages}
-            endIcon={<NavigateNextIcon />}
-          >
+          <Button variant="outlined" onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))} disabled={page === totalPages} endIcon={<NavigateNextIcon />}>
             <Box display={{ xs: 'none', sm: 'inline' }}>Next</Box>
           </Button>
-
-          <Button
-            variant="outlined"
-            onClick={() => setPage(totalPages)}
-            disabled={page === totalPages}
-            endIcon={<LastPageIcon />}
-          >
+          <Button variant="outlined" onClick={() => setPage(totalPages)} disabled={page === totalPages} endIcon={<LastPageIcon />}>
             <Box display={{ xs: 'none', sm: 'inline' }}>Last</Box>
           </Button>
         </Stack>
@@ -295,7 +266,7 @@ export default function MovieList() {
         </DialogActions>
       </Dialog>
 
-      {/* Movie Details Modal (with Edit button and Comments) */}
+      {/* Movie Details Modal */}
       <Dialog open={!!detailsMovie} onClose={closeDetailsModal} maxWidth="sm" fullWidth>
         <DialogTitle>
           {detailsMovie?.title}
@@ -328,7 +299,7 @@ export default function MovieList() {
               <Typography variant="body1" gutterBottom><strong>Tomato Meter:</strong> {detailsMovie.tomatoes?.viewer?.meter ? `${detailsMovie.tomatoes.viewer.meter}%` : 'N/A'}</Typography>
               <Typography variant="body1" gutterBottom><strong>Awards:</strong> {detailsMovie.awards?.text || 'N/A'}</Typography>
 
-              {/* ✅ Added MovieComments component here to show comments for the selected movie */}
+              {/* Comments Section */}
               <Box sx={{ mt: 4 }}>
                 <Typography variant="h6" gutterBottom>Comments</Typography>
                 <MovieComments movieId={detailsMovie._id} token={user.token} />

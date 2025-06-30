@@ -1,9 +1,4 @@
-// MovieComments.jsx
-import React, { useEffect, useState } from 'react';
-import { Typography, CircularProgress, Box, Divider } from '@mui/material';
-import axios from 'axios';
-
-export default function MovieComments({ movieId }) {
+export default function MovieComments({ movieId, token }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -12,7 +7,10 @@ export default function MovieComments({ movieId }) {
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`https://mflix-backend-ysnw.onrender.com/api/comments?movie_id=${movieId}`);
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_BASE_URL}/api/comments?movie_id=${movieId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         setComments(res.data || []);
       } catch (err) {
         setError('Failed to load comments');
@@ -21,8 +19,8 @@ export default function MovieComments({ movieId }) {
       }
     };
 
-    if (movieId) fetchComments();
-  }, [movieId]);
+    if (movieId && token) fetchComments();
+  }, [movieId, token]);
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;

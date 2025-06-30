@@ -1,4 +1,3 @@
-// EditMovieForm.js
 import React, { useState, useEffect } from 'react';
 import {
   TextField,
@@ -28,13 +27,15 @@ function EditMovieForm({ movieId, onClose, onUpdated }) {
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     if (!movieId) return;
     setLoading(true);
     setError(null);
     setSuccessMsg(null);
 
-    fetch(`https://mflix-backend-ysnw.onrender.com/api/movies/${movieId}`)
+    fetch(`${API_BASE_URL}/api/movies/${movieId}`)
       .then(res => {
         if (!res.ok) throw new Error(`Failed to fetch movie: ${res.status}`);
         return res.json();
@@ -60,7 +61,7 @@ function EditMovieForm({ movieId, onClose, onUpdated }) {
         setError(err.message);
         setLoading(false);
       });
-  }, [movieId]);
+  }, [movieId, API_BASE_URL]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -85,7 +86,7 @@ function EditMovieForm({ movieId, onClose, onUpdated }) {
     }
 
     try {
-      const response = await fetch(`https://mflix-backend-ysnw.onrender.com/api/movies/${movieId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/movies/${movieId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

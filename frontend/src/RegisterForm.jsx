@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { TextField, Button, Stack, Typography } from '@mui/material';
+import { TextField, Button, Stack, Typography, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { UserContext } from './UserContext';
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || 'https://mflix-backend-ysnw.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -15,6 +14,7 @@ const RegisterForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user) navigate('/');
@@ -22,19 +22,31 @@ const RegisterForm = () => {
 
   const handleRegister = async () => {
     setMsg('');
+    if (!name || !email || !password) {
+      setMsg('❌ All fields are required.');
+      return;
+    }
+    if (!email.includes('@') || !email.includes('.')) {
+      setMsg('❌ Please enter a valid email.');
+      return;
+    }
+    if (password.length < 6) {
+      setMsg('❌ Password should be at least 6 characters.');
+      return;
+    }
+
+    setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/api/auth/register`, {
-        name,
-        email,
-        password,
-      });
+      await axios.post(`${API_BASE_URL}/api/auth/register`, { name, email, password });
       setMsg('✅ Registration successful! Redirecting to login...');
       setName('');
       setEmail('');
       setPassword('');
-      setTimeout(() => navigate('/login'), 1500);
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setMsg(err.response?.data?.error || '❌ Registration failed.');
+      setMsg(err?.response?.data?.error || '❌ Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,11 +78,11 @@ const RegisterForm = () => {
         fullWidth
         required
       />
-      <Button variant="contained" onClick={handleRegister} fullWidth>
-        Register
+      <Button variant="contained" onClick={handleRegister} fullWidth disabled={loading}>
+        {loading ? <CircularProgress size={24} color="inherit" /> : 'Register'}
       </Button>
       {msg && (
-        <Typography color={msg.includes('success') ? 'primary' : 'error'} align="center">
+        <Typography color={msg.startsWith('✅') ? 'primary' : 'error'} align="center">
           {msg}
         </Typography>
       )}
