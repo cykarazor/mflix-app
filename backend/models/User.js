@@ -1,20 +1,53 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User'); // Your User model file path
+const jwt = require('jsonwebtoken');
 
-const userSchema = new mongoose.Schema({
-  name:     { type: String, required: true },
-  email:    { type: String, required: true, unique: true },
-  password: { type: String, required: true }
-}, { collection: 'users' }); //👈 forces use of the sample_mflix 'users' collection
+// Middleware to verify JWT token and extract user ID
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'No token provided' });
 
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: 'Invalid token' });
+    req.user = user; // Expected to contain user ID in user.id
+    next();
+  });
+}
+
+// POST /api/users/change-password
+router.post('/change-password', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    // Basic input validation
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Please provide current and new passwords' });
+    }
+
+    // Find user by ID from token
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if current password is correct using your model method
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Set new password; your pre-save hook will hash it automatically
+    user.password = newPassword;
+    await user.save();
+
+    return res.json({ success: true, message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
 });
 
-userSchema.methods.comparePassword = function(candidate) {
-  return bcrypt.compare(candidate, this.password);
-};
-
-module.exports = mongoose.model('SampleUser', userSchema);
+module.exports = router;

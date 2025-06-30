@@ -7,7 +7,7 @@ import {
   Typography,
   AppBar,
   Toolbar,
-  Box, // ✅ Added Box for layout wrapper
+  Box,
 } from '@mui/material';
 import {
   BrowserRouter as Router,
@@ -17,27 +17,27 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import LandingPage from './LandingPage'; // ✅ Import styled LandingPage with background image
+import LandingPage from './LandingPage';
 import MovieList from './MovieList';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
-import Footer from './Footer'; // ✅ Import the new Footer component
+import Footer from './Footer';
 import { UserContext } from './UserContext';
+
+// Import ChangePassword component
+import ChangePassword from './ChangePassword'; // <-- ADD THIS LINE
 
 function App() {
   const { user, logout } = useContext(UserContext);
 
-  // ProtectedRoute wrapper to guard private routes
   const ProtectedRoute = ({ children }) => {
     if (!user) return <Navigate to="/login" replace />;
     return children;
   };
 
   return (
-    // ✅ Wrap whole app in a flex column to push footer to bottom
     <Router>
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        {/* AppBar with navigation links and user info */}
         <AppBar position="static">
           <Toolbar sx={{ justifyContent: 'space-between' }}>
             <Typography
@@ -55,6 +55,12 @@ function App() {
                   <Button color="inherit" component={Link} to="/movies">
                     Movies
                   </Button>
+
+                  {/* NEW: Add a Change Password link/button */}
+                  <Button color="inherit" component={Link} to="/change-password">
+                    Change Password
+                  </Button>
+
                   <Typography variant="body2" sx={{ alignSelf: 'center' }}>
                     Welcome, {user.name}
                   </Typography>
@@ -76,14 +82,10 @@ function App() {
           </Toolbar>
         </AppBar>
 
-        {/* Main content container */}
-        {/* ✅ Added flexGrow: 1 to push footer down */}
         <Container maxWidth="md" sx={{ mt: 4, flexGrow: 1 }}>
           <Routes>
-            {/* Use the imported LandingPage with background image if NOT logged in */}
             <Route path="/" element={!user ? <LandingPage /> : <Navigate to="/movies" />} />
 
-            {/* Movies page protected behind login */}
             <Route
               path="/movies"
               element={
@@ -93,16 +95,26 @@ function App() {
               }
             />
 
-            {/* Login and Register routes redirect if already logged in */}
-            <Route path="/login" element={user ? <Navigate to="/movies" replace /> : <LoginForm />} />
-            <Route path="/register" element={user ? <Navigate to="/movies" replace /> : <RegisterForm />} />
+            {/* NEW: Change Password route */}
+            <Route
+              path="/change-password"
+              element={
+                <ProtectedRoute>
+                  <ChangePassword />
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Redirect any unknown routes to home */}
+            <Route path="/login" element={user ? <Navigate to="/movies" replace /> : <LoginForm />} />
+            <Route
+              path="/register"
+              element={user ? <Navigate to="/movies" replace /> : <RegisterForm />}
+            />
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Container>
 
-        {/* ✅ Added Footer component below main content */}
         <Footer />
       </Box>
     </Router>
