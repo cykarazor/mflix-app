@@ -50,8 +50,5 @@ router.post('/change-password', authenticateToken, async (req, res) => {
   }
 });
 
-
-
 // ✅ Export as User
-const User = mongoose.model('User', userSchema);
 module.exports = User;
