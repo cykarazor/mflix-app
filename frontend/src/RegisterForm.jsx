@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { TextField, Button, Stack, Typography, CircularProgress } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Stack,
+  Typography,
+  CircularProgress,
+  InputAdornment,
+  IconButton
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { UserContext } from './UserContext';
@@ -13,6 +22,7 @@ const RegisterForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -72,11 +82,23 @@ const RegisterForm = () => {
       />
       <TextField
         label="Password"
-        type="password"
+        type={showPassword ? 'text' : 'password'}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         fullWidth
         required
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                onClick={() => setShowPassword((prev) => !prev)}
+                edge="end"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          )
+        }}
       />
       <Button variant="contained" onClick={handleRegister} fullWidth disabled={loading}>
         {loading ? <CircularProgress size={24} color="inherit" /> : 'Register'}
