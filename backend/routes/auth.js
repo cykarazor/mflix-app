@@ -59,9 +59,9 @@ router.post('/login', async (req, res) => {
 
 // ✅ CHANGE PASSWORD route
 router.post('/change-password', authenticateToken, async (req, res) => {
+  console.log("✅ Token decoded user:", req.user); // should show userId
+  
   try {
-    console.log("✅ Token decoded user:", req.user); // should show userId
-
     const { oldPassword, newPassword } = req.body;
     console.log("📥 Passwords received:", oldPassword, newPassword);
 
