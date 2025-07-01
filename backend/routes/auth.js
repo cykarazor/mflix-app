@@ -92,8 +92,9 @@ router.post('/change-password', authenticateToken, async (req, res) => {
 
 //temp test
 router.get('/test', (req, res) => {
-  res.send('✅ /api/auth is working');
+  res.json({ message: '✅ /api/auth is working' });
 });
+
 
 
 module.exports = router;
