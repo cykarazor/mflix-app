@@ -28,7 +28,7 @@ export default function ChangePassword() {
     try {
       const token = localStorage.getItem("token"); // Your JWT token
 
-      const response = await axios.post(
+      await axios.post(
         "/api/auth/change-password",  // <-- Updated endpoint here
         { oldPassword: currentPassword, newPassword }, // make sure keys match backend
         { headers: { Authorization: `Bearer ${token}` } }
