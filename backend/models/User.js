@@ -1,54 +1,41 @@
-const express = require('express');
-const router = express.Router();
-const User = require('../models/User'); // Your User model file path
-const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
-// Middleware to verify JWT token and extract user ID
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'No token provided' });
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid token' });
-    req.user = user; // Expected to contain user ID in user.id
-    next();
-  });
-}
-
-// POST /api/users/change-password
-router.post('/change-password', authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { currentPassword, newPassword } = req.body;
-
-    // Basic input validation
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: 'Please provide current and new passwords' });
-    }
-
-    // Find user by ID from token
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Check if current password is correct using your model method
-    const isMatch = await user.comparePassword(currentPassword);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Current password is incorrect' });
-    }
-
-    // Set new password; your pre-save hook will hash it automatically
-    user.password = newPassword;
-    await user.save();
-
-    return res.json({ success: true, message: 'Password changed successfully' });
-  } catch (error) {
-    console.error('Change password error:', error);
-    return res.status(500).json({ message: 'Server error' });
-  }
+// Define schema
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+}, {
+  timestamps: true, // ✅ Automatically adds createdAt & updatedAt
 });
 
-// ✅ Export as User
-module.exports = User;
+// ✅ Pre-save hook to hash password
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next(); // Skip if password not changed
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// ✅ Method to compare passwords
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// ✅ Export model as SampleUser for consistency
+const SampleUser = mongoose.model('User', userSchema);
+module.exports = SampleUser;

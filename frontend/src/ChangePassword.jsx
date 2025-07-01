@@ -26,24 +26,20 @@ export default function ChangePassword() {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem("token"); // Adjust if your token is stored differently
+      const token = localStorage.getItem("token"); // Your JWT token
 
       const response = await axios.post(
-        "/api/users/change-password",
-        { currentPassword, newPassword },
+        "/api/auth/change-password",  // <-- Updated endpoint here
+        { oldPassword: currentPassword, newPassword }, // make sure keys match backend
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.success) {
-        setSuccess("Password changed successfully!");
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-      } else {
-        setError(response.data.message || "Failed to change password.");
-      }
+      setSuccess("Password changed successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred.");
+      setError(err.response?.data?.error || "Failed to change password.");
     } finally {
       setLoading(false);
     }
