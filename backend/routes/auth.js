@@ -60,23 +60,32 @@ router.post('/login', async (req, res) => {
 // ✅ CHANGE PASSWORD route
 router.post('/change-password', authenticateToken, async (req, res) => {
   try {
+    console.log("✅ Token decoded user:", req.user); // should show userId
+
     const { oldPassword, newPassword } = req.body;
+    console.log("📥 Passwords received:", oldPassword, newPassword);
+
     if (!oldPassword || !newPassword) {
       return res.status(400).json({ error: 'Both old and new passwords are required' });
     }
 
     const user = await SampleUser.findById(req.user.userId);
+    console.log("🔍 Found user:", user?.email);
+
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const match = await user.comparePassword(oldPassword); // ✅ Use model method
+    const match = await user.comparePassword(oldPassword);
+    console.log("🔑 Password match result:", match);
+
     if (!match) return res.status(401).json({ error: 'Old password is incorrect' });
 
-    user.password = newPassword; // ✅ Will be hashed by pre-save hook
+    user.password = newPassword;
     await user.save();
 
+    console.log("✅ Password changed for user:", user.email);
     res.json({ message: '✅ Password changed successfully' });
   } catch (err) {
-    console.error('Change password error:', err.message);
+    console.error('❌ Change password error:', err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
