@@ -37,6 +37,8 @@ export default function LoginForm() {
         email,
         password,
       });
+
+      localStorage.setItem("token", res.data.token); // ✅ Store token here
       login(res.data.user, res.data.token);
       navigate('/');
     } catch (err) {
