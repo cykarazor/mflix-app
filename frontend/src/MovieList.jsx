@@ -306,7 +306,7 @@ export default function MovieList() {
               {/* Comments Section */}
               <Box sx={{ mt: 4 }}>
                 <Typography variant="h6" gutterBottom>Comments</Typography>
-                <MovieComments movieId={detailsMovie._id} token={user.token} refreshKey={commentRefreshKey}/> // ✅ NEW: This triggers refresh on form submission
+                <MovieComments movieId={detailsMovie._id} token={user.token} refreshKey={commentRefreshKey}/>
               </Box>
             </Box>
           )}
@@ -314,7 +314,8 @@ export default function MovieList() {
           <DialogActions>
             <Button onClick={closeDetailsModal}>Close</Button>
             <Button
-              onClick={() => setShowCommentForm(true)} // ✅ NEW: Open comment modal
+              // ✅ NEW: Open comment modal
+              onClick={() => setShowCommentForm(true)} 
               variant="outlined"
             >
               Add Comment
