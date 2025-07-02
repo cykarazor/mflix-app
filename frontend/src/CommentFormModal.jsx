@@ -9,6 +9,7 @@ import axios from 'axios';
 
 export default function CommentFormModal({ open, onClose, movieId, token, onCommentAdded }) {
   const { user } = useUser();
+  const token = user?.token;
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
