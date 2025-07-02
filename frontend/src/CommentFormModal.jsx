@@ -34,14 +34,24 @@ export default function CommentFormModal({ open, onClose, movieId, token, onComm
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
+      console.log('✅ Response:', response.data); // Should say "Comment added successfully"
+
       setText('');
-      onCommentAdded(); // Notify parent to refresh comments
-      onClose();
-    } catch (err) {
-      setError('Failed to submit comment');
-    } finally {
-      setLoading(false);
+
+     try {
+      onCommentAdded(); // Refresh comments in parent
+    } catch (refreshErr) {
+      console.error('🚫 Failed to refresh comments:', refreshErr);
     }
+
+    onClose();
+  } catch (err) {
+    console.error('❌ Submit error:', err);
+    setError('Failed to submit comment');
+  } finally {
+    setLoading(false);
+  }
   };
 
   return (
