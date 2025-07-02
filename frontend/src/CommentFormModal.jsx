@@ -22,6 +22,7 @@ export default function CommentFormModal({ open, onClose, movieId, token, onComm
   setLoading(true);
   setError('');
   try {
+    console.log('Token:', token);
     const response = await axios.post(
       `${process.env.REACT_APP_API_BASE_URL}/api/comments`,
       {
@@ -44,8 +45,17 @@ export default function CommentFormModal({ open, onClose, movieId, token, onComm
       console.error('Unexpected response:', response);
     }
   } catch (err) {
-    console.error('Submit comment error:', err.response || err.message || err);
-    setError('Failed to submit comment');
+        console.error('Submit comment error full:', err);
+      if (err.response) {
+        console.error('Response data:', err.response.data);
+        setError(`Failed: ${err.response.data.error || 'Server error'}`);
+      } else if (err.request) {
+        console.error('No response received:', err.request);
+        setError('No response from server');
+      } else {
+        console.error('Error message:', err.message);
+        setError(`Error: ${err.message}`);
+  }
   } finally {
     setLoading(false);
   }
