@@ -14,45 +14,42 @@ export default function CommentFormModal({ open, onClose, movieId, token, onComm
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    if (!text.trim()) {
-      setError('Comment cannot be empty');
-      return;
-    }
+  if (!text.trim()) {
+    setError('Comment cannot be empty');
+    return;
+  }
 
-    setLoading(true);
-    setError('');
-    try {
-      await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/api/comments`,
-        {
-          movie_id: movieId,
-          text,
-          name: user.name,
-          email: user.email,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+  setLoading(true);
+  setError('');
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_BASE_URL}/api/comments`,
+      {
+        movie_id: movieId,
+        text,
+        name: user.name,
+        email: user.email,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
-      console.log('✅ Response:', response.data); // Should say "Comment added successfully"
-
+    if (response.status === 201) {
       setText('');
-
-     try {
-      onCommentAdded(); // Refresh comments in parent
-    } catch (refreshErr) {
-      console.error('🚫 Failed to refresh comments:', refreshErr);
+      onCommentAdded(); // Notify parent to refresh comments
+      onClose();
+    } else {
+      setError('Failed to submit comment (unexpected response)');
+      console.error('Unexpected response:', response);
     }
-
-    onClose();
   } catch (err) {
-    console.error('❌ Submit error:', err);
+    console.error('Submit comment error:', err.response || err.message || err);
     setError('Failed to submit comment');
   } finally {
     setLoading(false);
   }
-  };
+};
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
