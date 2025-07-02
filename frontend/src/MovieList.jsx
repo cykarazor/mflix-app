@@ -18,6 +18,7 @@ import MovieComments from './MovieComments';
 import axios from 'axios';
 import { UserContext } from './UserContext';
 import { useNavigate } from 'react-router-dom';
+import CommentFormModal from './CommentFormModal'; // ✅ NEW: Import comment form
 
 const PAGE_SIZE = 10;
 
@@ -43,6 +44,9 @@ export default function MovieList() {
   const [ascending, setAscending] = useState(true);
   const [editMovieId, setEditMovieId] = useState(null);
   const [detailsMovie, setDetailsMovie] = useState(null);
+  
+  const [showCommentForm, setShowCommentForm] = useState(false); //New
+  const [commentRefreshKey, setCommentRefreshKey] = useState(0); //Comment refresh trigger
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -302,25 +306,42 @@ export default function MovieList() {
               {/* Comments Section */}
               <Box sx={{ mt: 4 }}>
                 <Typography variant="h6" gutterBottom>Comments</Typography>
-                <MovieComments movieId={detailsMovie._id} token={user.token} />
+                <MovieComments movieId={detailsMovie._id} token={user.token} refreshKey={commentRefreshKey}/> // ✅ NEW: This triggers refresh on form submission
               </Box>
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDetailsModal}>Close</Button>
-          <Button
-            variant="contained"
-            startIcon={<EditIcon />}
-            onClick={() => {
-              setEditMovieId(detailsMovie._id);
-              closeDetailsModal();
-            }}
-          >
-            Edit
-          </Button>
-        </DialogActions>
+          <DialogActions>
+            <Button onClick={closeDetailsModal}>Close</Button>
+            <Button
+              onClick={() => setShowCommentForm(true)} // ✅ NEW: Open comment modal
+              variant="outlined"
+            >
+              Add Comment
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<EditIcon />}
+              onClick={() => {
+                setEditMovieId(detailsMovie._id);
+                closeDetailsModal();
+              }}
+            >
+              Edit
+            </Button>
+          </DialogActions>
       </Dialog>
+    
+    {/* Comment Form Modal */}
+    <CommentFormModal
+        open={showCommentForm} // ✅ NEW
+        onClose={() => {
+          setShowCommentForm(false);
+          setCommentRefreshKey((prev) => prev + 1); // ✅ NEW: Force refresh after comment submission
+        }}
+        movieId={detailsMovie?._id}
+        token={user.token}
+      />  
     </Container>
   );
 }

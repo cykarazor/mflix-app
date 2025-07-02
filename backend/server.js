@@ -1,9 +1,13 @@
+//server.js
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { ObjectId } = require('mongodb');
 const authRoutes = require('./routes/auth');
+
+// ✅ Import comment routes
+const commentRoutes = require('./routes/comments');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -41,6 +45,9 @@ app.get('/', (req, res) => {
 
 // ✅ Auth routes
 app.use('/api/auth', authRoutes);
+
+// ✅ Comments routes (modularized)
+app.use('/api/comments', commentRoutes);
 
 // ✅ GET movies with multi-field sorting, pagination, and search
 app.get('/api/movies', async (req, res) => {
@@ -140,8 +147,7 @@ app.put('/api/movies/:id', async (req, res) => {
   }
 });
 
-// GET /api/comments?movie_id=...
-
+/* ❌ DELETED BLOCK (REPLACED WITH ROUTER)
 app.get('/api/comments', async (req, res) => {
   const movieId = req.query.movie_id;
   if (!movieId) {
@@ -162,7 +168,7 @@ app.get('/api/comments', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
+*/
 
 // ✅ Start the server immediately (not delayed by DB connection)
 app.listen(PORT, () => {
