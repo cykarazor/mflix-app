@@ -4,9 +4,11 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Button, CircularProgress, Typography
 } from '@mui/material';
+import { useUser } from './UserContext';
 import axios from 'axios';
 
 export default function CommentFormModal({ open, onClose, movieId, token, onCommentAdded }) {
+  const { user } = useUser();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
