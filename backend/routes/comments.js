@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Comment = require('../models/Comment');
-const { authenticateToken } = require('./auth'); // reuse from your auth.js
+const authenticateToken = require('../middleware/authenticateToken'); // reuse from your auth.js
 
 // GET comments by movie_id
 router.get('/', async (req, res) => {
