@@ -25,6 +25,8 @@ export default function CommentFormModal({ open, onClose, movieId, token, onComm
         {
           movie_id: movieId,
           text,
+          name: user.name,
+          email: user.email,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
