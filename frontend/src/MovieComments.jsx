@@ -61,7 +61,18 @@ export default function MovieComments({ movieId }) {
       ) : (
         comments.map((comment) => (
           <Box key={comment._id} sx={{ mb: 2 }}>
-            <Typography variant="subtitle2">{comment.name}</Typography>
+            <Typography variant="subtitle2">
+              {comment.name}{' '}
+              <Typography component="span" variant="caption" color="text.secondary">
+                on {new Date(comment.date).toLocaleString(undefined, {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </Typography>
+            </Typography>
             <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
               {comment.text}
             </Typography>
