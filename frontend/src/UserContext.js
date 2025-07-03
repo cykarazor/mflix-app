@@ -9,15 +9,14 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
   const storedUser = localStorage.getItem('user');
-  console.log("User from context:", user);
   if (storedUser) {
     const parsed = JSON.parse(storedUser);
-    console.log('Loaded user from localStorage:', parsed);
-    console.log('Token in stored user:', parsed.token);
+    console.log('[UserContext] Loaded user from localStorage:', parsed);
     setUser(parsed);
   } else {
-    console.log('No user found in localStorage');
+    console.log('[UserContext] No user found in localStorage');
   }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
 const login = (userData, token) => {
