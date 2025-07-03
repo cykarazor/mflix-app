@@ -7,49 +7,46 @@ import {
 import { useUser } from './UserContext';
 import axios from 'axios';
 
-export default function CommentFormModal({ open, onClose, movieId, token, onCommentAdded }) {
+export default function CommentFormModal({ open, onClose, movieId, onCommentAdded }) {
   const { user } = useUser();
   const token = user?.token;
+
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-  if (!text.trim()) {
-    setError('Comment cannot be empty');
-    return;
-  }
-
-  setLoading(true);
-  setError('');
-  try {
-    //console.log('Token:', token);
-    console.log("Token from context:", token);
-    console.log("User object:", user);
-    
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_BASE_URL}/api/comments`,
-      {
-        movie_id: movieId,
-        text,
-        name: user.name,
-        email: user.email,
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    if (response.status === 201) {
-      setText('');
-      onCommentAdded(); // Notify parent to refresh comments
-      onClose();
-    } else {
-      setError('Failed to submit comment (unexpected response)');
-      console.error('Unexpected response:', response);
+    if (!text.trim()) {
+      setError('Comment cannot be empty');
+      return;
     }
-  } catch (err) {
-        console.error('Submit comment error full:', err);
+
+    setLoading(true);
+    setError('');
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/api/comments`,
+        {
+          movie_id: movieId,
+          text,
+          name: user.name,
+          email: user.email,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 201) {
+        setText('');
+        onCommentAdded(); // Notify parent to refresh comments
+        onClose();
+      } else {
+        setError('Failed to submit comment (unexpected response)');
+        console.error('Unexpected response:', response);
+      }
+    } catch (err) {
+      console.error('Submit comment error full:', err);
       if (err.response) {
         console.error('Response data:', err.response.data);
         setError(`Failed: ${err.response.data.error || 'Server error'}`);
@@ -59,11 +56,11 @@ export default function CommentFormModal({ open, onClose, movieId, token, onComm
       } else {
         console.error('Error message:', err.message);
         setError(`Error: ${err.message}`);
-  }
-  } finally {
-    setLoading(false);
-  }
-};
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -89,4 +86,4 @@ export default function CommentFormModal({ open, onClose, movieId, token, onComm
       </DialogActions>
     </Dialog>
   );
-} 
+}

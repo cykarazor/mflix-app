@@ -7,82 +7,52 @@ import {
   Button,
 } from '@mui/material';
 import axios from 'axios';
-import { UserContext } from './UserContext'; // ✅
-import CommentFormModal from './CommentFormModal'; // ✅ NEW
+import { UserContext } from './UserContext';
+import CommentFormModal from './CommentFormModal';
 
-//const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
-export default function MovieComments({ movieId, token }) {
+export default function MovieComments({ movieId }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [open, setOpen] = useState(false); // ✅ NEW
-  const [form, setForm] = useState({ text: '' }); // ✅ NEW
+  const [open, setOpen] = useState(false);
 
-  const { user } = useContext(UserContext); // ✅
+  const { user } = useContext(UserContext);
+  const token = user?.token;
+
+  const fetchComments = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/api/comments?movie_id=${movieId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setComments(res.data.comments || []);
+    } catch (err) {
+      setError('Failed to load comments');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchComments = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/api/comments?movie_id=${movieId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setComments(res.data.comments || []);
-      } catch (err) {
-        setError('Failed to load comments');
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    setComments([]);
+    setError('');
     if (movieId && token) fetchComments();
   }, [movieId, token]);
 
-  const handleOpen = () => setOpen(true); // ✅
-  const handleClose = () => {
-    setOpen(false);
-    setForm({ text: '' });
-  }; // ✅
+  const handleOpen = () => {
+    setError('');
+    setOpen(true);
+  };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }; // ✅
+  const handleClose = () => setOpen(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!form.text.trim()) return;
-
-    try {
-      await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/api/comments`,
-        {
-          movie_id: movieId,
-          name: user.name,
-          email: user.email,
-          text: form.text,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const res = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/api/comments?movie_id=${movieId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setComments(res.data.comments || []);
-      handleClose();
-    } catch (err) {
-      console.error('Failed to submit comment', err);
-      setError('Failed to submit comment');
-    }
-  }; // ✅
-
-  if (loading) return <CircularProgress />;
-  if (error) return <Typography color="error">{error}</Typography>;
-
+  if (loading && comments.length === 0) return <CircularProgress />;
+  
   return (
     <Box>
       {comments.length === 0 ? (
@@ -99,19 +69,24 @@ export default function MovieComments({ movieId, token }) {
         ))
       )}
 
+      {error && <Typography color="error">{error}</Typography>}
+
       {user && (
         <>
-          <Button variant="outlined" sx={{ mt: 2 }} onClick={handleOpen}>
+          <Button variant="outlined" sx={{ mt: 2 }} onClick={handleOpen} disabled={loading}>
             Leave a Comment
           </Button>
 
-          {/* ✅ Comment Form Modal */}
+        {loading && comments.length > 0 && (
+            <CircularProgress size={24} sx={{ ml: 2, verticalAlign: 'middle' }} />
+          )}
+
+          {/* ✅ Simplified Comment Form Modal */}
           <CommentFormModal
             open={open}
             onClose={handleClose}
-            onSubmit={handleSubmit}
-            form={form}
-            onChange={handleChange}
+            movieId={movieId}
+            onCommentAdded={fetchComments}
           />
         </>
       )}
