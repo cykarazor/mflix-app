@@ -23,7 +23,10 @@ export default function CommentFormModal({ open, onClose, movieId, token, onComm
   setLoading(true);
   setError('');
   try {
-    console.log('Token:', token);
+    //console.log('Token:', token);
+    console.log("Token from context:", token);
+    console.log("User object:", user);
+    
     const response = await axios.post(
       `${process.env.REACT_APP_API_BASE_URL}/api/comments`,
       {
