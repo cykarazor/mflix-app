@@ -10,8 +10,10 @@ export function UserProvider({ children }) {
   useEffect(() => {
   const storedUser = localStorage.getItem('user');
   if (storedUser) {
-    console.log('Loaded user from localStorage:', JSON.parse(storedUser));
-    setUser(JSON.parse(storedUser));
+    const parsed = JSON.parse(storedUser);
+    console.log('Loaded user from localStorage:', parsed);
+    console.log('Token in stored user:', parsed.token);
+    setUser(parsed);
   } else {
     console.log('No user found in localStorage');
   }
@@ -25,7 +27,7 @@ const login = (userData, token) => {
 
 const logout = () => {
   console.log('Logging out and clearing storage');
-  localStorage.removeItem('token');
+  //localStorage.removeItem('token');
   localStorage.removeItem('user');
   setUser(null);
 };
