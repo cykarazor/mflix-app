@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import {
   Typography,
   CircularProgress,
@@ -19,7 +19,7 @@ export default function MovieComments({ movieId }) {
   const { user } = useContext(UserContext);
   const token = user?.token;
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get(
@@ -36,13 +36,13 @@ export default function MovieComments({ movieId }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [movieId, token]);
 
   useEffect(() => {
     setComments([]);
     setError('');
     if (movieId && token) fetchComments();
-  }, [movieId, token]);
+  }, [movieId, token, fetchComments]);
 
   const handleOpen = () => {
     setError('');
