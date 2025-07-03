@@ -9,6 +9,7 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
   const storedUser = localStorage.getItem('user');
+  console.log("User from context:", user);
   if (storedUser) {
     const parsed = JSON.parse(storedUser);
     console.log('Loaded user from localStorage:', parsed);

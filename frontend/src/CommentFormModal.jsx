@@ -8,6 +8,7 @@ import { useUser } from './UserContext';
 import axios from 'axios';
 
 export default function CommentFormModal({ open, onClose, movieId, onCommentAdded }) {
+  console.log("Token:", token);
   const { user } = useUser();
   const token = user?.token;
 

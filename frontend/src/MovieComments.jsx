@@ -17,6 +17,7 @@ export default function MovieComments({ movieId }) {
   const [open, setOpen] = useState(false);
 
   const { user } = useContext(UserContext);
+  console.log("User from context:", user);
   const token = user?.token;
 
   const fetchComments = useCallback(async () => {
