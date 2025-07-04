@@ -21,6 +21,38 @@ router.get('/', async (req, res) => {
   }
 });
 
+// DELETE a comment by comment ID (auth required)
+router.delete('/:id', authenticateToken, async (req, res) => {
+  const commentId = req.params.id;
+  const userEmail = req.user.email;  // assuming authenticateToken attaches user info here
+
+  if (!ObjectId.isValid(commentId)) {
+  return res.status(400).json({ error: 'Invalid comment ID' });
+}
+
+  try {
+    // Find the comment by id
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    // Check if the logged-in user owns the comment
+    if (comment.email !== userEmail) {
+      return res.status(403).json({ error: 'You are not authorized to delete this comment' });
+    }
+
+    // Delete the comment
+    await Comment.deleteOne({ _id: commentId });
+
+    res.json({ message: 'Comment deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting comment:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // POST a new comment (auth required)
 router.post('/', authenticateToken, async (req, res) => {
   const { movie_id, name, email, text } = req.body;
