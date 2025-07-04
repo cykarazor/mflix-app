@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import {
   Typography,
   CircularProgress,
@@ -17,11 +17,10 @@ export default function MovieComments({ movieId }) {
   const [open, setOpen] = useState(false);
 
   const { user } = useContext(UserContext);
-  console.log("User from context:", user);
   const token = user?.token;
 
- // ✅ Move fetchComments outside useEffect so it can be reused
-  const fetchComments = async () => {
+  // ✅ useCallback prevents infinite loops & satisfies eslint
+  const fetchComments = useCallback(async () => {
     if (!movieId) return;
     setLoading(true);
     try {
@@ -33,7 +32,7 @@ export default function MovieComments({ movieId }) {
           },
         }
       );
-      console.log("Fetched comments:", res.data.comments); // ✅ Debug
+      console.log("Fetched comments:", res.data.comments);
       setComments(res.data.comments || []);
     } catch (err) {
       console.error("Error fetching comments:", err);
@@ -41,12 +40,11 @@ export default function MovieComments({ movieId }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [movieId, token]);
 
-  // ✅ Load comments when movieId or token changes
   useEffect(() => {
     fetchComments();
-  }, [movieId, token]);
+  }, [fetchComments]);
 
   const handleOpen = () => {
     setError('');
@@ -55,11 +53,11 @@ export default function MovieComments({ movieId }) {
 
   const handleClose = () => setOpen(false);
 
-  if (loading && comments.length === 0) return <CircularProgress />;
-
   return (
     <Box>
-      {comments.length === 0 ? (
+      {loading && comments.length === 0 ? (
+        <CircularProgress />
+      ) : comments.length === 0 ? (
         <Typography>No comments available.</Typography>
       ) : (
         comments.map((comment) => (
@@ -96,12 +94,12 @@ export default function MovieComments({ movieId }) {
             <CircularProgress size={24} sx={{ ml: 2, verticalAlign: 'middle' }} />
           )}
 
-          {/* ✅ Simplified Comment Form Modal */}
           <CommentFormModal
             open={open}
             onClose={handleClose}
             movieId={movieId}
-            onCommentAdded={fetchComments} />
+            onCommentAdded={fetchComments}
+          />
         </>
       )}
     </Box>
