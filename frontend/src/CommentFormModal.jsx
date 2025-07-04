@@ -1,8 +1,14 @@
 // src/CommentFormModal.jsx
 import React, { useState } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Button, CircularProgress, Typography
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  CircularProgress,
+  Typography
 } from '@mui/material';
 import { useUser } from './UserContext';
 import axios from 'axios';
@@ -10,11 +16,20 @@ import axios from 'axios';
 export default function CommentFormModal({ open, onClose, movieId, onCommentAdded }) {
   const { user } = useUser();
   const token = user?.token;
-  console.log("Token:", token);
 
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Safely close modal without triggering aria-hidden warnings
+  const handleCloseSafely = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    requestAnimationFrame(() => {
+      onClose();
+    });
+  };
 
   const handleSubmit = async () => {
     if (!text.trim()) {
@@ -24,6 +39,7 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
 
     setLoading(true);
     setError('');
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/api/comments`,
@@ -39,29 +55,23 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
       );
 
       if (response.status === 201) {
-        console.log('Comment submitted successfully:');
-
+        console.log('Comment submitted successfully');
         setText('');
 
         if (typeof onCommentAdded === 'function') {
-          console.log('🔄 Fetching updated comments...');  
-          await onCommentAdded();  // await if fetchComments is async
+          console.log('🔄 Fetching updated comments...');
+          await onCommentAdded();
           console.log('✅ Comments updated successfully');
         }
-        
+
         console.log('🔐 Closing modal now');
-
-        // Use requestAnimationFrame to wait until DOM paints
-        requestAnimationFrame(() => {
-          onClose();
-        });
-
+        handleCloseSafely();
       } else {
         setError('Failed to submit comment (unexpected response)');
         console.error('Unexpected response:', response);
       }
     } catch (err) {
-      console.error('Submit comment error full:', err);
+      console.error('Submit comment error:', err);
       if (err.response) {
         console.error('Response data:', err.response.data);
         setError(`Failed: ${err.response.data.error || 'Server error'}`);
@@ -78,7 +88,7 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleCloseSafely} maxWidth="sm" fullWidth>
       <DialogTitle>Add a Comment</DialogTitle>
       <DialogContent dividers>
         <TextField
@@ -94,7 +104,7 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
         {error && <Typography color="error">{error}</Typography>}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>Cancel</Button>
+        <Button onClick={handleCloseSafely} disabled={loading}>Cancel</Button>
         <Button onClick={handleSubmit} variant="contained" disabled={loading}>
           {loading ? <CircularProgress size={24} /> : 'Submit'}
         </Button>
