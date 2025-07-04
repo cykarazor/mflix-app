@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Comment = require('../models/Comment');
-const authenticateToken = require('../middleware/authenticateToken'); // reuse from your auth.js
-const mongoose = require('mongoose');
+const authenticateToken = require('../middleware/authenticateToken');
+const { ObjectId } = require('mongodb');  // <-- import from 'mongodb'
 
 // GET comments by movie_id
 router.get('/', async (req, res) => {
@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    const objectId = new mongoose.Types.ObjectId(movie_id); // ✅ convert to ObjectId
+    const objectId = new ObjectId(movie_id);
     const comments = await Comment.find({ movie_id: objectId }).sort({ date: -1 }).lean();
     res.json({ comments });
   } catch (err) {
@@ -29,7 +29,7 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 
   try {
-    const objectId = new mongoose.Types.ObjectId(movie_id); // ✅ convert
+    const objectId = new ObjectId(movie_id);
     const newComment = new Comment({
       movie_id: objectId,
       name,
