@@ -39,10 +39,17 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
       );
 
       if (response.status === 201) {
+        console.log('Comment submitted successfully:');
+
         setText('');
+
         if (typeof onCommentAdded === 'function') {
+          console.log('🔄 Fetching updated comments...');  
           await onCommentAdded();  // await if fetchComments is async
+          console.log('✅ Comments updated successfully');
         }
+        
+        console.log('🔐 Closing modal now');
         onClose();
       } else {
         setError('Failed to submit comment (unexpected response)');
