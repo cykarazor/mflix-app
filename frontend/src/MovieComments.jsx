@@ -51,6 +51,11 @@ export default function MovieComments({ movieId }) {
     }
   }, [movieId, token]);
 
+  // Add refreshKey to dependencies so comments refresh when it changes
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments, refreshKey]);
+
   useEffect(() => {
     fetchComments();
   }, [fetchComments]);
