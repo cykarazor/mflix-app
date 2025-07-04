@@ -21,30 +21,28 @@ export default function MovieComments({ movieId }) {
 
   // ✅ useCallback prevents infinite loops & satisfies eslint
   const fetchComments = useCallback(async () => {
-    if (!movieId) return;
-    setLoading(true);
-    try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/api/comments?movie_id=${movieId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("Fetched comments:", res.data.comments);
-      setComments(res.data.comments || []);
-    } catch (err) {
-      console.error("Error fetching comments:", err);
-      setError('Failed to load comments');
-    } finally {
-      setLoading(false);
-    }
-  }, [movieId, token]);
+  if (!movieId) return;
+  setLoading(true);
+  try {
+    const res = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/api/comments?movie_id=${movieId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    setComments(res.data.comments || []);
+  } catch (err) {
+    setError('Failed to load comments');
+  } finally {
+    setLoading(false);
+  }
+}, [movieId, token]);
 
-  useEffect(() => {
-    fetchComments();
-  }, [fetchComments]);
+useEffect(() => {
+  fetchComments();
+}, [fetchComments]);
 
   const handleOpen = () => {
     setError('');
