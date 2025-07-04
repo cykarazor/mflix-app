@@ -26,6 +26,7 @@ export default function MovieComments({ movieId }) {
   const [commentToDelete, setCommentToDelete] = useState(null);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const { user } = useContext(UserContext);
   const token = user?.token;
@@ -81,16 +82,21 @@ export default function MovieComments({ movieId }) {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setComments((prev) =>
-        prev.filter((c) => c._id !== commentToDelete._id)
-      );
-      setSnackbarOpen(true); // 🎉 Show success toast
+      setComments((prev) => prev.filter((c) => c._id !== commentToDelete._id));
+      setSnackbarMessage('Comment deleted successfully!');
+      setSnackbarOpen(true);
     } catch (err) {
       setError('Failed to delete comment');
     } finally {
       setDeleteDialogOpen(false);
       setCommentToDelete(null);
     }
+  };
+
+  const handleCommentAdded = async () => {
+    await fetchComments();
+    setSnackbarMessage('Comment submitted successfully!');
+    setSnackbarOpen(true);
   };
 
   return (
@@ -152,7 +158,7 @@ export default function MovieComments({ movieId }) {
             open={open}
             onClose={handleClose}
             movieId={movieId}
-            onCommentAdded={fetchComments}
+            onCommentAdded={handleCommentAdded}
           />
         </>
       )}
@@ -174,7 +180,7 @@ export default function MovieComments({ movieId }) {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for success message */}
+      {/* Snackbar for success (delete or submit) */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -182,7 +188,7 @@ export default function MovieComments({ movieId }) {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: '100%' }}>
-          Comment deleted successfully!
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </Box>
