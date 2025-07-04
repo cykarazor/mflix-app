@@ -29,8 +29,9 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 
   try {
+    const objectId = new mongoose.Types.ObjectId(movie_id); // ✅ convert
     const newComment = new Comment({
-      movie_id,
+      movie_id: objectId,
       name,
       email,
       text,
