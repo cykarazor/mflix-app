@@ -5,6 +5,12 @@ import {
   Box,
   Divider,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import axios from 'axios';
 import { UserContext } from './UserContext';
@@ -16,33 +22,37 @@ export default function MovieComments({ movieId }) {
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false);
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
   const { user } = useContext(UserContext);
   const token = user?.token;
 
-  // ✅ useCallback prevents infinite loops & satisfies eslint
   const fetchComments = useCallback(async () => {
-  if (!movieId) return;
-  setLoading(true);
-  try {
-    const res = await axios.get(
-      `${process.env.REACT_APP_API_BASE_URL}/api/comments?movie_id=${movieId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    setComments(res.data.comments || []);
-  } catch (err) {
-    setError('Failed to load comments');
-  } finally {
-    setLoading(false);
-  }
-}, [movieId, token]);
+    if (!movieId) return;
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/api/comments?movie_id=${movieId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setComments(res.data.comments || []);
+    } catch (err) {
+      setError('Failed to load comments');
+    } finally {
+      setLoading(false);
+    }
+  }, [movieId, token]);
 
-useEffect(() => {
-  fetchComments();
-}, [fetchComments]);
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
 
   const handleOpen = () => {
     setError('');
@@ -50,6 +60,38 @@ useEffect(() => {
   };
 
   const handleClose = () => setOpen(false);
+
+  const handleDeleteClick = (comment) => {
+    setCommentToDelete(comment);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setCommentToDelete(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!commentToDelete) return;
+
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_API_BASE_URL}/api/comments/${commentToDelete._id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setComments((prev) =>
+        prev.filter((c) => c._id !== commentToDelete._id)
+      );
+      setSnackbarOpen(true); // 🎉 Show success toast
+    } catch (err) {
+      setError('Failed to delete comment');
+    } finally {
+      setDeleteDialogOpen(false);
+      setCommentToDelete(null);
+    }
+  };
 
   return (
     <Box>
@@ -63,7 +105,8 @@ useEffect(() => {
             <Typography variant="subtitle2">
               {comment.name}{' '}
               <Typography component="span" variant="caption" color="text.secondary">
-                on {new Date(comment.date).toLocaleString(undefined, {
+                on{' '}
+                {new Date(comment.date).toLocaleString(undefined, {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric',
@@ -75,6 +118,19 @@ useEffect(() => {
             <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
               {comment.text}
             </Typography>
+
+            {user?.email === comment.email && (
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                sx={{ mt: 1 }}
+                onClick={() => handleDeleteClick(comment)}
+              >
+                Delete
+              </Button>
+            )}
+
             <Divider sx={{ my: 1 }} />
           </Box>
         ))
@@ -100,6 +156,35 @@ useEffect(() => {
           />
         </>
       )}
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+        <DialogTitle>Delete Comment</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this comment?</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            "{commentToDelete?.text}"
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for success message */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: '100%' }}>
+          Comment deleted successfully!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
