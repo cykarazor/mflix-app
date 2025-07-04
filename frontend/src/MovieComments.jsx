@@ -16,7 +16,7 @@ import axios from 'axios';
 import { UserContext } from './UserContext';
 import CommentFormModal from './CommentFormModal';
 
-export default function MovieComments({ movieId }) {
+export default function MovieComments({ movieId, refreshKey }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
