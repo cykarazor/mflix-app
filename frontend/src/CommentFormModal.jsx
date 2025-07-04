@@ -40,7 +40,9 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
 
       if (response.status === 201) {
         setText('');
-        onCommentAdded(); // Notify parent to refresh comments
+        if (typeof onCommentAdded === 'function') {
+          await onCommentAdded();  // await if fetchComments is async
+        }
         onClose();
       } else {
         setError('Failed to submit comment (unexpected response)');
