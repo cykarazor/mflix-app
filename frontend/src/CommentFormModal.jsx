@@ -50,7 +50,12 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
         }
         
         console.log('🔐 Closing modal now');
-        onClose();
+
+        // Use requestAnimationFrame to wait until DOM paints
+        requestAnimationFrame(() => {
+          onClose();
+        });
+
       } else {
         setError('Failed to submit comment (unexpected response)');
         console.error('Unexpected response:', response);
