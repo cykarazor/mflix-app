@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
     res.json({ comments });
   } catch (err) {
     console.error('Error fetching comments:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Failed to fetch comments' });
   }
 });
 

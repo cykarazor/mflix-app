@@ -18,7 +18,7 @@ import MovieComments from './MovieComments';
 import axios from 'axios';
 import { UserContext } from './UserContext';
 import { useNavigate } from 'react-router-dom';
-import CommentFormModal from './CommentFormModal'; // ✅ NEW: Import comment form
+import CommentFormModal from './CommentFormModal';
 
 const PAGE_SIZE = 10;
 
@@ -34,6 +34,7 @@ export default function MovieList() {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
+  // === Your original useState hooks ===
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -44,23 +45,32 @@ export default function MovieList() {
   const [ascending, setAscending] = useState(true);
   const [editMovieId, setEditMovieId] = useState(null);
   const [detailsMovie, setDetailsMovie] = useState(null);
-  
-  const [showCommentForm, setShowCommentForm] = useState(false); //New
-  const [commentRefreshKey, setCommentRefreshKey] = useState(0); //Comment refresh trigger
+
+  // === NEW: state to show/hide comment modal ===
+  const [showCommentForm, setShowCommentForm] = useState(false);
+  // === NEW: state to force MovieComments to refresh when comment is added ===
+  const [commentRefreshKey, setCommentRefreshKey] = useState(0);
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
+  // Handle sort direction based on sort option
   useEffect(() => {
     switch (sort) {
-      case 'title': setAscending(true); break;
+      case 'title':
+        setAscending(true);
+        break;
       case 'year':
       case 'dateAdded':
       case 'rating':
-      case 'popularity': setAscending(false); break;
-      default: setAscending(true);
+      case 'popularity':
+        setAscending(false);
+        break;
+      default:
+        setAscending(true);
     }
   }, [sort]);
 
+  // Fetch movies whenever relevant filters/pagination/user/token change
   useEffect(() => {
     if (!user?.token) {
       navigate('/login');
@@ -92,11 +102,13 @@ export default function MovieList() {
     fetchMovies();
   }, [page, sort, ascending, search, user, navigate, API_BASE_URL]);
 
+  // Handlers
   const handleCloseEditModal = () => setEditMovieId(null);
   const handleMovieUpdated = () => setPage(1);
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);
 
+  // Format date helper
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const d = new Date(dateString);
@@ -306,43 +318,49 @@ export default function MovieList() {
               {/* Comments Section */}
               <Box sx={{ mt: 4 }}>
                 <Typography variant="h6" gutterBottom>Comments</Typography>
-                <MovieComments movieId={detailsMovie._id} token={user.token} refreshKey={commentRefreshKey}/>
+                <MovieComments 
+                  movieId={detailsMovie._id} 
+                  token={user.token} 
+                  refreshKey={commentRefreshKey} // Pass refreshKey to refresh comments when it changes
+                />
               </Box>
             </Box>
           )}
         </DialogContent>
-          <DialogActions>
-            <Button onClick={closeDetailsModal}>Close</Button>
-            <Button
-              // ✅ NEW: Open comment modal
-              onClick={() => setShowCommentForm(true)} 
-              variant="outlined"
-            >
-              Add Comment
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<EditIcon />}
-              onClick={() => {
-                setEditMovieId(detailsMovie._id);
-                closeDetailsModal();
-              }}
-            >
-              Edit
-            </Button>
-          </DialogActions>
+        <DialogActions>
+          <Button onClick={closeDetailsModal}>Close</Button>
+
+          {/* Button to open comment form modal */}
+          <Button 
+            variant="outlined" 
+            onClick={() => setShowCommentForm(true)}
+          >
+            Add Comment
+          </Button>
+
+          <Button
+            variant="contained"
+            startIcon={<EditIcon />}
+            onClick={() => {
+              setEditMovieId(detailsMovie._id);
+              closeDetailsModal();
+            }}
+          >
+            Edit
+          </Button>
+        </DialogActions>
       </Dialog>
-    
-    {/* Comment Form Modal */}
-    <CommentFormModal
-        open={showCommentForm} // ✅ NEW
+
+      {/* Comment Form Modal */}
+      <CommentFormModal 
+        open={showCommentForm} 
         onClose={() => {
           setShowCommentForm(false);
-          setCommentRefreshKey((prev) => prev + 1); // ✅ NEW: Force refresh after comment submission
+          setCommentRefreshKey(prev => prev + 1); // Increment refreshKey to reload comments
         }}
         movieId={detailsMovie?._id}
         token={user.token}
-      />  
+      />
     </Container>
   );
 }

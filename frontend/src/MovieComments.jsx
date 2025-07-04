@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useCallback } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   Typography,
   CircularProgress,
@@ -20,7 +20,9 @@ export default function MovieComments({ movieId }) {
   console.log("User from context:", user);
   const token = user?.token;
 
-  const fetchComments = useCallback(async () => {
+ // ✅ Move fetchComments outside useEffect so it can be reused
+  const fetchComments = async () => {
+    if (!movieId) return;
     setLoading(true);
     try {
       const res = await axios.get(
@@ -31,19 +33,20 @@ export default function MovieComments({ movieId }) {
           },
         }
       );
+      console.log("Fetched comments:", res.data.comments); // ✅ Debug
       setComments(res.data.comments || []);
     } catch (err) {
+      console.error("Error fetching comments:", err);
       setError('Failed to load comments');
     } finally {
       setLoading(false);
     }
-  }, [movieId, token]);
+  };
 
+  // ✅ Load comments when movieId or token changes
   useEffect(() => {
-    setComments([]);
-    setError('');
-    if (movieId && token) fetchComments();
-  }, [movieId, token, fetchComments]);
+    fetchComments();
+  }, [movieId, token]);
 
   const handleOpen = () => {
     setError('');
@@ -53,7 +56,7 @@ export default function MovieComments({ movieId }) {
   const handleClose = () => setOpen(false);
 
   if (loading && comments.length === 0) return <CircularProgress />;
-  
+
   return (
     <Box>
       {comments.length === 0 ? (
@@ -89,7 +92,7 @@ export default function MovieComments({ movieId }) {
             Leave a Comment
           </Button>
 
-        {loading && comments.length > 0 && (
+          {loading && comments.length > 0 && (
             <CircularProgress size={24} sx={{ ml: 2, verticalAlign: 'middle' }} />
           )}
 
@@ -98,8 +101,7 @@ export default function MovieComments({ movieId }) {
             open={open}
             onClose={handleClose}
             movieId={movieId}
-            onCommentAdded={fetchComments}
-          />
+            onCommentAdded={fetchComments} />
         </>
       )}
     </Box>
