@@ -27,8 +27,8 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   const userEmail = req.user.email;  // assuming authenticateToken attaches user info here
 
   if (!ObjectId.isValid(commentId)) {
-  return res.status(400).json({ error: 'Invalid comment ID' });
-}
+    return res.status(400).json({ error: 'Invalid comment ID' });
+  }
 
   try {
     // Find the comment by id
@@ -115,7 +115,7 @@ router.put('/:id/like', authenticateToken, async (req, res) => {
   }
 });
 
-// PUT /api/comments/:id/unlike — unlike a comment
+// PUT /api/comments/:id/unlike — unlike a comment (idempotent)
 router.put('/:id/unlike', authenticateToken, async (req, res) => {
   const commentId = req.params.id;
   const userEmail = req.user.email;
@@ -130,16 +130,16 @@ router.put('/:id/unlike', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Comment not found' });
     }
 
-    if (!comment.likedBy.includes(userEmail)) {
-      return res.status(400).json({ error: 'You have not liked this comment yet' });
+    const index = comment.likedBy.indexOf(userEmail);
+    if (index !== -1) {
+      comment.likedBy.splice(index, 1);
+      comment.likes = comment.likedBy.length;
+      await comment.save();
+      return res.json({ message: 'Comment unliked', likes: comment.likes, dislikes: comment.dislikes });
+    } else {
+      // User hadn't liked before, still return success
+      return res.json({ message: 'User had not liked this comment', likes: comment.likes, dislikes: comment.dislikes });
     }
-
-    comment.likedBy = comment.likedBy.filter(email => email !== userEmail);
-    comment.likes = comment.likedBy.length;
-
-    await comment.save();
-
-    res.json({ message: 'Comment unliked', likes: comment.likes, dislikes: comment.dislikes });
   } catch (err) {
     console.error('Error unliking comment:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -183,7 +183,7 @@ router.put('/:id/dislike', authenticateToken, async (req, res) => {
   }
 });
 
-// PUT /api/comments/:id/undislike — remove dislike from comment
+// PUT /api/comments/:id/undislike — remove dislike from comment (idempotent)
 router.put('/:id/undislike', authenticateToken, async (req, res) => {
   const commentId = req.params.id;
   const userEmail = req.user.email;
@@ -198,16 +198,16 @@ router.put('/:id/undislike', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Comment not found' });
     }
 
-    if (!comment.dislikedBy.includes(userEmail)) {
-      return res.status(400).json({ error: 'You have not disliked this comment yet' });
+    const index = comment.dislikedBy.indexOf(userEmail);
+    if (index !== -1) {
+      comment.dislikedBy.splice(index, 1);
+      comment.dislikes = comment.dislikedBy.length;
+      await comment.save();
+      return res.json({ message: 'Dislike removed', dislikes: comment.dislikes, likes: comment.likes });
+    } else {
+      // User hadn't disliked before, still return success
+      return res.json({ message: 'User had not disliked this comment', dislikes: comment.dislikes, likes: comment.likes });
     }
-
-    comment.dislikedBy = comment.dislikedBy.filter(email => email !== userEmail);
-    comment.dislikes = comment.dislikedBy.length;
-
-    await comment.save();
-
-    res.json({ message: 'Dislike removed', dislikes: comment.dislikes, likes: comment.likes });
   } catch (err) {
     console.error('Error removing dislike:', err);
     res.status(500).json({ error: 'Internal server error' });

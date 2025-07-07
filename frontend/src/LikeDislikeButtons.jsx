@@ -18,84 +18,85 @@ export default function LikeDislikeButtons({ comment, token, userEmail, onUpdate
 
 
   // Handle Like click
-  const handleLike = async () => {
-    if (loadingLike || loadingDislike) return; // prevent multiple clicks
-    setError('');
+const handleLike = async () => {
+  if (loadingLike || loadingDislike) return;
+  setError('');
 
-    try {
-      setLoadingLike(true);
-      if (hasLiked) {
-        // Unlike
-        await axios.put(
-          `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/unlike`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      } else {
-        // Like
-        await axios.put(
-          `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/like`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+  try {
+    setLoadingLike(true);
+    if (hasLiked) {
+      // Only call unlike if user has liked
+      await axios.put(
+        `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/unlike`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } else {
+      // Like
+      await axios.put(
+        `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/like`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-        // If disliked before, remove dislike
-        if (hasDisliked) {
-          await axios.put(
-            `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/undislike`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-        }
-      }
-
-      await onUpdate();
-    } catch (err) {
-      setError('Failed to update like status');
-    } finally {
-      setLoadingLike(false);
-    }
-  };
-
-  // Handle Dislike click
-  const handleDislike = async () => {
-    if (loadingLike || loadingDislike) return;
-    setError('');
-
-    try {
-      setLoadingDislike(true);
+      // Remove dislike only if user had disliked
       if (hasDisliked) {
-        // Remove dislike
         await axios.put(
           `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/undislike`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
-      } else {
-        // Add dislike
+      }
+    }
+
+    await onUpdate();
+  } catch (err) {
+    setError('Failed to update like status');
+  } finally {
+    setLoadingLike(false);
+  }
+};
+
+// Handle Dislike click
+const handleDislike = async () => {
+  if (loadingLike || loadingDislike) return;
+  setError('');
+
+  try {
+    setLoadingDislike(true);
+    if (hasDisliked) {
+      // Only call undislike if user had disliked
+      await axios.put(
+        `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/undislike`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } else {
+      // Add dislike
+      await axios.put(
+        `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/dislike`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Remove like only if user had liked
+      if (hasLiked) {
         await axios.put(
-          `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/dislike`,
+          `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/unlike`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
-
-        // If liked before, remove like
-        if (hasLiked) {
-          await axios.put(
-            `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/unlike`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-        }
       }
-
-      await onUpdate();
-    } catch (err) {
-      setError('Failed to update dislike status');
-    } finally {
-      setLoadingDislike(false);
     }
-  };
+
+    await onUpdate();
+  } catch (err) {
+    setError('Failed to update dislike status');
+  } finally {
+    setLoadingDislike(false);
+  }
+};
+
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
