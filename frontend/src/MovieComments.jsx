@@ -15,6 +15,7 @@ import {
 import axios from 'axios';
 import { UserContext } from './UserContext';
 import CommentFormModal from './CommentFormModal';
+import LikeDislikeButtons from './LikeDislikeButtons';
 
 export default function MovieComments({ movieId, refreshKey }) {
   const [comments, setComments] = useState([]);
@@ -30,6 +31,8 @@ export default function MovieComments({ movieId, refreshKey }) {
 
   const { user } = useContext(UserContext);
   const token = user?.token;
+
+  const userEmail = user?.email;
 
   const fetchComments = useCallback(async () => {
     if (!movieId) return;
@@ -141,6 +144,15 @@ export default function MovieComments({ movieId, refreshKey }) {
                 Delete
               </Button>
             )}
+            {/* Add LikeDislikeButtons here */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LikeDislikeButtons
+                comment={comment}
+                token={token}
+                userEmail={userEmail}
+                onUpdate={fetchComments}
+              />
+            </Box>
 
             <Divider sx={{ my: 1 }} />
           </Box>

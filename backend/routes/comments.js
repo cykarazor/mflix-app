@@ -78,4 +78,141 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
+// PUT /api/comments/:id/like — like a comment
+router.put('/:id/like', authenticateToken, async (req, res) => {
+  const commentId = req.params.id;
+  const userEmail = req.user.email;
+
+  if (!ObjectId.isValid(commentId)) {
+    return res.status(400).json({ error: 'Invalid comment ID' });
+  }
+
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    if (comment.likedBy.includes(userEmail)) {
+      return res.status(400).json({ error: 'You have already liked this comment' });
+    }
+
+    // Remove dislike if exists
+    if (comment.dislikedBy.includes(userEmail)) {
+      comment.dislikedBy = comment.dislikedBy.filter(email => email !== userEmail);
+      comment.dislikes = comment.dislikedBy.length;
+    }
+
+    comment.likedBy.push(userEmail);
+    comment.likes = comment.likedBy.length;
+
+    await comment.save();
+
+    res.json({ message: 'Comment liked', likes: comment.likes, dislikes: comment.dislikes });
+  } catch (err) {
+    console.error('Error liking comment:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /api/comments/:id/unlike — unlike a comment
+router.put('/:id/unlike', authenticateToken, async (req, res) => {
+  const commentId = req.params.id;
+  const userEmail = req.user.email;
+
+  if (!ObjectId.isValid(commentId)) {
+    return res.status(400).json({ error: 'Invalid comment ID' });
+  }
+
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    if (!comment.likedBy.includes(userEmail)) {
+      return res.status(400).json({ error: 'You have not liked this comment yet' });
+    }
+
+    comment.likedBy = comment.likedBy.filter(email => email !== userEmail);
+    comment.likes = comment.likedBy.length;
+
+    await comment.save();
+
+    res.json({ message: 'Comment unliked', likes: comment.likes, dislikes: comment.dislikes });
+  } catch (err) {
+    console.error('Error unliking comment:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /api/comments/:id/dislike — dislike a comment
+router.put('/:id/dislike', authenticateToken, async (req, res) => {
+  const commentId = req.params.id;
+  const userEmail = req.user.email;
+
+  if (!ObjectId.isValid(commentId)) {
+    return res.status(400).json({ error: 'Invalid comment ID' });
+  }
+
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    if (comment.dislikedBy.includes(userEmail)) {
+      return res.status(400).json({ error: 'You have already disliked this comment' });
+    }
+
+    // Remove like if exists
+    if (comment.likedBy.includes(userEmail)) {
+      comment.likedBy = comment.likedBy.filter(email => email !== userEmail);
+      comment.likes = comment.likedBy.length;
+    }
+
+    comment.dislikedBy.push(userEmail);
+    comment.dislikes = comment.dislikedBy.length;
+
+    await comment.save();
+
+    res.json({ message: 'Comment disliked', dislikes: comment.dislikes, likes: comment.likes });
+  } catch (err) {
+    console.error('Error disliking comment:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /api/comments/:id/undislike — remove dislike from comment
+router.put('/:id/undislike', authenticateToken, async (req, res) => {
+  const commentId = req.params.id;
+  const userEmail = req.user.email;
+
+  if (!ObjectId.isValid(commentId)) {
+    return res.status(400).json({ error: 'Invalid comment ID' });
+  }
+
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    if (!comment.dislikedBy.includes(userEmail)) {
+      return res.status(400).json({ error: 'You have not disliked this comment yet' });
+    }
+
+    comment.dislikedBy = comment.dislikedBy.filter(email => email !== userEmail);
+    comment.dislikes = comment.dislikedBy.length;
+
+    await comment.save();
+
+    res.json({ message: 'Dislike removed', dislikes: comment.dislikes, likes: comment.likes });
+  } catch (err) {
+    console.error('Error removing dislike:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Export the router
 module.exports = router;

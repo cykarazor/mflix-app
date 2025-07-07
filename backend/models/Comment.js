@@ -10,6 +10,10 @@ const commentSchema = new mongoose.Schema({
   email: { type: String, required: true },
   text: { type: String, required: true },
   date: { type: Date, default: Date.now },
+  likes: { type: Number, default: 0 }, // 👈 added likes field
+  likedBy: [{ type: String }],
+  dislikes: { type: Number, default: 0 },
+  dislikedBy: [{ type: String }],
 }, {
   collection: 'comments', // ✅ use existing collection name
 });
