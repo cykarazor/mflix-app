@@ -10,8 +10,12 @@ export default function LikeDislikeButtons({ comment, token, userEmail, onUpdate
   const [loadingDislike, setLoadingDislike] = useState(false);
   const [error, setError] = useState('');
 
-  const hasLiked = comment.likedBy.includes(userEmail);
-  const hasDisliked = comment.dislikedBy.includes(userEmail);
+  const likedBy = Array.isArray(comment.likedBy) ? comment.likedBy : [];
+  const dislikedBy = Array.isArray(comment.dislikedBy) ? comment.dislikedBy : [];
+
+  const hasLiked = likedBy.includes(userEmail);
+  const hasDisliked = dislikedBy.includes(userEmail);
+
 
   // Handle Like click
   const handleLike = async () => {
