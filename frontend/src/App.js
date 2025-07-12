@@ -23,7 +23,7 @@ import { UserContext } from './UserContext';
 import ChangePassword from './ChangePassword'; // <-- ADD THIS LINE
 
 function App() {
-  const { user, logout } = useContext(UserContext);
+  const { user } = useContext(UserContext);
 
   const ProtectedRoute = ({ children }) => {
     if (!user) return <Navigate to="/login" replace />;
