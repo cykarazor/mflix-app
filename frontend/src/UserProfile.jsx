@@ -31,6 +31,13 @@ const UserProfile = () => {
         <Typography variant="subtitle1">Email:</Typography>
         <Typography variant="body1">{user.email}</Typography>
       </Box>
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="subtitle1">Last Login:</Typography>
+        <Typography variant="body1">
+          {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'N/A'}
+        </Typography>
+      </Box>
+
       {/* Change Password Button */}
       <Box sx={{ mt: 3 }}>
         <Button
