@@ -35,10 +35,13 @@ const UserProfile = () => {
         <Typography variant="subtitle1">Last Login:</Typography>
         <Typography variant="body1">
           {user.lastLogin
-            ? new Date(user.lastLogin).toLocaleDateString('en-GB', {
+            ? new Date(user.lastLogin).toLocaleString('en-GB', {
                 day: '2-digit',
                 month: 'long',
                 year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
               })
             : 'N/A'}
         </Typography>
