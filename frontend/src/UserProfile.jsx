@@ -1,6 +1,7 @@
 // src/UserProfile.jsx
 import React, { useContext } from 'react';
-import { Box, Typography, Paper, Divider } from '@mui/material';
+import { Box, Typography, Paper, Divider, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
 
 const UserProfile = () => {
