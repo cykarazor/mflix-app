@@ -18,6 +18,7 @@ import RegisterForm from './RegisterForm';
 import Footer from './Footer';
 import Header from './Header'; // <-- Use the new Header component
 import { UserContext } from './UserContext';
+import UserProfile from './UserProfile';
 
 // Import ChangePassword component
 import ChangePassword from './ChangePassword'; // <-- ADD THIS LINE
@@ -65,6 +66,17 @@ function App() {
             />
 
             <Route path="*" element={<Navigate to="/" replace />} />
+
+            {/* NEW: User Profile route */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+
           </Routes>
         </Container>
 

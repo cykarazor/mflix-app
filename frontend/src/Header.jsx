@@ -30,6 +30,10 @@ export default function Header() {
                 Change Password
               </Button>
 
+              <Button color="inherit" component={Link} to="/profile">
+                Profile
+              </Button>
+
               <Typography variant="body2" sx={{ alignSelf: 'center' }}>
                 Welcome, {user.name}
               </Typography>
