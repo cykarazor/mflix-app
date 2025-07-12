@@ -34,7 +34,13 @@ const UserProfile = () => {
       <Box sx={{ mb: 2 }}>
         <Typography variant="subtitle1">Last Login:</Typography>
         <Typography variant="body1">
-          {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'N/A'}
+          {user.lastLogin
+            ? new Date(user.lastLogin).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              })
+            : 'N/A'}
         </Typography>
       </Box>
 
