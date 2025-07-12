@@ -9,6 +9,9 @@ const authRoutes = require('./routes/auth');
 // ✅ Import comment routes
 const commentRoutes = require('./routes/comments');
 
+// Import Thumbs Display Routes
+const movieRoutes = require('./routes/movies');
+
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   console.error('❌ JWT_SECRET is not defined in your environment!');
@@ -48,6 +51,9 @@ app.use('/api/auth', authRoutes);
 
 // ✅ Comments routes (modularized)
 app.use('/api/comments', commentRoutes);
+
+// Thumbs Dislpay Routes
+app.use('/api/movies', movieRoutes);
 
 // ✅ GET movies with multi-field sorting, pagination, and search
 app.get('/api/movies', async (req, res) => {
