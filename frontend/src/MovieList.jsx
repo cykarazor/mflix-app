@@ -217,7 +217,7 @@ export default function MovieList() {
                   {movie.poster && (
                     <Box
                       component="img"
-                      src={movie.poster}
+                      src={movie.poster || '/fallback-image.svg'}
                       alt={movie.title}
                       sx={{
                         width: 80,
@@ -228,7 +228,7 @@ export default function MovieList() {
                       }}
                       onError={e => {
                         e.target.onerror = null;
-                        e.target.src = '/placeholder.png'; // optional fallback image
+                        e.target.src = '/fallback-image.svg'; // optional fallback image
                       }}
                     />
                   )}
