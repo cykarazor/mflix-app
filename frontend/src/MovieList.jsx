@@ -19,6 +19,7 @@ import axios from 'axios';
 import { UserContext } from './UserContext';
 import { useNavigate } from 'react-router-dom';
 import CommentFormModal from './CommentFormModal';
+import ThumbsDisplay from './ThumbsDisplay';
 
 const PAGE_SIZE = 10;
 
@@ -221,6 +222,8 @@ export default function MovieList() {
                   {"\n"}Popularity: {movie.imdb?.votes ?? movie.views ?? 'N/A'}
                   {"\n"}Released: {formatDate(movie.released?.$date || movie.dateAdded || movie.released)}
                 </Typography>
+                {/* Thumbs up/down counts display */}
+                <ThumbsDisplay movieId={movie._id} />
               </Box>
             </ListItem>
           ))}
