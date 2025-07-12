@@ -26,10 +26,6 @@ export default function Header() {
                 Movies
               </Button>
 
-              <Button color="inherit" component={Link} to="/change-password">
-                Change Password
-              </Button>
-
               <Button color="inherit" component={Link} to="/profile">
                 Profile
               </Button>

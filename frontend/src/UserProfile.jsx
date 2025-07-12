@@ -30,6 +30,17 @@ const UserProfile = () => {
         <Typography variant="subtitle1">Email:</Typography>
         <Typography variant="body1">{user.email}</Typography>
       </Box>
+      {/* Change Password Button */}
+      <Box sx={{ mt: 3 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          component={Link}
+          to="/change-password"
+        >
+          Change Password
+        </Button>
+      </Box>     
     </Paper>
   );
 };
