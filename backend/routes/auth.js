@@ -34,17 +34,32 @@ router.post('/login', async (req, res) => {
     const match = await user.comparePassword(password); // ✅ Use model method
     if (!match) return res.status(401).json({ error: 'Invalid Password' });
 
-    // ✅ Update lastLogin timestamp
+    // ✅ Save old login before updating
+    const previousLogin = user.lastLogin;
+    
+    // ✅ Update with new login time
     user.lastLogin = new Date();
     await user.save();
 
     const token = jwt.sign(
-      { userId: user._id, name: user.name, email: user.email },
+      { userId: user._id,
+        name: user.name,
+        email: user.email,
+        lastLogin: previousLogin || null,
+      },
       JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    res.json({ token, user: { _id: user._id, name: user.name, email: user.email, lastLogin: user.lastLogin } });
+    res.json({
+       token,
+       user: {
+         _id: user._id,
+         name: user.name,
+         email: user.email,
+         lastLogin: previousLogin || null, 
+        } 
+      });
   } catch (err) {
     console.error('Login error:', err.message);
     res.status(500).json({ error: 'Internal server error' });

@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
   },
   lastLogin: {
     type: Date,
+    default: null, // ✅ Default to null if not set
   },
 }, {
   timestamps: true, // ✅ Automatically adds createdAt & updatedAt
