@@ -15,7 +15,7 @@ export default function ThumbsDisplay({ movieId }) {
   useEffect(() => {
     const fetchThumbs = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/movies/${movieId}/thumbs`);
+        const res = await axios.get(`${API_BASE_URL}/api/thumbs/${movieId}/thumbs`);
         setThumbs(res.data || { up: 0, down: 0 });
       } catch (err) {
         setError('Failed to load thumbs');
