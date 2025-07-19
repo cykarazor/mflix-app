@@ -1,7 +1,6 @@
 // ✅ routes/movies.js
 const express = require('express');
 const router = express.Router();
-const commentController = require('../controllers/commentController');
 const movieController = require('../controllers/movieController');
 const { connection } = require('../db'); // Optional: or pass from server.js
 
