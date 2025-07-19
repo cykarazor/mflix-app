@@ -3,10 +3,12 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const http = require('http');
 
 const authRoutes = require('./routes/auth');
 const commentRoutes = require('./routes/comments');
 const thumbsRoutes = require('./routes/thumbs');
+const { initSocket } = require('./socket'); // Import your socket module
 
 // Ensure JWT_SECRET is defined
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -53,7 +55,12 @@ app.get('/', (req, res) => {
   res.send('🌐 API is running');
 });
 
-// Start server
-app.listen(PORT, () => {
+// Create HTTP server and initialize socket.io
+const server = http.createServer(app);
+initSocket(server);  // Initialize Socket.IO with the HTTP server
+
+
+/// Start the server using HTTP server instead of app.listen
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
