@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const movieController = require('../controllers/movieController');
-const { connection } = require('../db'); // Optional: or pass from server.js
 
 // ✅ GET thumbs up/down
 router.get('/:movieId/thumbs', commentController.getThumbs);
