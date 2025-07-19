@@ -1,13 +1,9 @@
 // ✅ routes/movies.js
 const express = require('express');
 const movieController = require('../controllers/movieController');
-const commentController = require('../controllers/commentController');
 
 module.exports = function(connection) {
   const router = express.Router();
-
-  // ✅ GET thumbs up/down
-  router.get('/:movieId/thumbs', commentController.getThumbs);
 
   // ✅ GET all movies with search/pagination/sort
   router.get('/', async (req, res) => {
