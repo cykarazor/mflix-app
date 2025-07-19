@@ -1,27 +1,26 @@
+// ✅ routes/movies.js
 const express = require('express');
 const router = express.Router();
-const Comment = require('../models/Comment'); // Adjust path if needed
+const commentController = require('../controllers/commentController');
+const movieController = require('../controllers/movieController');
+const { connection } = require('../db'); // Optional: or pass from server.js
 
-router.get('/:movieId/thumbs', async (req, res) => {
-  const movieId = req.params.movieId;
+// ✅ GET thumbs up/down
+router.get('/:movieId/thumbs', commentController.getThumbs);
 
-  try {
-    // Match using plain string
-    const comments = await Comment.find({ movie_id: movieId });
+// ✅ GET all movies (pass db from server.js via middleware)
+router.get('/', async (req, res) => {
+  await movieController.getMovies(req, res, connection.db);
+});
 
-    let thumbsUp = 0;
-    let thumbsDown = 0;
+// ✅ GET movie by ID
+router.get('/:id', async (req, res) => {
+  await movieController.getMovieById(req, res, connection.db);
+});
 
-    comments.forEach(comment => {
-      thumbsUp += (comment.likedBy?.length || 0);
-      thumbsDown += (comment.dislikedBy?.length || 0);
-    });
-
-    res.json({ up: thumbsUp, down: thumbsDown });
-  } catch (err) {
-    console.error('🔥 Thumbs error:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
+// ✅ UPDATE movie by ID
+router.put('/:id', async (req, res) => {
+  await movieController.updateMovie(req, res, connection.db);
 });
 
 module.exports = router;
