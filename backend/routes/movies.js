@@ -1,24 +1,28 @@
 // ✅ routes/movies.js
 const express = require('express');
-const router = express.Router();
 const movieController = require('../controllers/movieController');
+const commentController = require('../controllers/commentController');
 
-// ✅ GET thumbs up/down
-router.get('/:movieId/thumbs', commentController.getThumbs);
+module.exports = function(connection) {
+  const router = express.Router();
 
-// ✅ GET all movies (pass db from server.js via middleware)
-router.get('/', async (req, res) => {
-  await movieController.getMovies(req, res, connection.db);
-});
+  // ✅ GET thumbs up/down
+  router.get('/:movieId/thumbs', commentController.getThumbs);
 
-// ✅ GET movie by ID
-router.get('/:id', async (req, res) => {
-  await movieController.getMovieById(req, res, connection.db);
-});
+  // ✅ GET all movies with search/pagination/sort
+  router.get('/', async (req, res) => {
+    await movieController.getMovies(req, res, connection.db);
+  });
 
-// ✅ UPDATE movie by ID
-router.put('/:id', async (req, res) => {
-  await movieController.updateMovie(req, res, connection.db);
-});
+  // ✅ GET movie by ID
+  router.get('/:id', async (req, res) => {
+    await movieController.getMovieById(req, res, connection.db);
+  });
 
-module.exports = router;
+  // ✅ UPDATE movie by ID
+  router.put('/:id', async (req, res) => {
+    await movieController.updateMovie(req, res, connection.db);
+  });
+
+  return router;
+};

@@ -7,7 +7,6 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const commentRoutes = require('./routes/comments');
 const thumbsRoutes = require('./routes/thumbs');
-const movieRoutes = require('./routes/movies');
 
 // Ensure JWT_SECRET is defined
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -40,16 +39,19 @@ connection.on('error', (err) => {
   console.error('❌ MongoDB connection error:', err);
 });
 
-// Health check endpoint
-app.get('/', (req, res) => {
-  res.send('🌐 API is running');
-});
+// Import and use movie routes
+const movieRoutes = require('./routes/movies')(connection);
+app.use('/api/movies', movieRoutes);
 
 // Modular route handlers
 app.use('/api/auth', authRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/thumbs', thumbsRoutes);
-app.use('/api/movies', movieRoutes);
+
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.send('🌐 API is running');
+});
 
 // Start server
 app.listen(PORT, () => {
