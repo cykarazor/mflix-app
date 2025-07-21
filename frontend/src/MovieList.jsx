@@ -107,18 +107,24 @@ export default function MovieList() {
   const handleCloseEditModal = () => setEditMovieId(null);
 
   // FIXED: now handleMovieUpdated receives the movie id and refreshes only that movie in state
-  const handleMovieUpdated = async ({ id }) => { // FIXED: id parameter destructured
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/movies/${id}`);
-      if (!res.ok) throw new Error('Failed to fetch updated movie');
-      const updatedMovie = await res.json();
-      setMovies(prevMovies =>
-        prevMovies.map(m => (m._id === id ? updatedMovie : m))
-      );
-    } catch (err) {
-      console.error("Failed to refresh updated movie:", err);
+  const handleMovieUpdated = async ({ id }) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/movies/${id}`);
+    const updatedMovie = await res.json();
+    setMovies(prevMovies =>
+      prevMovies.map(m =>
+        m._id === id ? updatedMovie : m
+      )
+    );
+
+    // Also update detailsMovie if it is the one updated
+    if (detailsMovie?._id === id) {
+      setDetailsMovie(updatedMovie);
     }
-  };
+  } catch (err) {
+    console.error("Failed to refresh updated movie:", err);
+  }
+};
 
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);
@@ -310,8 +316,8 @@ export default function MovieList() {
             <EditMovieForm
               movieId={editMovieId}
               onClose={handleCloseEditModal}
-              onUpdated={(id) => { // FIXED: onUpdated passes the id directly now
-                handleMovieUpdated({ id });
+              onUpdated={(updateInfo) => { // FIXED: onUpdated passes the id directly now
+                handleMovieUpdated({ updateInfo });
                 handleCloseEditModal();
               }}
             />
