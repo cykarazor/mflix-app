@@ -1,9 +1,12 @@
 // backend/routes/thumbs.js
 const express = require('express');
 const router = express.Router();
-const Comment = require('../models/Comment'); 
+const Comment = require('../models/Comment');
 const authenticateToken = require('../middleware/authenticateToken');
 const { ObjectId } = require('mongodb');
+
+// 🔌 New: Import getIO to emit events
+const { getIO } = require('../socket');
 
 // ✅ GET thumbs counts for all comments on a movie
 router.get('/:movieId/thumbs', async (req, res) => {
@@ -58,6 +61,9 @@ router.put('/:id/like', authenticateToken, async (req, res) => {
 
     await comment.save();
 
+    // 🔌 New: Emit thumbsUpdated for movieId
+    getIO().emit('thumbsUpdated', { movieId: comment.movie_id.toString() });
+
     res.json({ message: 'Comment liked', likes: comment.likes, dislikes: comment.dislikes });
   } catch (err) {
     console.error('Error liking comment:', err);
@@ -85,9 +91,12 @@ router.put('/:id/unlike', authenticateToken, async (req, res) => {
       comment.likedBy.splice(index, 1);
       comment.likes = comment.likedBy.length;
       await comment.save();
+
+      // 🔌 New: Emit thumbsUpdated
+      getIO().emit('thumbsUpdated', { movieId: comment.movie_id.toString() });
+
       return res.json({ message: 'Comment unliked', likes: comment.likes, dislikes: comment.dislikes });
     } else {
-      // User hadn't liked before, still return success
       return res.json({ message: 'User had not liked this comment', likes: comment.likes, dislikes: comment.dislikes });
     }
   } catch (err) {
@@ -126,6 +135,9 @@ router.put('/:id/dislike', authenticateToken, async (req, res) => {
 
     await comment.save();
 
+    // 🔌 New: Emit thumbsUpdated
+    getIO().emit('thumbsUpdated', { movieId: comment.movie_id.toString() });
+
     res.json({ message: 'Comment disliked', dislikes: comment.dislikes, likes: comment.likes });
   } catch (err) {
     console.error('Error disliking comment:', err);
@@ -153,9 +165,12 @@ router.put('/:id/undislike', authenticateToken, async (req, res) => {
       comment.dislikedBy.splice(index, 1);
       comment.dislikes = comment.dislikedBy.length;
       await comment.save();
+
+      // 🔌 New: Emit thumbsUpdated
+      getIO().emit('thumbsUpdated', { movieId: comment.movie_id.toString() });
+
       return res.json({ message: 'Dislike removed', dislikes: comment.dislikes, likes: comment.likes });
     } else {
-      // User hadn't disliked before, still return success
       return res.json({ message: 'User had not disliked this comment', dislikes: comment.dislikes, likes: comment.likes });
     }
   } catch (err) {

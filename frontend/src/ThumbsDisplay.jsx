@@ -1,9 +1,10 @@
 // src/ThumbsDisplay.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, Stack } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 
 export default function ThumbsDisplay({ movieId }) {
   const [thumbs, setThumbs] = useState({ up: 0, down: 0 });
@@ -12,20 +13,35 @@ export default function ThumbsDisplay({ movieId }) {
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-  useEffect(() => {
-    const fetchThumbs = async () => {
-      try {
-        const res = await axios.get(`${API_BASE_URL}/api/thumbs/${movieId}/thumbs`);
-        setThumbs(res.data || { up: 0, down: 0 });
-      } catch (err) {
-        setError('Failed to load thumbs');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // ✅ Extract fetch function using useCallback to avoid unnecessary re-creation
+  const fetchThumbs = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/thumbs/${movieId}/thumbs`);
+      setThumbs(res.data || { up: 0, down: 0 });
+    } catch (err) {
+      setError('Failed to load thumbs');
+    } finally {
+      setLoading(false);
+    }
+  }, [API_BASE_URL, movieId]);
 
+  // ✅ Initial fetch
+  useEffect(() => {
     fetchThumbs();
-  }, [movieId, API_BASE_URL]);
+  }, [fetchThumbs]);
+
+  // ✅ Listen for real-time updates
+  useEffect(() => {
+    const socket = io(API_BASE_URL);
+
+    socket.on('thumbsUpdated', (data) => {
+      if (data.movieId === movieId) {
+        fetchThumbs();
+      }
+    });
+
+    return () => socket.disconnect();
+  }, [API_BASE_URL, movieId, fetchThumbs]);
 
   if (loading) return <Typography variant="caption">Loading...</Typography>;
   if (error) return <Typography variant="caption" color="error">{error}</Typography>;
