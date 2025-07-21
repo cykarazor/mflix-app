@@ -111,7 +111,7 @@ function EditMovieForm({ movieId, onClose, onUpdated }) {
       }
 
       setSuccessMsg('Movie updated successfully!');
-      onUpdated();
+      onUpdated({ id: movieId });
     } catch (err) {
       setError(err.message);
     } finally {

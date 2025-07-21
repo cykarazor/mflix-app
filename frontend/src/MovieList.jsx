@@ -105,7 +105,21 @@ export default function MovieList() {
 
   // Handlers
   const handleCloseEditModal = () => setEditMovieId(null);
-  const handleMovieUpdated = () => setPage(1);
+
+  // FIXED: now handleMovieUpdated receives the movie id and refreshes only that movie in state
+  const handleMovieUpdated = async ({ id }) => { // FIXED: id parameter destructured
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/movies/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch updated movie');
+      const updatedMovie = await res.json();
+      setMovies(prevMovies =>
+        prevMovies.map(m => (m._id === id ? updatedMovie : m))
+      );
+    } catch (err) {
+      console.error("Failed to refresh updated movie:", err);
+    }
+  };
+
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);
 
@@ -195,62 +209,62 @@ export default function MovieList() {
 
       {/* Movie List */}
       {!loading && !error && movies.length > 0 && (
-          <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
-              {movies.map((movie, index) => (
-                <ListItem
-                  key={movie._id}
-                  divider
+        <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
+          {movies.map((movie, index) => (
+            <ListItem
+              key={movie._id}
+              divider
+              sx={{
+                px: 3,
+                bgcolor: index % 2 === 0 ? 'grey.100' : 'background.paper',
+                cursor: 'pointer',
+                alignItems: 'flex-start',
+                flexDirection: 'row',  // changed from column to row to fit image + text side by side
+                gap: 2,
+              }}
+              onClick={(e) => {
+                if (e.target.closest('button')) return;
+                openDetailsModal(movie);
+              }}
+            >
+              {/* Poster Image */}
+              {movie.poster && (
+                <Box
+                  component="img"
+                  src={movie.poster || '/fallback-image.svg'}
+                  alt={movie.title}
                   sx={{
-                    px: 3,
-                    bgcolor: index % 2 === 0 ? 'grey.100' : 'background.paper',
-                    cursor: 'pointer',
-                    alignItems: 'flex-start',
-                    flexDirection: 'row',  // changed from column to row to fit image + text side by side
-                    gap: 2,
+                    width: 80,
+                    height: 120,
+                    objectFit: 'cover',
+                    borderRadius: 1,
+                    flexShrink: 0,
                   }}
-                  onClick={(e) => {
-                    if (e.target.closest('button')) return;
-                    openDetailsModal(movie);
+                  onError={e => {
+                    e.target.onerror = null;
+                    e.target.src = '/fallback-image.svg'; // optional fallback image
                   }}
-                >
-                  {/* Poster Image */}
-                  {movie.poster && (
-                    <Box
-                      component="img"
-                      src={movie.poster || '/fallback-image.svg'}
-                      alt={movie.title}
-                      sx={{
-                        width: 80,
-                        height: 120,
-                        objectFit: 'cover',
-                        borderRadius: 1,
-                        flexShrink: 0,
-                      }}
-                      onError={e => {
-                        e.target.onerror = null;
-                        e.target.src = '/fallback-image.svg'; // optional fallback image
-                      }}
-                    />
-                  )}
+                />
+              )}
 
-                  {/* Movie Text + Thumbs */}
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 'medium', wordBreak: 'break-word' }}>
-                      {movie.title}
-                    </Typography>
+              {/* Movie Text + Thumbs */}
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium', wordBreak: 'break-word' }}>
+                  {movie.title}
+                </Typography>
 
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 0.5 }}>
-                      Year: {movie.year || 'N/A'} | Rating: {movie.imdb?.rating ?? movie.rating ?? 'N/A'}
-                      {"\n"}Popularity: {movie.imdb?.votes ?? movie.views ?? 'N/A'}
-                      {"\n"}Released: {formatDate(movie.released?.$date || movie.dateAdded || movie.released)}
-                    </Typography>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 0.5 }}>
+                  Year: {movie.year || 'N/A'} | Rating: {movie.imdb?.rating ?? movie.rating ?? 'N/A'}
+                  {"\n"}Popularity: {movie.imdb?.votes ?? movie.views ?? 'N/A'}
+                  {"\n"}Released: {formatDate(movie.released?.$date || movie.dateAdded || movie.released)}
+                </Typography>
 
-                    {/* Thumbs up/down counts display */}
-                    <ThumbsDisplay movieId={movie._id} />
-                  </Box>
-                </ListItem>
-              ))}
-            </List>
+                {/* Thumbs up/down counts display */}
+                <ThumbsDisplay movieId={movie._id} />
+              </Box>
+            </ListItem>
+          ))}
+        </List>
       )}
 
       {/* Pagination */}
@@ -296,8 +310,8 @@ export default function MovieList() {
             <EditMovieForm
               movieId={editMovieId}
               onClose={handleCloseEditModal}
-              onUpdated={() => {
-                handleMovieUpdated();
+              onUpdated={(updateInfo) => { // FIXED: onUpdated passes the id directly now
+                handleMovieUpdated({ updateInfo });
                 handleCloseEditModal();
               }}
             />
@@ -344,9 +358,9 @@ export default function MovieList() {
               {/* Comments Section */}
               <Box sx={{ mt: 4 }}>
                 <Typography variant="h6" gutterBottom>Comments</Typography>
-                <MovieComments 
-                  movieId={detailsMovie._id} 
-                  token={user.token} 
+                <MovieComments
+                  movieId={detailsMovie._id}
+                  token={user.token}
                   refreshKey={commentRefreshKey} // Pass refreshKey to refresh comments when it changes
                 />
               </Box>
@@ -357,8 +371,8 @@ export default function MovieList() {
           <Button onClick={closeDetailsModal}>Close</Button>
 
           {/* Button to open comment form modal */}
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             onClick={() => setShowCommentForm(true)}
           >
             Add Comment
@@ -378,8 +392,8 @@ export default function MovieList() {
       </Dialog>
 
       {/* Comment Form Modal */}
-      <CommentFormModal 
-        open={showCommentForm} 
+      <CommentFormModal
+        open={showCommentForm}
         onClose={() => {
           setShowCommentForm(false);
           setCommentRefreshKey(prev => prev + 1); // Increment refreshKey to reload comments
