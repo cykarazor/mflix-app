@@ -27,14 +27,14 @@ const handleLike = async () => {
     if (hasLiked) {
       // Only call unlike if user has liked
       await axios.put(
-        `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/unlike`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/thumbs/${comment._id}/unlike`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } else {
       // Like
       await axios.put(
-        `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/like`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/thumbs/${comment._id}/like`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -42,7 +42,7 @@ const handleLike = async () => {
       // Remove dislike only if user had disliked
       if (hasDisliked) {
         await axios.put(
-          `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/undislike`,
+          `${process.env.REACT_APP_API_BASE_URL}/api/thumbs/${comment._id}/undislike`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -67,14 +67,14 @@ const handleDislike = async () => {
     if (hasDisliked) {
       // Only call undislike if user had disliked
       await axios.put(
-        `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/undislike`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/thumbs/${comment._id}/undislike`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } else {
       // Add dislike
       await axios.put(
-        `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/dislike`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/thumbs/${comment._id}/dislike`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -82,7 +82,7 @@ const handleDislike = async () => {
       // Remove like only if user had liked
       if (hasLiked) {
         await axios.put(
-          `${process.env.REACT_APP_API_BASE_URL}/api/comments/${comment._id}/unlike`,
+          `${process.env.REACT_APP_API_BASE_URL}/api/thumbs/${comment._id}/unlike`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
