@@ -15,7 +15,7 @@ function initSocket(server) {
     console.log('🟢 Client connected:', socket.id);
 
     socket.on('disconnect', () => {
-      cconsole.log('🔴 Client disconnected:', socket.id);
+      console.log('🔴 Client disconnected:', socket.id);
     });
   });
 }
