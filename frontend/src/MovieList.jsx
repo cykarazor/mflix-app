@@ -11,7 +11,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
-import { UserContext } from '../contexts/UserContext';
+import { UserContext } from '../UserContext';
 import { fetchMovies } from '../utils/api'; // Assuming you have this helper
 import EditMovieForm from './EditMovieForm';
 import MovieComments from './MovieComments';
