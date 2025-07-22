@@ -109,14 +109,24 @@ export default function MovieList() {
       */}
 
       {/* ✅ NEW HEADER COMPONENT */}
-      <MovieListHeader
-        search={search}
-        setSearch={setSearch}
-        sort={sort}
-        setSort={setSort}
-        ascending={ascending}
-        setAscending={setAscending}
-      />
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
+          backgroundColor: 'background.paper',
+          paddingY: 1,
+        }}
+      >
+        <MovieListHeader
+          search={search}
+          setSearch={setSearch}
+          sort={sort}
+          setSort={setSort}
+          ascending={ascending}
+          setAscending={setAscending}
+        />
+      </Box>
 
       {/* Loader */}
       {loading && (
