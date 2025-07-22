@@ -19,9 +19,13 @@ import CommentFormModal from './CommentFormModal';
 import ThumbsDisplay from './ThumbsDisplay';
 import MovieListHeader from './components/MovieListHeader'; // ✅ NEW header component
 import { formatDate } from './utils/dateHelpers';
+import { useNavigate } from 'react-router-dom';
+
+const PAGE_SIZE = 10;
 
 export default function MovieList() {
   const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState('');
