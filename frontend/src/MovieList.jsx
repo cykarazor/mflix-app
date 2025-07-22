@@ -1,60 +1,42 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
   Container, Typography, List, ListItem, Button, Stack,
-  CircularProgress, TextField, MenuItem, Dialog, DialogTitle, DialogContent,
-  DialogActions, IconButton, Box
+  CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
+  IconButton, Box
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
-import ClearIcon from '@mui/icons-material/Clear';
+import EditIcon from '@mui/icons-material/Edit';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+
+import { UserContext } from '../contexts/UserContext';
+import { fetchMovies } from '../utils/api'; // Assuming you have this helper
 import EditMovieForm from './EditMovieForm';
 import MovieComments from './MovieComments';
-import axios from 'axios';
-import { UserContext } from './UserContext';
-import { useNavigate } from 'react-router-dom';
 import CommentFormModal from './CommentFormModal';
 import ThumbsDisplay from './ThumbsDisplay';
-
-const PAGE_SIZE = 10;
-
-const sortOptions = [
-  { label: 'Title', value: 'title' },
-  { label: 'Release Year', value: 'year' },
-  { label: 'IMDb Rating', value: 'rating' },
-  { label: 'Popularity (Votes)', value: 'popularity' },
-  { label: 'Date Added', value: 'dateAdded' },
-];
+import MovieListHeader from './components/MovieListHeader'; // ✅ NEW header component
+import { formatDate } from '../utils/dateHelpers';
 
 export default function MovieList() {
   const { user } = useContext(UserContext);
-  const navigate = useNavigate();
 
-  // === Your original useState hooks ===
   const [movies, setMovies] = useState([]);
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('dateAdded');
+  const [ascending, setAscending] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [search, setSearch] = useState('');
-  const [sort, setSort] = useState('title');
-  const [ascending, setAscending] = useState(true);
   const [editMovieId, setEditMovieId] = useState(null);
   const [detailsMovie, setDetailsMovie] = useState(null);
-
-  // === NEW: state to show/hide comment modal ===
   const [showCommentForm, setShowCommentForm] = useState(false);
-  // === NEW: state to force MovieComments to refresh when comment is added ===
   const [commentRefreshKey, setCommentRefreshKey] = useState(0);
 
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
-  // Handle sort direction based on sort option
+  // ✅ Automatically adjust sort direction based on selected field
   useEffect(() => {
     switch (sort) {
       case 'title':
@@ -71,236 +53,174 @@ export default function MovieList() {
     }
   }, [sort]);
 
-  // Fetch movies whenever relevant filters/pagination/user/token change
+  // Fetch movies
   useEffect(() => {
-    if (!user?.token) {
-      navigate('/login');
-      return;
-    }
-    const fetchMovies = async () => {
+    const fetch = async () => {
       setLoading(true);
-      setError(null);
       try {
-        const params = new URLSearchParams({
-          page,
-          limit: PAGE_SIZE,
-          sortBy: sort,
-          sortOrder: ascending ? 'asc' : 'desc',
-          search,
-        });
-        const res = await axios.get(
-          `${API_BASE_URL}/api/movies?${params.toString()}`,
-          { headers: { Authorization: `Bearer ${user.token}` } }
-        );
-        setMovies(res.data.movies || []);
-        setTotalPages(res.data.totalPages || 1);
+        const { movies: data, totalPages } = await fetchMovies({ search, sort, ascending, page });
+        setMovies(data);
+        setTotalPages(totalPages);
+        setError('');
       } catch (err) {
-        setError('Failed to load movies');
+        console.error(err);
+        setError('Failed to fetch movies.');
       } finally {
         setLoading(false);
       }
     };
-    fetchMovies();
-  }, [page, sort, ascending, search, user, navigate, API_BASE_URL]);
 
-  // Handlers
-  const handleCloseEditModal = () => setEditMovieId(null);
-  const handleMovieUpdated = async ({ id }) => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/movies/${id}`);
-        const updatedMovie = await res.json();
-        setMovies(prevMovies =>
-          prevMovies.map(m =>
-            m._id === id ? updatedMovie : m
-          )
-        );
-      } catch (err) {
-        console.error("Failed to refresh updated movie:", err);
-      }
-    };
+    fetch();
+  }, [search, sort, ascending, page]);
+
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);
+  const handleCloseEditModal = () => setEditMovieId(null);
 
-  // Format date helper
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const d = new Date(dateString);
-    return d.toLocaleDateString();
+  const handleMovieUpdated = (updatedMovie) => {
+    setMovies(prev =>
+      prev.map(movie => (movie._id === updatedMovie._id ? updatedMovie : movie))
+    );
   };
 
-  if (!user) {
-    return (
-      <Stack alignItems="center" sx={{ mt: 10 }}>
-        <CircularProgress />
-      </Stack>
-    );
-  }
-
   return (
-    <Container maxWidth="md" sx={{ mt: 5, mb: 6 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-        Mflix Movies
+    <Container sx={{ py: 4 }}>
+      {/* ❌ OLD HEADER CODE — NOW REPLACED WITH COMPONENT */}
+      {/* 
+      <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 2 }}>
+        MFlix Movies
       </Typography>
-
-      {/* Search + Sort */}
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4, justifyContent: 'space-between' }}>
-        <TextField
-          label="Search"
-          variant="outlined"
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          fullWidth
-          sx={{ maxWidth: 400 }}
-          InputProps={{
-            endAdornment: search ? (
-              <IconButton
-                aria-label="clear search"
-                onClick={() => { setSearch(''); setPage(1); }}
-                edge="end"
-                size="small"
-              >
-                <ClearIcon />
-              </IconButton>
-            ) : null,
-          }}
-        />
-
-        <TextField
-          select
-          label="Sort By"
-          value={sort}
-          onChange={(e) => { setSort(e.target.value); setPage(1); }}
-          sx={{ width: 180 }}
-        >
-          {sortOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <IconButton
-          onClick={() => { setAscending((prev) => !prev); setPage(1); }}
-          sx={{ alignSelf: 'center' }}
-          aria-label={ascending ? 'Sort ascending' : 'Sort descending'}
-        >
-          {ascending ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
-        </IconButton>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }}>
+        ...
       </Stack>
+      */}
 
-      {/* Loading/Error/Empty States */}
+      {/* ✅ NEW HEADER COMPONENT */}
+      <MovieListHeader
+        search={search}
+        setSearch={setSearch}
+        sort={sort}
+        setSort={setSort}
+        ascending={ascending}
+        setAscending={setAscending}
+      />
+
+      {/* Loader */}
       {loading && (
         <Stack alignItems="center" sx={{ my: 4 }}>
           <CircularProgress />
         </Stack>
       )}
 
-      {error && (
-        <Typography color="error" sx={{ mb: 2, textAlign: 'center' }}>
+      {/* Error */}
+      {!loading && error && (
+        <Typography color="error" sx={{ textAlign: 'center' }}>
           {error}
         </Typography>
       )}
 
+      {/* No Movies */}
       {!loading && !error && movies.length === 0 && (
         <Typography sx={{ textAlign: 'center' }}>No movies found.</Typography>
       )}
 
       {/* Movie List */}
       {!loading && !error && movies.length > 0 && (
-          <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
-              {movies.map((movie, index) => (
-                <ListItem
-                  key={movie._id}
-                  divider
+        <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
+          {movies.map((movie, index) => (
+            <ListItem
+              key={movie._id}
+              divider
+              sx={{
+                px: 3,
+                bgcolor: index % 2 === 0 ? 'grey.100' : 'background.paper',
+                cursor: 'pointer',
+                alignItems: 'flex-start',
+                flexDirection: 'row',
+                gap: 2,
+              }}
+              onClick={(e) => {
+                if (e.target.closest('button')) return;
+                openDetailsModal(movie);
+              }}
+            >
+              {/* Poster Image */}
+              {movie.poster && (
+                <Box
+                  component="img"
+                  src={movie.poster || '/fallback-image.svg'}
+                  alt={movie.title}
                   sx={{
-                    px: 3,
-                    bgcolor: index % 2 === 0 ? 'grey.100' : 'background.paper',
-                    cursor: 'pointer',
-                    alignItems: 'flex-start',
-                    flexDirection: 'row',  // changed from column to row to fit image + text side by side
-                    gap: 2,
+                    width: 80,
+                    height: 120,
+                    objectFit: 'cover',
+                    borderRadius: 1,
+                    flexShrink: 0,
                   }}
-                  onClick={(e) => {
-                    if (e.target.closest('button')) return;
-                    openDetailsModal(movie);
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/fallback-image.svg';
                   }}
-                >
-                  {/* Poster Image */}
-                  {movie.poster && (
-                    <Box
-                      component="img"
-                      src={movie.poster || '/fallback-image.svg'}
-                      alt={movie.title}
-                      sx={{
-                        width: 80,
-                        height: 120,
-                        objectFit: 'cover',
-                        borderRadius: 1,
-                        flexShrink: 0,
-                      }}
-                      onError={e => {
-                        e.target.onerror = null;
-                        e.target.src = '/fallback-image.svg'; // optional fallback image
-                      }}
-                    />
-                  )}
+                />
+              )}
 
-                  {/* Movie Text + Thumbs */}
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 'medium', wordBreak: 'break-word' }}>
-                      {movie.title}
-                    </Typography>
+              {/* Movie Info */}
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium', wordBreak: 'break-word' }}>
+                  {movie.title}
+                </Typography>
 
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 0.5 }}>
-                      Year: {movie.year || 'N/A'} | Rating: {movie.imdb?.rating ?? movie.rating ?? 'N/A'}
-                      {"\n"}Popularity: {movie.imdb?.votes ?? movie.views ?? 'N/A'}
-                      {"\n"}Released: {formatDate(movie.released?.$date || movie.dateAdded || movie.released)}
-                    </Typography>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 0.5 }}>
+                  Year: {movie.year || 'N/A'} | Rating: {movie.imdb?.rating ?? movie.rating ?? 'N/A'}
+                  {"\n"}Popularity: {movie.imdb?.votes ?? movie.views ?? 'N/A'}
+                  {"\n"}Released: {formatDate(movie.released?.$date || movie.dateAdded || movie.released)}
+                </Typography>
 
-                    {/* Thumbs up/down counts display */}
-                    <ThumbsDisplay movieId={movie._id} />
-                  </Box>
-                </ListItem>
-              ))}
-            </List>
+                {/* 👍 Thumbs Display */}
+                <ThumbsDisplay movieId={movie._id} />
+              </Box>
+            </ListItem>
+          ))}
+        </List>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Stack
-          direction="row"
-          spacing={1}
-          justifyContent="center"
-          sx={{
-            mt: 4,
-            flexWrap: 'wrap',
-            '& .MuiButton-root': {
-              fontSize: { xs: '0.7rem', sm: '0.875rem' },
-              px: { xs: 1, sm: 2 },
-              py: { xs: 0.5, sm: 1 },
-              minWidth: { xs: 'auto', sm: '64px' },
-            },
-          }}
-        >
+        <Stack direction="row" spacing={1} justifyContent="center" sx={{ mt: 4, flexWrap: 'wrap' }}>
           <Button variant="outlined" onClick={() => setPage(1)} disabled={page === 1} startIcon={<FirstPageIcon />}>
             <Box display={{ xs: 'none', sm: 'inline' }}>First</Box>
           </Button>
-          <Button variant="outlined" onClick={() => setPage((prev) => Math.max(prev - 1, 1))} disabled={page === 1} startIcon={<NavigateBeforeIcon />}>
+          <Button
+            variant="outlined"
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={page === 1}
+            startIcon={<NavigateBeforeIcon />}
+          >
             <Box display={{ xs: 'none', sm: 'inline' }}>Prev</Box>
           </Button>
-          <Typography variant="body2" sx={{ alignSelf: 'center', px: 1, fontSize: { xs: '0.75rem', sm: '1rem' } }}>
+          <Typography variant="body2" sx={{ alignSelf: 'center', px: 1 }}>
             Page {page} of {totalPages}
           </Typography>
-          <Button variant="outlined" onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))} disabled={page === totalPages} endIcon={<NavigateNextIcon />}>
+          <Button
+            variant="outlined"
+            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={page === totalPages}
+            endIcon={<NavigateNextIcon />}
+          >
             <Box display={{ xs: 'none', sm: 'inline' }}>Next</Box>
           </Button>
-          <Button variant="outlined" onClick={() => setPage(totalPages)} disabled={page === totalPages} endIcon={<LastPageIcon />}>
+          <Button
+            variant="outlined"
+            onClick={() => setPage(totalPages)}
+            disabled={page === totalPages}
+            endIcon={<LastPageIcon />}
+          >
             <Box display={{ xs: 'none', sm: 'inline' }}>Last</Box>
           </Button>
         </Stack>
       )}
 
-      {/* Edit Movie Modal */}
+      {/* Edit Modal */}
       <Dialog open={!!editMovieId} onClose={handleCloseEditModal} maxWidth="sm" fullWidth>
         <DialogTitle>Edit Movie Details</DialogTitle>
         <DialogContent dividers>
@@ -336,7 +256,12 @@ export default function MovieList() {
           {detailsMovie && (
             <Box>
               {detailsMovie.poster && (
-                <Box component="img" src={detailsMovie.poster} alt={detailsMovie.title} sx={{ width: '100%', borderRadius: 1, mb: 2 }} />
+                <Box
+                  component="img"
+                  src={detailsMovie.poster}
+                  alt={detailsMovie.title}
+                  sx={{ width: '100%', borderRadius: 1, mb: 2 }}
+                />
               )}
               <Typography variant="body1" gutterBottom><strong>Year:</strong> {detailsMovie.year || 'N/A'}</Typography>
               <Typography variant="body1" gutterBottom><strong>Rated:</strong> {detailsMovie.rated || 'N/A'}</Typography>
@@ -353,13 +278,13 @@ export default function MovieList() {
               <Typography variant="body1" gutterBottom><strong>Tomato Meter:</strong> {detailsMovie.tomatoes?.viewer?.meter ? `${detailsMovie.tomatoes.viewer.meter}%` : 'N/A'}</Typography>
               <Typography variant="body1" gutterBottom><strong>Awards:</strong> {detailsMovie.awards?.text || 'N/A'}</Typography>
 
-              {/* Comments Section */}
+              {/* Comments */}
               <Box sx={{ mt: 4 }}>
                 <Typography variant="h6" gutterBottom>Comments</Typography>
-                <MovieComments 
-                  movieId={detailsMovie._id} 
-                  token={user.token} 
-                  refreshKey={commentRefreshKey} // Pass refreshKey to refresh comments when it changes
+                <MovieComments
+                  movieId={detailsMovie._id}
+                  token={user.token}
+                  refreshKey={commentRefreshKey}
                 />
               </Box>
             </Box>
@@ -367,15 +292,12 @@ export default function MovieList() {
         </DialogContent>
         <DialogActions>
           <Button onClick={closeDetailsModal}>Close</Button>
-
-          {/* Button to open comment form modal */}
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             onClick={() => setShowCommentForm(true)}
           >
             Add Comment
           </Button>
-
           <Button
             variant="contained"
             startIcon={<EditIcon />}
@@ -389,12 +311,12 @@ export default function MovieList() {
         </DialogActions>
       </Dialog>
 
-      {/* Comment Form Modal */}
-      <CommentFormModal 
-        open={showCommentForm} 
+      {/* Add Comment Modal */}
+      <CommentFormModal
+        open={showCommentForm}
         onClose={() => {
           setShowCommentForm(false);
-          setCommentRefreshKey(prev => prev + 1); // Increment refreshKey to reload comments
+          setCommentRefreshKey(prev => prev + 1);
         }}
         movieId={detailsMovie?._id}
         token={user.token}
