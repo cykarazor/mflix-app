@@ -6,10 +6,6 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import LastPageIcon from '@mui/icons-material/LastPage';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 import { UserContext } from './UserContext';
 import { fetchMovies } from './utils/api'; // Assuming you have this helper
@@ -100,16 +96,7 @@ export default function MovieList() {
 
   return (
     <Container sx={{ py: 4 }}>
-      {/* ❌ OLD HEADER CODE — NOW REPLACED WITH COMPONENT */}
-      {/* 
-      <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 2 }}>
-        MFlix Movies
-      </Typography>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }}>
-        ...
-      </Stack>
-      */}
-
+      
       {/* ✅ NEW HEADER COMPONENT */}
       <Box
         sx={{
