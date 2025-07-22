@@ -6,7 +6,6 @@ import {
   Tooltip,
   TextField,
   MenuItem,
-  Box,
 } from '@mui/material';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
