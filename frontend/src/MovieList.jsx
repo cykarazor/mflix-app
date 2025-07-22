@@ -11,14 +11,14 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
-import { UserContext } from '../UserContext';
-import { fetchMovies } from '../utils/api'; // Assuming you have this helper
+import { UserContext } from './UserContext';
+import { fetchMovies } from './utils/api'; // Assuming you have this helper
 import EditMovieForm from './EditMovieForm';
 import MovieComments from './MovieComments';
 import CommentFormModal from './CommentFormModal';
 import ThumbsDisplay from './ThumbsDisplay';
 import MovieListHeader from './components/MovieListHeader'; // ✅ NEW header component
-import { formatDate } from '../utils/dateHelpers';
+import { formatDate } from './utils/dateHelpers';
 
 export default function MovieList() {
   const { user } = useContext(UserContext);
@@ -55,23 +55,32 @@ export default function MovieList() {
 
   // Fetch movies
   useEffect(() => {
-    const fetch = async () => {
+    if (!user?.token) {
+      navigate('/login');
+      return;
+    }
+    const loadMovies = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const { movies: data, totalPages } = await fetchMovies({ search, sort, ascending, page });
-        setMovies(data);
-        setTotalPages(totalPages);
-        setError('');
+        const data = await fetchMovies({
+          page,
+          limit: PAGE_SIZE,
+          sortBy: sort,
+          sortOrder: ascending ? 'asc' : 'desc',
+          search,
+          token: user.token,
+        });
+        setMovies(data.movies || []);
+        setTotalPages(data.totalPages || 1);
       } catch (err) {
-        console.error(err);
-        setError('Failed to fetch movies.');
+        setError('Failed to load movies');
       } finally {
         setLoading(false);
       }
     };
-
-    fetch();
-  }, [search, sort, ascending, page]);
+    loadMovies();
+  }, [page, sort, ascending, search, user, navigate]);
 
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);
