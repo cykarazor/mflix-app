@@ -20,6 +20,8 @@ import ThumbsDisplay from './ThumbsDisplay';
 import MovieListHeader from './components/MovieListHeader'; // ✅ NEW header component
 import { formatDate } from './utils/dateHelpers';
 import { useNavigate } from 'react-router-dom';
+import PaginationControls from './components/PaginationControls';
+
 
 const PAGE_SIZE = 10;
 
@@ -208,40 +210,8 @@ export default function MovieList() {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <Stack direction="row" spacing={1} justifyContent="center" sx={{ mt: 4, flexWrap: 'wrap' }}>
-          <Button variant="outlined" onClick={() => setPage(1)} disabled={page === 1} startIcon={<FirstPageIcon />}>
-            <Box display={{ xs: 'none', sm: 'inline' }}>First</Box>
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-            disabled={page === 1}
-            startIcon={<NavigateBeforeIcon />}
-          >
-            <Box display={{ xs: 'none', sm: 'inline' }}>Prev</Box>
-          </Button>
-          <Typography variant="body2" sx={{ alignSelf: 'center', px: 1 }}>
-            Page {page} of {totalPages}
-          </Typography>
-          <Button
-            variant="outlined"
-            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={page === totalPages}
-            endIcon={<NavigateNextIcon />}
-          >
-            <Box display={{ xs: 'none', sm: 'inline' }}>Next</Box>
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => setPage(totalPages)}
-            disabled={page === totalPages}
-            endIcon={<LastPageIcon />}
-          >
-            <Box display={{ xs: 'none', sm: 'inline' }}>Last</Box>
-          </Button>
-        </Stack>
-      )}
+      <PaginationControls page={page} setPage={setPage} totalPages={totalPages} />
+
 
       {/* Edit Modal */}
       <Dialog open={!!editMovieId} onClose={handleCloseEditModal} maxWidth="sm" fullWidth>
