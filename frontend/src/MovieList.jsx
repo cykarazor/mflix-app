@@ -14,7 +14,7 @@ import MovieListHeader from './components/MovieListHeader'; // ✅ NEW header co
 import { formatDate } from './utils/dateHelpers';
 import { useNavigate } from 'react-router-dom';
 import PaginationControls from './components/PaginationControls';
-import MovieDetailsModal from './MovieDetailsModal';
+import MovieDetailsModal from './components/MovieDetailsModal';
 
 const PAGE_SIZE = 10;
 
