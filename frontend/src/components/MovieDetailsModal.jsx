@@ -4,7 +4,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
-import MovieComments from './MovieComments';
+import MovieComments from '../MovieComments';
 import { formatDate } from '../utils/dateHelpers';
 
 export default function MovieDetailsModal({
