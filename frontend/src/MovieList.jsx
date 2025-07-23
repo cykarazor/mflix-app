@@ -2,22 +2,19 @@ import { useState, useEffect, useContext } from 'react';
 import {
   Container, Typography, List, ListItem, Button, Stack,
   CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
-  IconButton, Box
+  Box
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import EditIcon from '@mui/icons-material/Edit';
 
 import { UserContext } from './UserContext';
 import { fetchMovies } from './utils/api'; // Assuming you have this helper
 import EditMovieForm from './EditMovieForm';
-import MovieComments from './MovieComments';
 import CommentFormModal from './CommentFormModal';
 import ThumbsDisplay from './ThumbsDisplay';
 import MovieListHeader from './components/MovieListHeader'; // ✅ NEW header component
 import { formatDate } from './utils/dateHelpers';
 import { useNavigate } from 'react-router-dom';
 import PaginationControls from './components/PaginationControls';
-
+import MovieDetailsModal from './MovieDetailsModal';
 
 const PAGE_SIZE = 10;
 
@@ -221,75 +218,20 @@ export default function MovieList() {
       </Dialog>
 
       {/* Movie Details Modal */}
-      <Dialog open={!!detailsMovie} onClose={closeDetailsModal} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {detailsMovie?.title}
-          <IconButton
-            aria-label="close"
-            onClick={closeDetailsModal}
-            sx={{ position: 'absolute', right: 8, top: 8 }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
-          {detailsMovie && (
-            <Box>
-              {detailsMovie.poster && (
-                <Box
-                  component="img"
-                  src={detailsMovie.poster}
-                  alt={detailsMovie.title}
-                  sx={{ width: '100%', borderRadius: 1, mb: 2 }}
-                />
-              )}
-              <Typography variant="body1" gutterBottom><strong>Year:</strong> {detailsMovie.year || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Rated:</strong> {detailsMovie.rated || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Runtime:</strong> {detailsMovie.runtime ? `${detailsMovie.runtime} minutes` : 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Genres:</strong> {detailsMovie.genres?.join(', ') || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Plot:</strong> {detailsMovie.plot || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Cast:</strong> {detailsMovie.cast?.join(', ') || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Directors:</strong> {detailsMovie.directors?.join(', ') || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Languages:</strong> {detailsMovie.languages?.join(', ') || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Countries:</strong> {detailsMovie.countries?.join(', ') || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Released:</strong> {formatDate(detailsMovie.released?.$date || detailsMovie.released) || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>IMDb Rating:</strong> {detailsMovie.imdb?.rating || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>IMDb Votes:</strong> {detailsMovie.imdb?.votes || 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Tomato Meter:</strong> {detailsMovie.tomatoes?.viewer?.meter ? `${detailsMovie.tomatoes.viewer.meter}%` : 'N/A'}</Typography>
-              <Typography variant="body1" gutterBottom><strong>Awards:</strong> {detailsMovie.awards?.text || 'N/A'}</Typography>
-
-              {/* Comments */}
-              <Box sx={{ mt: 4 }}>
-                <Typography variant="h6" gutterBottom>Comments</Typography>
-                <MovieComments
-                  movieId={detailsMovie._id}
-                  token={user.token}
-                  refreshKey={commentRefreshKey}
-                />
-              </Box>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDetailsModal}>Close</Button>
-          <Button
-            variant="outlined"
-            onClick={() => setShowCommentForm(true)}
-          >
-            Add Comment
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<EditIcon />}
-            onClick={() => {
-              setEditMovieId(detailsMovie._id);
-              closeDetailsModal();
-            }}
-          >
-            Edit
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <MovieDetailsModal
+          open={!!detailsMovie}
+          movie={detailsMovie}
+          onClose={closeDetailsModal}
+          onEdit={(id) => {
+            setEditMovieId(id);
+            closeDetailsModal();
+          }}
+          onAddComment={() => setShowCommentForm(true)}
+          showCommentForm={showCommentForm}
+          setShowCommentForm={setShowCommentForm}
+          user={user}
+          commentRefreshKey={commentRefreshKey}
+        />
 
       {/* Add Comment Modal */}
       <CommentFormModal
