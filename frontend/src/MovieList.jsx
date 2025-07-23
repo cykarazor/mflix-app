@@ -92,7 +92,7 @@ export default function MovieList() {
   const handleMovieUpdated = async (updatedMovie) => {
   setIsRefreshingMovie(true);
   try {
-    const response = await fetch(`${REACT_APP_API_BASE_URL}/movies/${updatedMovie._id}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/movies/${updatedMovie._id}`, {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
@@ -230,7 +230,11 @@ export default function MovieList() {
           {editMovieId && (
             <EditMovieForm
               movieId={editMovieId}
-              onClose={handleCloseEditModal}              
+              onClose={handleCloseEditModal} 
+              onUpdated={(data) => {
+                handleMovieUpdated(data);
+                handleCloseEditModal();
+              }}        
             />
           )}
         </DialogContent>
