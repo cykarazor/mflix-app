@@ -1,4 +1,5 @@
 const { ObjectId } = require('mongodb');
+const { getIO } = require('../socket');
 
 // We’ll pass `connection.db` from server.js to each controller function
 // ✅ GET movies with multi-field sorting, pagination, and search
@@ -83,6 +84,13 @@ exports.updateMovie = async (req, res, db) => {
     if (result.matchedCount === 0) {
       return res.status(404).json({ error: 'Movie not found' });
     }
+
+    // 🟡 Fetch the updated movie
+    const updatedMovie = await db.collection('movies').findOne({ _id: new ObjectId(movieId) });
+
+    // 🔊 Emit the event via Socket.IO
+    const io = getIO();
+    io.emit('movieUpdated', updatedMovie); // You can also namespace this by user if needed
 
     res.json({ message: 'Movie updated successfully' });
   } catch (error) {

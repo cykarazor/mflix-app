@@ -15,6 +15,8 @@ import { formatDate } from './utils/dateHelpers';
 import { useNavigate } from 'react-router-dom';
 import PaginationControls from './components/PaginationControls';
 import MovieDetailsModal from './components/MovieDetailsModal';
+import socket from './socket';
+
 
 const PAGE_SIZE = 10;
 
@@ -83,6 +85,15 @@ export default function MovieList() {
     };
     loadMovies();
   }, [page, sort, ascending, search, user, navigate]);
+
+  // Socket event listeners
+  useEffect(() => {
+    socket.on('movieUpdated', handleMovieUpdated);
+
+    return () => {
+      socket.off('movieUpdated', handleMovieUpdated); // Cleanup
+    };
+  }, [user]);
 
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);

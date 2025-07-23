@@ -6,7 +6,7 @@ let io;
 function initSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: '*', // or restrict to your frontend origin
+      origin: 'https://your-frontend-domain.com',
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
     },
   });
