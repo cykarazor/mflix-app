@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import {
   Container, Typography, List, ListItem, Button, Stack,
   CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
@@ -88,45 +88,41 @@ export default function MovieList() {
 
   // Socket event listeners
   useEffect(() => {
-    socket.on('movieUpdated', handleMovieUpdated);
-
-    return () => {
-      socket.off('movieUpdated', handleMovieUpdated); // Cleanup
-    };
-  }, [user]);
+      socket.on('movieUpdated', handleMovieUpdated);
+      return () => socket.off('movieUpdated', handleMovieUpdated);
+    }, [handleMovieUpdated]);
 
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);
   const handleCloseEditModal = () => setEditMovieId(null);
 
   // Handle movie update function
-  const handleMovieUpdated = async (updatedMovie) => {
-  setIsRefreshingMovie(true);
-  try {
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/movies/${updatedMovie._id}`, {
-      headers: {
-        Authorization: `Bearer ${user.token}`,
-      },
-    });
+  const handleMovieUpdated = useCallback(async (updatedMovie) => {
+    setIsRefreshingMovie(true);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/movies/${updatedMovie._id}`, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch updated movie");
+      if (!response.ok) {
+        throw new Error("Failed to fetch updated movie");
+      }
+
+      const freshMovie = await response.json();
+
+      setMovies((prevMovies) =>
+        prevMovies.map((m) => (m._id === freshMovie._id ? freshMovie : m))
+      );
+
+      setDetailsMovie(freshMovie);
+    } catch (err) {
+      console.error("Error refreshing movie:", err);
+    } finally {
+      setIsRefreshingMovie(false);
     }
-
-    const freshMovie = await response.json();
-
-    setMovies((prevMovies) =>
-      prevMovies.map((m) => (m._id === freshMovie._id ? freshMovie : m))
-    );
-
-    setDetailsMovie(freshMovie);
-  } catch (err) {
-    console.error("Error refreshing movie:", err);
-  } finally {
-    setIsRefreshingMovie(false);
-  }
-};
-
+  }, [user.token]); // ✅ add `user.token` as dependency
 
   return (
     <Container sx={{ py: 4 }}>
