@@ -18,10 +18,12 @@ import MovieDetailsModal from './components/MovieDetailsModal';
 
 const PAGE_SIZE = 10;
 
+// Main MovieList component
 export default function MovieList() {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
+  // State variables
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('title');
@@ -34,6 +36,7 @@ export default function MovieList() {
   const [detailsMovie, setDetailsMovie] = useState(null);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [commentRefreshKey, setCommentRefreshKey] = useState(0);
+  const [isRefreshingMovie, setIsRefreshingMovie] = useState(false);
 
   // ✅ Automatically adjust sort direction based on selected field
   useEffect(() => {
@@ -85,11 +88,34 @@ export default function MovieList() {
   const closeDetailsModal = () => setDetailsMovie(null);
   const handleCloseEditModal = () => setEditMovieId(null);
 
-  const handleMovieUpdated = (updatedMovie) => {
-    setMovies(prev =>
-      prev.map(movie => (movie._id === updatedMovie._id ? updatedMovie : movie))
+  // Handle movie update function
+  const handleMovieUpdated = async (updatedMovie) => {
+  setIsRefreshingMovie(true);
+  try {
+    const response = await fetch(`${REACT_APP_API_BASE_URL}/movies/${updatedMovie._id}`, {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch updated movie");
+    }
+
+    const freshMovie = await response.json();
+
+    setMovies((prevMovies) =>
+      prevMovies.map((m) => (m._id === freshMovie._id ? freshMovie : m))
     );
-  };
+
+    setDetailsMovie(freshMovie);
+  } catch (err) {
+    console.error("Error refreshing movie:", err);
+  } finally {
+    setIsRefreshingMovie(false);
+  }
+};
+
 
   return (
     <Container sx={{ py: 4 }}>
@@ -204,11 +230,7 @@ export default function MovieList() {
           {editMovieId && (
             <EditMovieForm
               movieId={editMovieId}
-              onClose={handleCloseEditModal}
-              onUpdated={(data) => {
-                handleMovieUpdated(data);
-                handleCloseEditModal();
-              }}
+              onClose={handleCloseEditModal}              
             />
           )}
         </DialogContent>
@@ -231,6 +253,7 @@ export default function MovieList() {
           setShowCommentForm={setShowCommentForm}
           user={user}
           commentRefreshKey={commentRefreshKey}
+          isRefreshingMovie={isRefreshingMovie}
         />
 
       {/* Add Comment Modal */}
