@@ -86,11 +86,6 @@ export default function MovieList() {
     loadMovies();
   }, [page, sort, ascending, search, user, navigate]);
 
-  // Socket event listeners
-  useEffect(() => {
-      socket.on('movieUpdated', handleMovieUpdated);
-      return () => socket.off('movieUpdated', handleMovieUpdated);
-    }, [handleMovieUpdated]);
 
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);
@@ -123,6 +118,12 @@ export default function MovieList() {
       setIsRefreshingMovie(false);
     }
   }, [user.token]); // ✅ add `user.token` as dependency
+
+  // Socket event listeners
+  useEffect(() => {
+      socket.on('movieUpdated', handleMovieUpdated);
+      return () => socket.off('movieUpdated', handleMovieUpdated);
+    }, [handleMovieUpdated]);
 
   return (
     <Container sx={{ py: 4 }}>
