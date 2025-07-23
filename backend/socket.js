@@ -6,7 +6,7 @@ let io;
 function initSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: 'https://mflix-app-a7wd.onrender.com',
+      origin: 'https://flower-marigold.netlify.app',
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
     },
   });
