@@ -121,7 +121,10 @@ export default function MovieList() {
 
   // Socket event listeners
   useEffect(() => {
-      socket.on('movieUpdated', handleMovieUpdated);
+      socket.on('movieUpdated', (updatedMovie) => {
+        console.log('Socket event movieUpdated received:', updatedMovie);
+        handleMovieUpdated(updatedMovie);
+      });
       return () => socket.off('movieUpdated', handleMovieUpdated);
     }, [handleMovieUpdated]);
 

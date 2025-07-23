@@ -6,7 +6,7 @@ let io;
 function initSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: 'https://your-frontend-domain.com',
+      origin: 'https://mflix-app-a7wd.onrender.com',
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
     },
   });
