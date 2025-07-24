@@ -122,12 +122,18 @@ export default function MovieList() {
 
   // Socket event listeners
   useEffect(() => {
-      socket.on('movieUpdated', (updatedMovie) => {
-        console.log('Socket event movieUpdated received:', updatedMovie);
-        handleMovieUpdated(updatedMovie);
-      });
-      return () => socket.off('movieUpdated', handleMovieUpdated);
-    }, [handleMovieUpdated]);
+    const movieUpdatedListener = (updatedMovie) => {
+      console.log('Socket event movieUpdated received:', updatedMovie);
+      handleMovieUpdated(updatedMovie);
+    };
+
+    socket.on('movieUpdated', movieUpdatedListener);
+
+    return () => {
+      socket.off('movieUpdated', movieUpdatedListener);
+    };
+  }, [handleMovieUpdated]);
+
 
   return (
     <Container sx={{ py: 4 }}>
