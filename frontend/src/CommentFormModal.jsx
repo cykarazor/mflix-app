@@ -1,5 +1,4 @@
-// src/CommentFormModal.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -7,19 +6,17 @@ import {
   DialogActions,
   TextField,
   Button,
-  CircularProgress,
-  Typography
-} from '@mui/material';
+  CircularProgress} from '@mui/material';
 import { useUser } from './UserContext';
 import axios from 'axios';
 
-export default function CommentFormModal({ open, onClose, movieId, onCommentAdded }) {
+export default function CommentFormModal({ open, onClose, movieId, onCommentAdded, openSnack }) {
   const { user } = useUser();
   const token = user?.token;
 
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  // const [error, setError] = useState(''); // Commented out, replaced by snackbar
 
   // Safely close modal without triggering aria-hidden warnings
   const handleCloseSafely = () => {
@@ -33,12 +30,13 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
 
   const handleSubmit = async () => {
     if (!text.trim()) {
-      setError('Comment cannot be empty');
+      // setError('Comment cannot be empty');
+      openSnack('Comment cannot be empty', 'error'); // Use centralized snackbar
       return;
     }
 
     setLoading(true);
-    setError('');
+    // setError(''); // clear error state not needed now
 
     try {
       const response = await axios.post(
@@ -67,20 +65,24 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
         console.log('🔐 Closing modal now');
         handleCloseSafely();
       } else {
-        setError('Failed to submit comment (unexpected response)');
+        // setError('Failed to submit comment (unexpected response)');
+        openSnack('Failed to submit comment (unexpected response)', 'error'); // centralized snackbar
         console.error('Unexpected response:', response);
       }
     } catch (err) {
       console.error('Submit comment error:', err);
       if (err.response) {
         console.error('Response data:', err.response.data);
-        setError(`Failed: ${err.response.data.error || 'Server error'}`);
+        // setError(`Failed: ${err.response.data.error || 'Server error'}`);
+        openSnack(`Failed: ${err.response.data.error || 'Server error'}`, 'error'); // centralized snackbar
       } else if (err.request) {
         console.error('No response received:', err.request);
-        setError('No response from server');
+        // setError('No response from server');
+        openSnack('No response from server', 'error'); // centralized snackbar
       } else {
         console.error('Error message:', err.message);
-        setError(`Error: ${err.message}`);
+        // setError(`Error: ${err.message}`);
+        openSnack(`Error: ${err.message}`, 'error'); // centralized snackbar
       }
     } finally {
       setLoading(false);
@@ -101,7 +103,8 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
           variant="outlined"
           margin="normal"
         />
-        {error && <Typography color="error">{error}</Typography>}
+        {/* {error && <Typography color="error">{error}</Typography>} */}
+        {/* Removed local error display in favor of centralized snackbar */}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleCloseSafely} disabled={loading}>Cancel</Button>

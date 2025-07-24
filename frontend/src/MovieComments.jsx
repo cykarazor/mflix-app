@@ -183,6 +183,7 @@ export default function MovieComments({ movieId, refreshKey }) {
             onClose={handleClose}
             movieId={movieId}
             onCommentAdded={handleCommentAdded}
+            openSnack={openSnack}  // Pass openSnack to CommentFormModal
           />
         </>
       )}
