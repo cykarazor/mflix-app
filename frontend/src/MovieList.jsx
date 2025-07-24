@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, useContext, useCallback, useRef} from 'react';
 import {
   Container, Typography, List, ListItem, Button, Stack,
   CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
@@ -39,6 +39,7 @@ export default function MovieList() {
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [commentRefreshKey, setCommentRefreshKey] = useState(0);
   const [isRefreshingMovie, setIsRefreshingMovie] = useState(false);
+  const initialMovieSet = useRef(false);
 
   // ✅ Automatically adjust sort direction based on selected field
   useEffect(() => {
