@@ -6,7 +6,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { useSnackbar } from '../contexts/SnackbarContext';
+import { useSnackbar } from './contexts/SnackbarContext';
 
 
 function EditMovieForm({ movieId, onClose, onUpdated }) {
