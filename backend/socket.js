@@ -5,11 +5,14 @@ let io;
 
 function initSocket(server) {
   io = new Server(server, {
-    cors: {
-      origin: 'https://flower-marigold.netlify.app',
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    },
-  });
+      cors: {
+        origin: 'https://flower-marigold.netlify.app',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        credentials: true,
+      },
+      transports: ['websocket', 'polling'],
+      allowEIO3: true, // Optional: helps with backward compatibility
+    });
 
   io.on('connection', (socket) => {
     console.log('🟢 Client connected:', socket.id);
