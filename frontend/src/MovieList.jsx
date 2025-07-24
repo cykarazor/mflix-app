@@ -85,7 +85,7 @@ export default function MovieList() {
 
             // ✅ Only set the first movie if it hasn’t been set yet AND no modal is open
             if (!initialMovieSet.current && fetchedMovies.length > 0 && !detailsMovie) {
-              setDetailsMovie(fetchedMovies[0]);
+              //setDetailsMovie(fetchedMovies[0]);
               initialMovieSet.current = true;
             }
 
