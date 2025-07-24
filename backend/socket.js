@@ -9,7 +9,7 @@ function initSocket(server) {
         origin: 'https://flower-marigold.netlify.app',
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
-        credentials: 'include',
+        credentials: true,
       },
       transports: ['polling'],
       allowEIO3: true, // Optional: helps with backward compatibility

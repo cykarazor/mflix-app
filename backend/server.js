@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['https://flower-marigold.netlify.app'], // ✅ <-- Update this
+  origin: 'https://flower-marigold.netlify.app', // ✅ string only when credentials: true
   credentials: true,
 }));
 
