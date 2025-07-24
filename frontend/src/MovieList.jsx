@@ -93,32 +93,40 @@ export default function MovieList() {
 
   // Handle movie update function
   const handleMovieUpdated = useCallback(async (updatedMovie) => {
-    setIsRefreshingMovie(true);
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/movies/${updatedMovie._id}`, {
+  // ✅ Prevent fetch call if movie or _id is missing
+  if (!updatedMovie || !updatedMovie._id) {
+    console.warn('⚠️ Invalid movie passed to handleMovieUpdated:', updatedMovie);
+    return;
+  }
 
+  setIsRefreshingMovie(true);
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}/api/movies/${updatedMovie._id}`,
+      {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch updated movie");
       }
+    );
 
-      const freshMovie = await response.json();
-
-      setMovies((prevMovies) =>
-        prevMovies.map((m) => (m._id === freshMovie._id ? freshMovie : m))
-      );
-
-      setDetailsMovie(freshMovie);
-    } catch (err) {
-      console.error("Error refreshing movie:", err);
-    } finally {
-      setIsRefreshingMovie(false);
+    if (!response.ok) {
+      throw new Error("Failed to fetch updated movie");
     }
-  }, [user.token]); // ✅ add `user.token` as dependency
+
+    const freshMovie = await response.json();
+
+    setMovies((prevMovies) =>
+      prevMovies.map((m) => (m._id === freshMovie._id ? freshMovie : m))
+    );
+
+    setDetailsMovie(freshMovie);
+  } catch (err) {
+    console.error("Error refreshing movie:", err);
+  } finally {
+    setIsRefreshingMovie(false);
+  }
+}, [user.token]); // ✅ add `user.token` as dependency
 
   // Socket event listeners
   useEffect(() => {
