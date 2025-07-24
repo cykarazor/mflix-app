@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useCallback } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import {
   Typography,
   CircularProgress,
@@ -9,13 +9,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Snackbar,
-  Alert,
 } from '@mui/material';
 import axios from 'axios';
 import { UserContext } from './UserContext';
 import CommentFormModal from './CommentFormModal';
 import LikeDislikeButtons from './LikeDislikeButtons';
+
+// Import useSnackbar from centralized context
+import { useSnackbar } from '../contexts/SnackbarContext';
 
 export default function MovieComments({ movieId, refreshKey }) {
   const [comments, setComments] = useState([]);
@@ -26,13 +27,12 @@ export default function MovieComments({ movieId, refreshKey }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-
   const { user } = useContext(UserContext);
   const token = user?.token;
-
   const userEmail = user?.email;
+
+  // Get openSnack from centralized Snackbar context
+  const { openSnack } = useSnackbar();
 
   const fetchComments = useCallback(async () => {
     if (!movieId) return;
@@ -91,10 +91,15 @@ export default function MovieComments({ movieId, refreshKey }) {
         }
       );
       setComments((prev) => prev.filter((c) => c._id !== commentToDelete._id));
-      setSnackbarMessage('Comment deleted successfully!');
-      setSnackbarOpen(true);
+
+      // Use centralized snackbar instead of local snackbar
+      openSnack('Comment deleted successfully!', 'success');
+      
     } catch (err) {
       setError('Failed to delete comment');
+
+      // Use centralized snackbar for error
+      openSnack('Failed to delete comment', 'error');
     } finally {
       setDeleteDialogOpen(false);
       setCommentToDelete(null);
@@ -103,8 +108,10 @@ export default function MovieComments({ movieId, refreshKey }) {
 
   const handleCommentAdded = async () => {
     await fetchComments();
-    setSnackbarMessage('Comment submitted successfully!');
-    setSnackbarOpen(true);
+
+    // Use centralized snackbar for comment added
+    openSnack('Comment submitted successfully!', 'success');
+
   };
 
   return (
@@ -197,17 +204,7 @@ export default function MovieComments({ movieId, refreshKey }) {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for success (delete or submit) */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+     
     </Box>
   );
 }
