@@ -6,19 +6,33 @@ import {
 } from '@mui/material';
 
 import { UserContext } from './UserContext';
-import { fetchMovies } from './utils/api'; // Assuming you have this helper
+import { fetchMovies } from './utils/api';
 import EditMovieForm from './EditMovieForm';
 import CommentFormModal from './CommentFormModal';
 import ThumbsDisplay from './ThumbsDisplay';
-import MovieListHeader from './components/MovieListHeader'; // ✅ NEW header component
+import MovieListHeader from './components/MovieListHeader';
 import { formatDate } from './utils/dateHelpers';
 import { useNavigate } from 'react-router-dom';
 import PaginationControls from './components/PaginationControls';
 import MovieDetailsModal from './components/MovieDetailsModal';
 import socket from './socket';
 
-
 const PAGE_SIZE = 10;
+
+// ✅ Helper to determine initial ascending value based on sort field
+const getInitialAscending = (sortField) => {
+  switch (sortField) {
+    case 'title':
+      return true;
+    case 'year':
+    case 'dateAdded':
+    case 'rating':
+    case 'popularity':
+      return false;
+    default:
+      return true;
+  }
+};
 
 // Main MovieList component
 export default function MovieList() {
@@ -29,7 +43,7 @@ export default function MovieList() {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('title');
-  const [ascending, setAscending] = useState(true);
+  const [ascending, setAscending] = useState(getInitialAscending('title')); // ✅ Uses helper for initial sort
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
@@ -41,64 +55,51 @@ export default function MovieList() {
   const [isRefreshingMovie, setIsRefreshingMovie] = useState(false);
   const initialMovieSet = useRef(false);
 
-  // ✅ Automatically adjust sort direction based on selected field
+  // ✅ Automatically adjust ascending if sort field changes
   useEffect(() => {
-    switch (sort) {
-      case 'title':
-        setAscending(true);
-        break;
-      case 'year':
-      case 'dateAdded':
-      case 'rating':
-      case 'popularity':
-        setAscending(false);
-        break;
-      default:
-        setAscending(true);
-    }
+    setAscending(getInitialAscending(sort));
   }, [sort]);
 
   // Fetch movies
   useEffect(() => {
-        if (!user?.token) {
-          navigate('/login');
-          return;
+    if (!user?.token) {
+      navigate('/login');
+      return;
+    }
+
+    const loadMovies = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchMovies({
+          page,
+          limit: PAGE_SIZE,
+          sortBy: sort,
+          sortOrder: ascending ? 'asc' : 'desc',
+          search,
+          token: user.token,
+        });
+
+        const fetchedMovies = data.movies || [];
+        setMovies(fetchedMovies);
+        setTotalPages(data.totalPages || 1);
+
+        // ✅ Only set the first movie if it hasn’t been set yet AND no modal is open
+        if (!initialMovieSet.current && fetchedMovies.length > 0 && !detailsMovie) {
+          // setDetailsMovie(fetchedMovies[0]); // ❌ disable auto-open on refresh
+          initialMovieSet.current = true;
         }
 
-        const loadMovies = async () => {
-          setLoading(true);
-          setError(null);
+      } catch (err) {
+        setError('Failed to load movies');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-          try {
-            const data = await fetchMovies({
-              page,
-              limit: PAGE_SIZE,
-              sortBy: sort,
-              sortOrder: ascending ? 'asc' : 'desc',
-              search,
-              token: user.token,
-            });
-
-            const fetchedMovies = data.movies || [];
-            setMovies(fetchedMovies);
-            setTotalPages(data.totalPages || 1);
-
-            // ✅ Only set the first movie if it hasn’t been set yet AND no modal is open
-            if (!initialMovieSet.current && fetchedMovies.length > 0 && !detailsMovie) {
-              //setDetailsMovie(fetchedMovies[0]);
-              initialMovieSet.current = true;
-            }
-
-          } catch (err) {
-            setError('Failed to load movies');
-          } finally {
-            setLoading(false);
-          }
-        };
-
-        loadMovies();
-      }, [page, sort, ascending, search, user, navigate, detailsMovie]);
-
+    loadMovies();
+  }, [page, sort, ascending, search, user, navigate, detailsMovie]);
 
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);
@@ -106,40 +107,39 @@ export default function MovieList() {
 
   // Handle movie update function
   const handleMovieUpdated = useCallback(async (updatedMovie) => {
-  // ✅ Prevent fetch call if movie or _id is missing
-  if (!updatedMovie || !updatedMovie._id) {
-    console.warn('⚠️ Invalid movie passed to handleMovieUpdated:', updatedMovie);
-    return;
-  }
-
-  setIsRefreshingMovie(true);
-  try {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/api/movies/${updatedMovie._id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch updated movie");
+    if (!updatedMovie || !updatedMovie._id) {
+      console.warn('⚠️ Invalid movie passed to handleMovieUpdated:', updatedMovie);
+      return;
     }
 
-    const freshMovie = await response.json();
+    setIsRefreshingMovie(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/movies/${updatedMovie._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
 
-    setMovies((prevMovies) =>
-      prevMovies.map((m) => (m._id === freshMovie._id ? freshMovie : m))
-    );
+      if (!response.ok) {
+        throw new Error("Failed to fetch updated movie");
+      }
 
-    setDetailsMovie(freshMovie);
-  } catch (err) {
-    console.error("Error refreshing movie:", err);
-  } finally {
-    setIsRefreshingMovie(false);
-  }
-}, [user.token]); // ✅ add `user.token` as dependency
+      const freshMovie = await response.json();
+
+      setMovies((prevMovies) =>
+        prevMovies.map((m) => (m._id === freshMovie._id ? freshMovie : m))
+      );
+
+      setDetailsMovie(freshMovie);
+    } catch (err) {
+      console.error("Error refreshing movie:", err);
+    } finally {
+      setIsRefreshingMovie(false);
+    }
+  }, [user.token]);
 
   // Socket event listeners
   useEffect(() => {
@@ -149,16 +149,11 @@ export default function MovieList() {
     };
 
     socket.on('movieUpdated', movieUpdatedListener);
-
-    return () => {
-      socket.off('movieUpdated', movieUpdatedListener);
-    };
+    return () => socket.off('movieUpdated', movieUpdatedListener);
   }, [handleMovieUpdated]);
-
 
   return (
     <Container sx={{ py: 4 }}>
-      
       {/* ✅ NEW HEADER COMPONENT */}
       <Box
         sx={{
@@ -261,7 +256,6 @@ export default function MovieList() {
       {/* Pagination */}
       <PaginationControls page={page} setPage={setPage} totalPages={totalPages} />
 
-
       {/* Edit Modal */}
       <Dialog open={!!editMovieId} onClose={handleCloseEditModal} maxWidth="sm" fullWidth>
         <DialogTitle>Edit Movie Details</DialogTitle>
@@ -269,11 +263,11 @@ export default function MovieList() {
           {editMovieId && (
             <EditMovieForm
               movieId={editMovieId}
-              onClose={handleCloseEditModal} 
+              onClose={handleCloseEditModal}
               onUpdated={(data) => {
                 handleMovieUpdated(data);
                 handleCloseEditModal();
-              }}        
+              }}
             />
           )}
         </DialogContent>
@@ -283,21 +277,21 @@ export default function MovieList() {
       </Dialog>
 
       {/* Movie Details Modal */}
-        <MovieDetailsModal
-          open={!!detailsMovie}
-          movie={detailsMovie}
-          onClose={closeDetailsModal}
-          onEdit={(id) => {
-            setEditMovieId(id);
-            closeDetailsModal();
-          }}
-          onAddComment={() => setShowCommentForm(true)}
-          showCommentForm={showCommentForm}
-          setShowCommentForm={setShowCommentForm}
-          user={user}
-          commentRefreshKey={commentRefreshKey}
-          isRefreshingMovie={isRefreshingMovie}
-        />
+      <MovieDetailsModal
+        open={!!detailsMovie}
+        movie={detailsMovie}
+        onClose={closeDetailsModal}
+        onEdit={(id) => {
+          setEditMovieId(id);
+          closeDetailsModal();
+        }}
+        onAddComment={() => setShowCommentForm(true)}
+        showCommentForm={showCommentForm}
+        setShowCommentForm={setShowCommentForm}
+        user={user}
+        commentRefreshKey={commentRefreshKey}
+        isRefreshingMovie={isRefreshingMovie}
+      />
 
       {/* Add Comment Modal */}
       <CommentFormModal
@@ -312,3 +306,4 @@ export default function MovieList() {
     </Container>
   );
 }
+// ✅ End of MovieList component
