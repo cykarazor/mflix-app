@@ -29,7 +29,7 @@ export default function MovieList() {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('title');
-  const [ascending, setAscending] = useState(false);
+  const [ascending, setAscending] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
