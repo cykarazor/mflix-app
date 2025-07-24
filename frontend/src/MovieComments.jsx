@@ -16,7 +16,7 @@ import CommentFormModal from './CommentFormModal';
 import LikeDislikeButtons from './LikeDislikeButtons';
 
 // Import useSnackbar from centralized context
-import { useSnackbar } from '../contexts/SnackbarContext';
+import { useSnackbar } from './contexts/SnackbarContext';
 
 export default function MovieComments({ movieId, refreshKey }) {
   const [comments, setComments] = useState([]);
