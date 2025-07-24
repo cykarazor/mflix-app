@@ -77,12 +77,7 @@ export default function MovieList() {
         });
         setMovies(data.movies || []);
         setTotalPages(data.totalPages || 1);
-
-        // ✅ Set the first movie as default if any exist
-          if ((data.movies || []).length > 0) {
-            setDetailsMovie(data.movies[0]); // 🟢 Set first movie, not last
-          }
-
+        
       } catch (err) {
         setError('Failed to load movies');
       } finally {
