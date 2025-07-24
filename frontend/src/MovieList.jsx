@@ -95,7 +95,8 @@ export default function MovieList() {
   const handleMovieUpdated = useCallback(async (updatedMovie) => {
     setIsRefreshingMovie(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/movies/${updatedMovie._id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/movies/${updatedMovie._id}`, {
+
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
