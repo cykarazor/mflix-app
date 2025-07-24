@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // 🆕 Added useEffect for snackbar test
 import {
   Dialog,
   DialogTitle,
@@ -6,7 +6,8 @@ import {
   DialogActions,
   TextField,
   Button,
-  CircularProgress} from '@mui/material';
+  CircularProgress
+} from '@mui/material';
 import { useUser } from './UserContext';
 import axios from 'axios';
 
@@ -17,6 +18,13 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   // const [error, setError] = useState(''); // Commented out, replaced by snackbar
+
+  // ✅ Optional: Test that openSnack works on open (for debugging only)
+  useEffect(() => {
+    if (open && typeof openSnack !== 'function') {
+      console.warn('⚠️ openSnack is not a function or not passed down properly.');
+    }
+  }, [open, openSnack]);
 
   // Safely close modal without triggering aria-hidden warnings
   const handleCloseSafely = () => {
@@ -31,7 +39,7 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
   const handleSubmit = async () => {
     if (!text.trim()) {
       // setError('Comment cannot be empty');
-      openSnack('Comment cannot be empty', 'error'); // Use centralized snackbar
+      openSnack?.('Comment cannot be empty', 'error'); // ✅ Use optional chaining to avoid crash if undefined
       return;
     }
 
@@ -53,7 +61,7 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
       );
 
       if (response.status === 201) {
-        console.log('Comment submitted successfully');
+        console.log('✅ Comment submitted successfully');
         setText('');
 
         if (typeof onCommentAdded === 'function') {
@@ -62,27 +70,27 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
           console.log('✅ Comments updated successfully');
         }
 
+        // ✅ Show success via snackbar
+        openSnack?.('Comment submitted successfully!', 'success');
+
         console.log('🔐 Closing modal now');
         handleCloseSafely();
       } else {
         // setError('Failed to submit comment (unexpected response)');
-        openSnack('Failed to submit comment (unexpected response)', 'error'); // centralized snackbar
+        openSnack?.('Failed to submit comment (unexpected response)', 'error'); // ✅ Centralized snackbar
         console.error('Unexpected response:', response);
       }
     } catch (err) {
-      console.error('Submit comment error:', err);
+      console.error('❌ Submit comment error:', err);
       if (err.response) {
         console.error('Response data:', err.response.data);
-        // setError(`Failed: ${err.response.data.error || 'Server error'}`);
-        openSnack(`Failed: ${err.response.data.error || 'Server error'}`, 'error'); // centralized snackbar
+        openSnack?.(`Failed: ${err.response.data.error || 'Server error'}`, 'error'); // ✅ Centralized
       } else if (err.request) {
         console.error('No response received:', err.request);
-        // setError('No response from server');
-        openSnack('No response from server', 'error'); // centralized snackbar
+        openSnack?.('No response from server', 'error'); // ✅
       } else {
         console.error('Error message:', err.message);
-        // setError(`Error: ${err.message}`);
-        openSnack(`Error: ${err.message}`, 'error'); // centralized snackbar
+        openSnack?.(`Error: ${err.message}`, 'error'); // ✅
       }
     } finally {
       setLoading(false);
