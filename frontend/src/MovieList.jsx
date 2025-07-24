@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback, useRef} from 'react';
+import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import {
   Container, Typography, List, ListItem, Button, Stack,
   CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
@@ -60,40 +60,44 @@ export default function MovieList() {
 
   // Fetch movies
   useEffect(() => {
-    if (!user?.token) {
-      navigate('/login');
-      return;
-    }
-    const loadMovies = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchMovies({
-          page,
-          limit: PAGE_SIZE,
-          sortBy: sort,
-          sortOrder: ascending ? 'asc' : 'desc',
-          search,
-          token: user.token,
-        });
-        setMovies(data.movies || []);
-        setTotalPages(data.totalPages || 1);
+        if (!user?.token) {
+          navigate('/login');
+          return;
+        }
 
-        // ✅ Only set the first movie if it hasn’t been set yet AND no modal is open
-          if (!initialMovieSet.current && fetchedMovies.length > 0 && !detailsMovie) {
-            setDetailsMovie(fetchedMovies[0]);
-            initialMovieSet.current = true;
+        const loadMovies = async () => {
+          setLoading(true);
+          setError(null);
+
+          try {
+            const data = await fetchMovies({
+              page,
+              limit: PAGE_SIZE,
+              sortBy: sort,
+              sortOrder: ascending ? 'asc' : 'desc',
+              search,
+              token: user.token,
+            });
+
+            const fetchedMovies = data.movies || [];
+            setMovies(fetchedMovies);
+            setTotalPages(data.totalPages || 1);
+
+            // ✅ Only set the first movie if it hasn’t been set yet AND no modal is open
+            if (!initialMovieSet.current && fetchedMovies.length > 0 && !detailsMovie) {
+              setDetailsMovie(fetchedMovies[0]);
+              initialMovieSet.current = true;
+            }
+
+          } catch (err) {
+            setError('Failed to load movies');
+          } finally {
+            setLoading(false);
           }
+        };
 
-
-      } catch (err) {
-        setError('Failed to load movies');
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadMovies();
-  }, [page, sort, ascending, search, user, navigate]);
+        loadMovies();
+      }, [page, sort, ascending, search, user, navigate, detailsMovie]);
 
 
   const openDetailsModal = (movie) => setDetailsMovie(movie);
