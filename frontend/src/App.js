@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import {
   Container,
   Box,
@@ -19,9 +19,8 @@ import Footer from './Footer';
 import Header from './Header'; // <-- Use the new Header component
 import { UserContext } from './UserContext';
 import UserProfile from './UserProfile';
-
-// Import ChangePassword component
 import ChangePassword from './ChangePassword'; // <-- ADD THIS LINE
+import { SnackbarProvider } from './contexts/SnackbarContext';
 
 function App() {
   const { user } = useContext(UserContext);
@@ -32,6 +31,8 @@ function App() {
   };
 
   return (
+    <SnackbarProvider>
+      {/* Wrap the entire app in the SnackbarProvider */}
     <Router>
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Header />  {/* Use the new Header component */}
@@ -83,6 +84,7 @@ function App() {
         <Footer />
       </Box>
     </Router>
+    </SnackbarProvider>
   );
 }
 

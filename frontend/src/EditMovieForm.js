@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   TextField,
   Button,
@@ -6,6 +6,8 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
+import { useSnackbar } from '../contexts/SnackbarContext';
+
 
 function EditMovieForm({ movieId, onClose, onUpdated }) {
   const [form, setForm] = useState({
@@ -26,6 +28,8 @@ function EditMovieForm({ movieId, onClose, onUpdated }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+  const { openSnack } = useSnackbar();
+
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -69,55 +73,62 @@ function EditMovieForm({ movieId, onClose, onUpdated }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    setError(null);
-    setSuccessMsg(null);
+  e.preventDefault();
+  setSaving(true);
+  setError(null);
+  setSuccessMsg(null);
 
-    if (!form.title.trim()) {
-      setError('Title is required');
-      setSaving(false);
-      return;
+  if (!form.title.trim()) {
+    const msg = 'Title is required';
+    setError(msg);
+    openSnack(msg, 'error');
+    setSaving(false);
+    return;
+  }
+  if (form.year && !/^[0-9]{4}$/.test(form.year)) {
+    const msg = 'Year must be a 4-digit number';
+    setError(msg);
+    openSnack(msg, 'error');
+    setSaving(false);
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/movies/${movieId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: form.title.trim(),
+        year: form.year ? parseInt(form.year, 10) : null,
+        plot: form.plot.trim(),
+        fullplot: form.fullplot.trim(),
+        genres: form.genres.split(',').map(g => g.trim()).filter(Boolean),
+        cast: form.cast.split(',').map(c => c.trim()).filter(Boolean),
+        languages: form.languages.split(',').map(l => l.trim()).filter(Boolean),
+        directors: form.directors.split(',').map(d => d.trim()).filter(Boolean),
+        rated: form.rated.trim(),
+        poster: form.poster.trim(),
+        runtime: form.runtime ? parseInt(form.runtime, 10) : null,
+        countries: form.countries.split(',').map(c => c.trim()).filter(Boolean)
+      })
+    });
+
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.error || 'Failed to update movie');
     }
-    if (form.year && !/^[0-9]{4}$/.test(form.year)) {
-      setError('Year must be a 4-digit number');
-      setSaving(false);
-      return;
-    }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/movies/${movieId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: form.title.trim(),
-          year: form.year ? parseInt(form.year, 10) : null,
-          plot: form.plot.trim(),
-          fullplot: form.fullplot.trim(),
-          genres: form.genres.split(',').map(g => g.trim()).filter(Boolean),
-          cast: form.cast.split(',').map(c => c.trim()).filter(Boolean),
-          languages: form.languages.split(',').map(l => l.trim()).filter(Boolean),
-          directors: form.directors.split(',').map(d => d.trim()).filter(Boolean),
-          rated: form.rated.trim(),
-          poster: form.poster.trim(),
-          runtime: form.runtime ? parseInt(form.runtime, 10) : null,
-          countries: form.countries.split(',').map(c => c.trim()).filter(Boolean)
-        })
-      });
+    setSuccessMsg('Movie updated successfully!');
+    openSnack('Movie updated successfully!', 'success'); // ✅ Snackbar
+    onUpdated({ _id: movieId });
+  } catch (err) {
+    setError(err.message);
+    openSnack(err.message || 'Failed to update movie.', 'error'); // ❌ Snackbar
+  } finally {
+    setSaving(false);
+  }
+};
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Failed to update movie');
-      }
-
-      setSuccessMsg('Movie updated successfully!');
-      onUpdated({ _id: movieId });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   if (loading) return <CircularProgress />;
 
