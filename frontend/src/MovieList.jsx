@@ -77,7 +77,14 @@ export default function MovieList() {
         });
         setMovies(data.movies || []);
         setTotalPages(data.totalPages || 1);
-        
+
+        // ✅ Only set the first movie if it hasn’t been set yet AND no modal is open
+          if (!initialMovieSet.current && fetchedMovies.length > 0 && !detailsMovie) {
+            setDetailsMovie(fetchedMovies[0]);
+            initialMovieSet.current = true;
+          }
+
+
       } catch (err) {
         setError('Failed to load movies');
       } finally {
