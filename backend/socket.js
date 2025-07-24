@@ -11,7 +11,7 @@ function initSocket(server) {
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
       },
-      transports: ['polling'],
+      transports: ['websocket', 'polling'],
       allowEIO3: true, // Optional: helps with backward compatibility
     });
 
