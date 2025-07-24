@@ -1,3 +1,4 @@
+// ✅ Imports
 import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import {
   Container, Typography, List, ListItem, Button, Stack,
@@ -34,16 +35,14 @@ const getInitialAscending = (sortField) => {
   }
 };
 
-// Main MovieList component
 export default function MovieList() {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // State variables
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('title');
-  const [ascending, setAscending] = useState(getInitialAscending('title')); // ✅ Uses helper for initial sort
+  const [ascending, setAscending] = useState(getInitialAscending('title'));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
@@ -55,12 +54,11 @@ export default function MovieList() {
   const [isRefreshingMovie, setIsRefreshingMovie] = useState(false);
   const initialMovieSet = useRef(false);
 
-  // ✅ Automatically adjust ascending if sort field changes
   useEffect(() => {
     setAscending(getInitialAscending(sort));
   }, [sort]);
 
-  // Fetch movies
+  // ✅ Load movies based on search, sort, pagination
   useEffect(() => {
     if (!user?.token) {
       navigate('/login');
@@ -85,9 +83,9 @@ export default function MovieList() {
         setMovies(fetchedMovies);
         setTotalPages(data.totalPages || 1);
 
-        // ✅ Only set the first movie if it hasn’t been set yet AND no modal is open
+        // ✅ Mark initial movie load complete to prevent future triggering
         if (!initialMovieSet.current && fetchedMovies.length > 0 && !detailsMovie) {
-          // setDetailsMovie(fetchedMovies[0]); // ❌ disable auto-open on refresh
+          // setDetailsMovie(fetchedMovies[0]); // ❌ left disabled intentionally
           initialMovieSet.current = true;
         }
 
@@ -105,7 +103,7 @@ export default function MovieList() {
   const closeDetailsModal = () => setDetailsMovie(null);
   const handleCloseEditModal = () => setEditMovieId(null);
 
-  // Handle movie update function
+  // ✅ Refresh movie on update event
   const handleMovieUpdated = useCallback(async (updatedMovie) => {
     if (!updatedMovie || !updatedMovie._id) {
       console.warn('⚠️ Invalid movie passed to handleMovieUpdated:', updatedMovie);
@@ -141,7 +139,6 @@ export default function MovieList() {
     }
   }, [user.token]);
 
-  // Socket event listeners
   useEffect(() => {
     const movieUpdatedListener = (updatedMovie) => {
       console.log('Socket event movieUpdated received:', updatedMovie);
@@ -154,16 +151,8 @@ export default function MovieList() {
 
   return (
     <Container sx={{ py: 4 }}>
-      {/* ✅ NEW HEADER COMPONENT */}
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 1000,
-          backgroundColor: 'background.paper',
-          paddingY: 1,
-        }}
-      >
+      {/* ✅ Sticky header with search/sort controls */}
+      <Box sx={{ position: 'sticky', top: 0, zIndex: 1000, backgroundColor: 'background.paper', py: 1 }}>
         <MovieListHeader
           search={search}
           setSearch={setSearch}
@@ -174,26 +163,24 @@ export default function MovieList() {
         />
       </Box>
 
-      {/* Loader */}
+      {/* Loading spinner */}
       {loading && (
         <Stack alignItems="center" sx={{ my: 4 }}>
           <CircularProgress />
         </Stack>
       )}
 
-      {/* Error */}
+      {/* Error state */}
       {!loading && error && (
-        <Typography color="error" sx={{ textAlign: 'center' }}>
-          {error}
-        </Typography>
+        <Typography color="error" textAlign="center">{error}</Typography>
       )}
 
-      {/* No Movies */}
+      {/* No results */}
       {!loading && !error && movies.length === 0 && (
-        <Typography sx={{ textAlign: 'center' }}>No movies found.</Typography>
+        <Typography textAlign="center">No movies found.</Typography>
       )}
 
-      {/* Movie List */}
+      {/* ✅ Movie List */}
       {!loading && !error && movies.length > 0 && (
         <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
           {movies.map((movie, index) => (
@@ -213,19 +200,13 @@ export default function MovieList() {
                 openDetailsModal(movie);
               }}
             >
-              {/* Poster Image */}
+              {/* Poster */}
               {movie.poster && (
                 <Box
                   component="img"
                   src={movie.poster || '/fallback-image.svg'}
                   alt={movie.title}
-                  sx={{
-                    width: 80,
-                    height: 120,
-                    objectFit: 'cover',
-                    borderRadius: 1,
-                    flexShrink: 0,
-                  }}
+                  sx={{ width: 80, height: 120, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = '/fallback-image.svg';
@@ -245,7 +226,6 @@ export default function MovieList() {
                   {"\n"}Released: {formatDate(movie.released?.$date || movie.dateAdded || movie.released)}
                 </Typography>
 
-                {/* 👍 Thumbs Display */}
                 <ThumbsDisplay movieId={movie._id} />
               </Box>
             </ListItem>
@@ -306,4 +286,3 @@ export default function MovieList() {
     </Container>
   );
 }
-// ✅ End of MovieList component
