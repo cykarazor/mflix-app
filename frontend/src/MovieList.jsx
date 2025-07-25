@@ -1,14 +1,14 @@
 // ✅ Imports
 import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import {
-  Container, Typography, List, ListItem, Button, Stack,
-  CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
+  Container, Typography, List, ListItem, Stack,
+  CircularProgress, 
   Box
 } from '@mui/material';
 
 import { UserContext } from './UserContext';
 import { fetchMovies } from './utils/api';
-import EditMovieForm from './EditMovieForm';
+import EditMovieModal from './EditMovieModal';
 import CommentFormModal from './CommentFormModal';
 import ThumbsDisplay from './ThumbsDisplay';
 import MovieListHeader from './components/MovieListHeader';
@@ -241,24 +241,11 @@ export default function MovieList() {
       <PaginationControls page={page} setPage={setPage} totalPages={totalPages} />
 
       {/* Edit Modal */}
-      <Dialog open={!!editMovieId} onClose={handleCloseEditModal} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Movie Details</DialogTitle>
-        <DialogContent dividers>
-          {editMovieId && (
-            <EditMovieForm
-              movieId={editMovieId}
-              onClose={handleCloseEditModal}
-              onUpdated={(data) => {
-                handleMovieUpdated(data);
-                handleCloseEditModal();
-              }}
-            />
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseEditModal}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
+      <EditMovieModal
+        editMovieId={editMovieId}
+        onClose={handleCloseEditModal}
+        onUpdated={handleMovieUpdated}
+      />
 
       {/* Movie Details Modal */}
       <MovieDetailsModal
