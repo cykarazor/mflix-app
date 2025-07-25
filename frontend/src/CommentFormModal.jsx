@@ -37,7 +37,7 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
     // Delay a tiny bit to let blur settle before closing the modal
     setTimeout(() => {
       onClose();
-    }, 0);
+    }, 50);
   };
 
   const handleSubmit = async () => {
