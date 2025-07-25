@@ -20,7 +20,7 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
   // const [error, setError] = useState(''); // Commented out, replaced by snackbar
 
   // 🐞 Debug: Log if openSnack is passed properly
-  console.log('✅ openSnack passed to CommentFormModal:', typeof openSnack);
+  console.log('✅ openSnack received from MovieComments:', typeof openSnack);
 
   // ✅ Optional: Test that openSnack works on open (for debugging only)
   useEffect(() => {

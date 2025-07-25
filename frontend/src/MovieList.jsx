@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import PaginationControls from './components/PaginationControls';
 import MovieDetailsModal from './components/MovieDetailsModal';
 import socket from './socket';
+import { useSnackbar } from './contexts/SnackbarContext';
 
 const PAGE_SIZE = 10;
 
@@ -53,6 +54,9 @@ export default function MovieList() {
   const [commentRefreshKey, setCommentRefreshKey] = useState(0);
   const [isRefreshingMovie, setIsRefreshingMovie] = useState(false);
   const initialMovieSet = useRef(false);
+
+  const { openSnack } = useSnackbar();
+  console.log('✅ openSnack passed to MovieList:', typeof openSnack); // 🔍 Confirm it's a function
 
   useEffect(() => {
     setAscending(getInitialAscending(sort));
@@ -282,6 +286,7 @@ export default function MovieList() {
         }}
         movieId={detailsMovie?._id}
         token={user.token}
+        openSnack={openSnack}
       />
     </Container>
   );
