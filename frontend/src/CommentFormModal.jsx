@@ -34,9 +34,10 @@ export default function CommentFormModal({ open, onClose, movieId, onCommentAdde
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
-    requestAnimationFrame(() => {
+    // Delay a tiny bit to let blur settle before closing the modal
+    setTimeout(() => {
       onClose();
-    });
+    }, 0);
   };
 
   const handleSubmit = async () => {
