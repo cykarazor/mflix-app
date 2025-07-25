@@ -56,7 +56,7 @@ export default function MovieList() {
   const initialMovieSet = useRef(false);
 
   const { openSnack } = useSnackbar();
-  console.log('✅ openSnack passed to MovieList:', typeof openSnack); // 🔍 Confirm it's a function
+  //console.log('✅ openSnack passed to MovieList:', typeof openSnack); // 🔍 Confirm it's a function
 
   useEffect(() => {
     setAscending(getInitialAscending(sort));

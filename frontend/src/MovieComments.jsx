@@ -33,7 +33,7 @@ export default function MovieComments({ movieId, refreshKey }) {
 
   // Get openSnack from centralized Snackbar context
   const { openSnack } = useSnackbar();
-  console.log('✅ openSnack passed to CommentFormModal:', typeof openSnack); // 🔍 Confirm it's a function
+  //console.log('✅ openSnack passed to CommentFormModal:', typeof openSnack); // 🔍 Confirm it's a function
 
   const fetchComments = useCallback(async () => {
     if (!movieId) return;
