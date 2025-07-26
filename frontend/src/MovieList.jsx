@@ -73,6 +73,7 @@ export default function MovieList() {
   closeDetails,
   closeEdit,
   closeComment,
+  setMovie,
 } = useMovieModals();
 
 
@@ -115,7 +116,7 @@ export default function MovieList() {
 
       // If the updated movie is currently selected, update modal state
       if (selectedMovie && freshMovie._id === selectedMovie._id) {
-        openDetails(freshMovie);
+        setMovie(freshMovie);
       }
     } catch (err) {
       console.error("Error refreshing movie:", err);
