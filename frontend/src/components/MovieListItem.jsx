@@ -1,5 +1,5 @@
 import { ListItem, Box, Typography } from '@mui/material';
-import ThumbsDisplay from './ThumbsDisplay';
+import ThumbsDisplay from '../ThumbsDisplay';
 import { formatDate } from '../utils/dateHelpers';
 
 export default function MovieListItem({ movie, index, onOpenDetails }) {
