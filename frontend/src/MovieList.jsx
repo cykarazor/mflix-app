@@ -134,6 +134,15 @@ export default function MovieList() {
     return () => socket.off('movieUpdated', movieUpdatedListener);
   }, [handleMovieUpdated]);
 
+  const handleEditClick = () => {
+    closeDetails();
+    openEdit(selectedMovie);
+  };
+
+  const handleAddCommentClick = () => {
+    openComment(selectedMovie);
+  };
+
   return (
     <Container sx={{ py: 4 }}>
       {/* Sticky header with search/sort controls */}
@@ -195,11 +204,8 @@ export default function MovieList() {
         open={isDetailsOpen}              // UPDATED: modal hook state
         movie={selectedMovie}             // UPDATED: modal hook selected movie
         onClose={closeDetails}          // UPDATED: close all modals
-        onEdit={() => {
-          closeDetails();  // close details modal only
-          openEdit(selectedMovie); // open edit modal
-        }}
-        onAddComment={() => openComment(selectedMovie)}
+        onEdit={handleEditClick}
+        onAddComment={handleAddCommentClick}
         showCommentForm={isCommentOpen}
         setShowCommentForm={(val) => val ? openComment(selectedMovie) : closeComment()}
         user={user}
