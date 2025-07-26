@@ -1,5 +1,5 @@
 // ✅ Imports
-import { useState, useEffect, useContext, useCallback, useRef } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import {
   Container, Typography, List, Stack,
   CircularProgress, 
@@ -7,19 +7,14 @@ import {
 } from '@mui/material';
 
 import { UserContext } from './UserContext';
-import { fetchMovies } from './utils/api';
 import EditMovieModal from './EditMovieModal';
 import CommentFormModal from './CommentFormModal';
 import MovieListHeader from './components/MovieListHeader';
-import { useNavigate } from 'react-router-dom';
 import PaginationControls from './components/PaginationControls';
 import MovieDetailsModal from './components/MovieDetailsModal';
 import socket from './socket';
 import { useSnackbar } from './contexts/SnackbarContext';
 import MovieListItem from './components/MovieListItem';
-
-
-const PAGE_SIZE = 10;
 
 // ✅ Helper to determine initial ascending value based on sort field
 const getInitialAscending = (sortField) => {
@@ -38,70 +33,50 @@ const getInitialAscending = (sortField) => {
 
 export default function MovieList() {
   const { user } = useContext(UserContext);
-  const navigate = useNavigate();
 
-  const [movies, setMovies] = useState([]);
+  // const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('title');
   const [ascending, setAscending] = useState(getInitialAscending('title'));
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  // const [loading] = useState(false);
+ // const [error, setError] = useState('');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+ // const [totalPages, setTotalPages] = useState(1);
   const [editMovieId, setEditMovieId] = useState(null);
   const [detailsMovie, setDetailsMovie] = useState(null);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [commentRefreshKey, setCommentRefreshKey] = useState(0);
   const [isRefreshingMovie, setIsRefreshingMovie] = useState(false);
-  const initialMovieSet = useRef(false);
+  //const initialMovieSet = useRef(false);
 
   const { openSnack } = useSnackbar();
   //console.log('✅ openSnack passed to MovieList:', typeof openSnack); // 🔍 Confirm it's a function
+
+  // ✅ Redirect to login if no user token
+  useEffect(() => {
+  if (!user?.token) {
+    navigate('/login');
+  }
+}, [user, navigate]);
 
   useEffect(() => {
     setAscending(getInitialAscending(sort));
   }, [sort]);
 
   // ✅ Load movies based on search, sort, pagination
-  useEffect(() => {
-    if (!user?.token) {
-      navigate('/login');
-      return;
-    }
-
-    const loadMovies = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const data = await fetchMovies({
-          page,
-          limit: PAGE_SIZE,
-          sortBy: sort,
-          sortOrder: ascending ? 'asc' : 'desc',
-          search,
-          token: user.token,
-        });
-
-        const fetchedMovies = data.movies || [];
-        setMovies(fetchedMovies);
-        setTotalPages(data.totalPages || 1);
-
-        // ✅ Mark initial movie load complete to prevent future triggering
-        if (!initialMovieSet.current && fetchedMovies.length > 0 && !detailsMovie) {
-          // setDetailsMovie(fetchedMovies[0]); // ❌ left disabled intentionally
-          initialMovieSet.current = true;
-        }
-
-      } catch (err) {
-        setError('Failed to load movies');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadMovies();
-  }, [page, sort, ascending, search, user, navigate, detailsMovie]);
+  const {
+      movies,
+      loading,
+      error,
+      totalPages,
+      setMovies,
+    } = useMovies({
+      search,
+      sort,
+      ascending,
+      page,
+      token: user?.token,
+    });
 
   const openDetailsModal = (movie) => setDetailsMovie(movie);
   const closeDetailsModal = () => setDetailsMovie(null);
