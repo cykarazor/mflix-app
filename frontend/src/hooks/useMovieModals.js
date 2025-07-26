@@ -15,6 +15,12 @@ function reducer(state, action) {
       return { ...state, editOpen: true, selectedMovie: action.payload };
     case 'OPEN_COMMENT':
       return { ...state, commentOpen: true, selectedMovie: action.payload };
+    case 'CLOSE_DETAILS':
+      return { ...state, detailsOpen: false, selectedMovie: null };
+    case 'CLOSE_EDIT':
+      return { ...state, editOpen: false, selectedMovie: null };
+    case 'CLOSE_COMMENT':
+      return { ...state, commentOpen: false, selectedMovie: null };
     case 'CLOSE_ALL':
       return { ...initialState };
     case 'SET_MOVIE':
@@ -39,6 +45,18 @@ export default function useMovieModals() {
     dispatch({ type: 'OPEN_COMMENT', payload: movie });
   }, []);
 
+  const closeDetails = useCallback(() => {
+    dispatch({ type: 'CLOSE_DETAILS' });
+  }, []);
+
+  const closeEdit = useCallback(() => {
+    dispatch({ type: 'CLOSE_EDIT' });
+  }, []);
+
+  const closeComment = useCallback(() => {
+    dispatch({ type: 'CLOSE_COMMENT' });
+  }, []);
+
   const closeModals = useCallback(() => {
     dispatch({ type: 'CLOSE_ALL' });
   }, []);
@@ -57,6 +75,9 @@ export default function useMovieModals() {
     openDetails,
     openEdit,
     openComment,
+    closeDetails,
+    closeEdit,
+    closeComment,
     closeModals,
     setMovie,
   };

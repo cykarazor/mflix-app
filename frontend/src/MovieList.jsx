@@ -65,13 +65,17 @@ export default function MovieList() {
 
   // NEW: Use modal hook to manage all modal state and handlers
   const {
-    modals: { isDetailsOpen, isEditOpen, isCommentOpen },
-    selectedMovie,
-    openDetails,
-    openEdit,
-    openComment,
-    closeModals,
-  } = useMovieModals();
+  modals: { isDetailsOpen, isEditOpen, isCommentOpen },
+  selectedMovie,
+  openDetails,
+  openEdit,
+  openComment,
+  closeDetails,
+  closeEdit,
+  closeComment,
+  closeModals,
+} = useMovieModals();
+
 
   // Redirect if not logged in
   useEffect(() => {
@@ -183,7 +187,7 @@ export default function MovieList() {
       <EditMovieModal
         editMovieId={selectedMovie?._id} // UPDATED: from modal hook's selectedMovie
         open={isEditOpen}                 // UPDATED: controlled by modal hook
-        onClose={closeModals}             // UPDATED: close all modals
+        onClose={closeEdit}             // UPDATED: close all modals
         onUpdated={handleMovieUpdated}
       />
 
@@ -208,7 +212,7 @@ export default function MovieList() {
       <CommentFormModal
         open={isCommentOpen}
         onClose={() => {
-          closeModals();
+          closeComment();
           setCommentRefreshKey((prev) => prev + 1);
         }}
         movieId={selectedMovie?._id}
