@@ -73,7 +73,6 @@ export default function MovieList() {
   closeDetails,
   closeEdit,
   closeComment,
-  closeModals,
 } = useMovieModals();
 
 
