@@ -193,8 +193,8 @@ export default function MovieList() {
         movie={selectedMovie}             // UPDATED: modal hook selected movie
         onClose={closeModals}
         onEdit={() => {
-          openEdit(selectedMovie);
-          closeModals();
+          closeDetails();  // close details modal only
+          openEdit(selectedMovie); // open edit modal
         }}
         onAddComment={() => openComment(selectedMovie)}
         showCommentForm={isCommentOpen}
