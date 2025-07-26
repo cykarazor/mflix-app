@@ -18,6 +18,8 @@ import PaginationControls from './components/PaginationControls';
 import MovieDetailsModal from './components/MovieDetailsModal';
 import socket from './socket';
 import { useSnackbar } from './contexts/SnackbarContext';
+import MovieListItem from './components/MovieListItem';
+
 
 const PAGE_SIZE = 10;
 
@@ -185,57 +187,18 @@ export default function MovieList() {
       )}
 
       {/* ✅ Movie List */}
-      {!loading && !error && movies.length > 0 && (
-        <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
-          {movies.map((movie, index) => (
-            <ListItem
-              key={movie._id}
-              divider
-              sx={{
-                px: 3,
-                bgcolor: index % 2 === 0 ? 'grey.100' : 'background.paper',
-                cursor: 'pointer',
-                alignItems: 'flex-start',
-                flexDirection: 'row',
-                gap: 2,
-              }}
-              onClick={(e) => {
-                if (e.target.closest('button')) return;
-                openDetailsModal(movie);
-              }}
-            >
-              {/* Poster */}
-              {movie.poster && (
-                <Box
-                  component="img"
-                  src={movie.poster || '/fallback-image.svg'}
-                  alt={movie.title}
-                  sx={{ width: 80, height: 120, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = '/fallback-image.svg';
-                  }}
-                />
-              )}
-
-              {/* Movie Info */}
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'medium', wordBreak: 'break-word' }}>
-                  {movie.title}
-                </Typography>
-
-                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 0.5 }}>
-                  Year: {movie.year || 'N/A'} | Rating: {movie.imdb?.rating ?? movie.rating ?? 'N/A'}
-                  {"\n"}Popularity: {movie.imdb?.votes ?? movie.views ?? 'N/A'}
-                  {"\n"}Released: {formatDate(movie.released?.$date || movie.dateAdded || movie.released)}
-                </Typography>
-
-                <ThumbsDisplay movieId={movie._id} />
-              </Box>
-            </ListItem>
-          ))}
-        </List>
-      )}
+        {!loading && !error && movies.length > 0 && (
+          <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
+            {movies.map((movie, index) => (
+              <MovieListItem
+                key={movie._id}
+                movie={movie}
+                index={index}
+                onOpenDetails={openDetailsModal}
+              />
+            ))}
+          </List>
+        )}
 
       {/* Pagination */}
       <PaginationControls page={page} setPage={setPage} totalPages={totalPages} />
