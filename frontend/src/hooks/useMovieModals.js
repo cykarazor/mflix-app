@@ -20,7 +20,7 @@ function reducer(state, action) {
     case 'CLOSE_EDIT':
       return { ...state, editOpen: false, selectedMovie: null };
     case 'CLOSE_COMMENT':
-      return { ...state, commentOpen: false, selectedMovie: null };
+      return { ...state, commentOpen: false};
     case 'CLOSE_ALL':
       return { ...initialState };
     case 'SET_MOVIE':
