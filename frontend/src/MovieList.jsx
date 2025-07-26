@@ -15,6 +15,9 @@ import MovieDetailsModal from './components/MovieDetailsModal';
 import socket from './socket';
 import { useSnackbar } from './contexts/SnackbarContext';
 import MovieListItem from './components/MovieListItem';
+import { useNavigate } from 'react-router-dom';
+import useMovies from './hooks/useMovies';
+
 
 // ✅ Helper to determine initial ascending value based on sort field
 const getInitialAscending = (sortField) => {
@@ -48,7 +51,7 @@ export default function MovieList() {
   const [commentRefreshKey, setCommentRefreshKey] = useState(0);
   const [isRefreshingMovie, setIsRefreshingMovie] = useState(false);
   //const initialMovieSet = useRef(false);
-
+  const navigate = useNavigate();
   const { openSnack } = useSnackbar();
   //console.log('✅ openSnack passed to MovieList:', typeof openSnack); // 🔍 Confirm it's a function
 
