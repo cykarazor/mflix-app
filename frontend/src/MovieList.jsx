@@ -1,7 +1,7 @@
 // ✅ Imports
 import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import {
-  Container, Typography, List, ListItem, Stack,
+  Container, Typography, List, Stack,
   CircularProgress, 
   Box
 } from '@mui/material';
@@ -10,9 +10,7 @@ import { UserContext } from './UserContext';
 import { fetchMovies } from './utils/api';
 import EditMovieModal from './EditMovieModal';
 import CommentFormModal from './CommentFormModal';
-import ThumbsDisplay from './ThumbsDisplay';
 import MovieListHeader from './components/MovieListHeader';
-import { formatDate } from './utils/dateHelpers';
 import { useNavigate } from 'react-router-dom';
 import PaginationControls from './components/PaginationControls';
 import MovieDetailsModal from './components/MovieDetailsModal';
