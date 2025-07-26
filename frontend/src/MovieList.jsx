@@ -1,5 +1,5 @@
 // ✅ Imports
-import { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
   Container, Typography, List, Stack,
   CircularProgress, 
@@ -18,8 +18,10 @@ import MovieListItem from './components/MovieListItem';
 import { useNavigate } from 'react-router-dom';
 import useMovies from './hooks/useMovies';
 
+// NEW import for modal state management
+import useMovieModals from './hooks/useMovieModals';
 
-// ✅ Helper to determine initial ascending value based on sort field
+// Helper to determine initial ascending value based on sort field
 const getInitialAscending = (sortField) => {
   switch (sortField) {
     case 'title':
@@ -37,90 +39,87 @@ const getInitialAscending = (sortField) => {
 export default function MovieList() {
   const { user } = useContext(UserContext);
 
-  // const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('title');
   const [ascending, setAscending] = useState(getInitialAscending('title'));
-  // const [loading] = useState(false);
- // const [error, setError] = useState('');
   const [page, setPage] = useState(1);
- // const [totalPages, setTotalPages] = useState(1);
-  const [editMovieId, setEditMovieId] = useState(null);
-  const [detailsMovie, setDetailsMovie] = useState(null);
-  const [showCommentForm, setShowCommentForm] = useState(false);
   const [commentRefreshKey, setCommentRefreshKey] = useState(0);
   const [isRefreshingMovie, setIsRefreshingMovie] = useState(false);
-  //const initialMovieSet = useRef(false);
   const navigate = useNavigate();
   const { openSnack } = useSnackbar();
-  //console.log('✅ openSnack passed to MovieList:', typeof openSnack); // 🔍 Confirm it's a function
 
-  // ✅ Redirect to login if no user token
+  // Use existing custom hook to fetch and manage movies
+  const {
+    movies,
+    loading,
+    error,
+    totalPages,
+    setMovies,
+  } = useMovies({
+    search,
+    sort,
+    ascending,
+    page,
+    token: user?.token,
+  });
+
+  // NEW: Use modal hook to manage all modal state and handlers
+  const {
+    modals: { isDetailsOpen, isEditOpen, isCommentOpen },
+    selectedMovie,
+    openDetails,
+    openEdit,
+    openComment,
+    closeModals,
+  } = useMovieModals();
+
+  // Redirect if not logged in
   useEffect(() => {
-  if (!user?.token) {
-    navigate('/login');
-  }
-}, [user, navigate]);
+    if (!user?.token) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     setAscending(getInitialAscending(sort));
   }, [sort]);
 
-  // ✅ Load movies based on search, sort, pagination
-  const {
-      movies,
-      loading,
-      error,
-      totalPages,
-      setMovies,
-    } = useMovies({
-      search,
-      sort,
-      ascending,
-      page,
-      token: user?.token,
-    });
-
-  const openDetailsModal = (movie) => setDetailsMovie(movie);
-  const closeDetailsModal = () => setDetailsMovie(null);
-  const handleCloseEditModal = () => setEditMovieId(null);
-
-  // ✅ Refresh movie on update event
+  // Refresh movie on update event
   const handleMovieUpdated = useCallback(async (updatedMovie) => {
-  if (!updatedMovie || !updatedMovie._id) {
-    console.warn('⚠️ Invalid movie passed to handleMovieUpdated:', updatedMovie);
-    return;
-  }
-
-  setIsRefreshingMovie(true);
-  try {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}/api/movies/${updatedMovie._id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch updated movie");
+    if (!updatedMovie || !updatedMovie._id) {
+      console.warn('⚠️ Invalid movie passed to handleMovieUpdated:', updatedMovie);
+      return;
     }
 
-    const freshMovie = await response.json();
+    setIsRefreshingMovie(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/movies/${updatedMovie._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
 
-    setMovies((prevMovies) =>
-      prevMovies.map((m) => (m._id === freshMovie._id ? freshMovie : m))
-    );
+      if (!response.ok) throw new Error("Failed to fetch updated movie");
 
-    setDetailsMovie(freshMovie);
-  } catch (err) {
-    console.error("Error refreshing movie:", err);
-  } finally {
-    setIsRefreshingMovie(false);
-  }
-}, [user.token, setMovies, setDetailsMovie, setIsRefreshingMovie]);
+      const freshMovie = await response.json();
 
+      setMovies((prevMovies) =>
+        prevMovies.map((m) => (m._id === freshMovie._id ? freshMovie : m))
+      );
+
+      // If the updated movie is currently selected, update modal state
+      if (selectedMovie && freshMovie._id === selectedMovie._id) {
+        openDetails(freshMovie);
+      }
+    } catch (err) {
+      console.error("Error refreshing movie:", err);
+    } finally {
+      setIsRefreshingMovie(false);
+    }
+  }, [user.token, setMovies, selectedMovie, openDetails]);
 
   useEffect(() => {
     const movieUpdatedListener = (updatedMovie) => {
@@ -134,7 +133,7 @@ export default function MovieList() {
 
   return (
     <Container sx={{ py: 4 }}>
-      {/* ✅ Sticky header with search/sort controls */}
+      {/* Sticky header with search/sort controls */}
       <Box sx={{ position: 'sticky', top: 0, zIndex: 1000, backgroundColor: 'background.paper', py: 1 }}>
         <MovieListHeader
           search={search}
@@ -163,42 +162,43 @@ export default function MovieList() {
         <Typography textAlign="center">No movies found.</Typography>
       )}
 
-      {/* ✅ Movie List */}
-        {!loading && !error && movies.length > 0 && (
-          <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
-            {movies.map((movie, index) => (
-              <MovieListItem
-                key={movie._id}
-                movie={movie}
-                index={index}
-                onOpenDetails={openDetailsModal}
-              />
-            ))}
-          </List>
-        )}
+      {/* Movie List */}
+      {!loading && !error && movies.length > 0 && (
+        <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
+          {movies.map((movie, index) => (
+            <MovieListItem
+              key={movie._id}
+              movie={movie}
+              index={index}
+              onOpenDetails={() => openDetails(movie)} // UPDATED: openDetails from modal hook
+            />
+          ))}
+        </List>
+      )}
 
       {/* Pagination */}
       <PaginationControls page={page} setPage={setPage} totalPages={totalPages} />
 
       {/* Edit Modal */}
       <EditMovieModal
-        editMovieId={editMovieId}
-        onClose={handleCloseEditModal}
+        editMovieId={selectedMovie?._id} // UPDATED: from modal hook's selectedMovie
+        open={isEditOpen}                 // UPDATED: controlled by modal hook
+        onClose={closeModals}             // UPDATED: close all modals
         onUpdated={handleMovieUpdated}
       />
 
       {/* Movie Details Modal */}
       <MovieDetailsModal
-        open={!!detailsMovie}
-        movie={detailsMovie}
-        onClose={closeDetailsModal}
-        onEdit={(id) => {
-          setEditMovieId(id);
-          closeDetailsModal();
+        open={isDetailsOpen}              // UPDATED: modal hook state
+        movie={selectedMovie}             // UPDATED: modal hook selected movie
+        onClose={closeModals}
+        onEdit={() => {
+          openEdit(selectedMovie);
+          closeModals();
         }}
-        onAddComment={() => setShowCommentForm(true)}
-        showCommentForm={showCommentForm}
-        setShowCommentForm={setShowCommentForm}
+        onAddComment={() => openComment(selectedMovie)}
+        showCommentForm={isCommentOpen}
+        setShowCommentForm={(val) => val ? openComment(selectedMovie) : closeModals()}
         user={user}
         commentRefreshKey={commentRefreshKey}
         isRefreshingMovie={isRefreshingMovie}
@@ -206,12 +206,12 @@ export default function MovieList() {
 
       {/* Add Comment Modal */}
       <CommentFormModal
-        open={showCommentForm}
+        open={isCommentOpen}
         onClose={() => {
-          setShowCommentForm(false);
-          setCommentRefreshKey(prev => prev + 1);
+          closeModals();
+          setCommentRefreshKey((prev) => prev + 1);
         }}
-        movieId={detailsMovie?._id}
+        movieId={selectedMovie?._id}
         token={user.token}
         openSnack={openSnack}
       />
