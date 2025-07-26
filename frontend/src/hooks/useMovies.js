@@ -46,3 +46,4 @@ export const useMovies = ({ search, sort, ascending, page, token }) => {
 
   return { movies, loading, error, totalPages, setMovies };
 };
+export default useMovies;
