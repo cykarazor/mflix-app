@@ -195,14 +195,14 @@ export default function MovieList() {
       <MovieDetailsModal
         open={isDetailsOpen}              // UPDATED: modal hook state
         movie={selectedMovie}             // UPDATED: modal hook selected movie
-        onClose={closeModals}
+        onClose={closeDetails}          // UPDATED: close all modals
         onEdit={() => {
           closeDetails();  // close details modal only
           openEdit(selectedMovie); // open edit modal
         }}
         onAddComment={() => openComment(selectedMovie)}
         showCommentForm={isCommentOpen}
-        setShowCommentForm={(val) => val ? openComment(selectedMovie) : closeModals()}
+        setShowCommentForm={(val) => val ? openComment(selectedMovie) : closeComment()}
         user={user}
         commentRefreshKey={commentRefreshKey}
         isRefreshingMovie={isRefreshingMovie}
