@@ -123,7 +123,7 @@ export default function MovieList() {
     } finally {
       setIsRefreshingMovie(false);
     }
-  }, [user.token, setMovies, selectedMovie, openDetails, setMovie]);
+  }, [user.token, setMovies, selectedMovie, setMovie]);
 
   useEffect(() => {
     const movieUpdatedListener = (updatedMovie) => {
