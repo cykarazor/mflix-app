@@ -14,3 +14,10 @@ backend/dist/
 # OS junk
 .DS_Store
 Thumbs.db
+
+# files
+createAdminUserUser.js
+updateUser.js
+fixCommentsArray.js
+migrateMovieId.js
+migrateMovieIDNative.js
