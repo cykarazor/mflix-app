@@ -22,11 +22,11 @@ export default function PaginationControls({ page, setPage, totalPages }) {
   };
 
   return (
-    <Stack spacing={1} alignItems="center" sx={{ mt: 4 }}>
-      {/* Row 1: Controls */}
+    <Stack spacing={2} alignItems="center" sx={{ mt: 5 }}>
+      {/* Row 1: Pagination Buttons */}
       <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={2}
+        direction="row"
+        spacing={{ xs: 1, sm: 2 }}
         alignItems="center"
         justifyContent="center"
         flexWrap="wrap"
@@ -38,7 +38,6 @@ export default function PaginationControls({ page, setPage, totalPages }) {
               onClick={() => setPage(1)}
               disabled={page === 1}
               color="primary"
-              size="large"
               aria-label="Go to first page"
               sx={iconStyle}
             >
@@ -47,14 +46,13 @@ export default function PaginationControls({ page, setPage, totalPages }) {
           </span>
         </Tooltip>
 
-        {/* Prev */}
+        {/* Previous Page */}
         <Tooltip title="Previous Page" arrow>
           <span>
             <IconButton
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
               color="primary"
-              size="large"
               aria-label="Go to previous page"
               sx={iconStyle}
             >
@@ -63,30 +61,34 @@ export default function PaginationControls({ page, setPage, totalPages }) {
           </span>
         </Tooltip>
 
-        {/* Dropdown */}
+        {/* Page Select Dropdown */}
         <TextField
           select
           size="small"
           value={page}
           onChange={handlePageSelect}
-          sx={{ minWidth: 80, maxWidth: 100 }}
+          sx={{
+            minWidth: { xs: 70, sm: 100 },
+            maxWidth: { xs: 90, sm: 120 },
+            backgroundColor: 'white',
+            borderRadius: 1,
+          }}
           aria-label="Select page"
         >
           {pageOptions.map((p) => (
             <MenuItem key={p} value={p}>
-              {p}
+              Page {p}
             </MenuItem>
           ))}
         </TextField>
 
-        {/* Next */}
+        {/* Next Page */}
         <Tooltip title="Next Page" arrow>
           <span>
             <IconButton
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={page === totalPages}
               color="primary"
-              size="large"
               aria-label="Go to next page"
               sx={iconStyle}
             >
@@ -102,7 +104,6 @@ export default function PaginationControls({ page, setPage, totalPages }) {
               onClick={() => setPage(totalPages)}
               disabled={page === totalPages}
               color="primary"
-              size="large"
               aria-label="Go to last page"
               sx={iconStyle}
             >
@@ -112,10 +113,11 @@ export default function PaginationControls({ page, setPage, totalPages }) {
         </Tooltip>
       </Stack>
 
-      {/* Row 2: Page info */}
+      {/* Row 2: Page Info */}
       <Typography
         variant="body2"
-        sx={{ mt: 1, color: 'text.secondary', userSelect: 'none' }}
+        color="text.secondary"
+        sx={{ mt: 1, userSelect: 'none' }}
       >
         Page {page} of {totalPages}
       </Typography>
@@ -123,10 +125,15 @@ export default function PaginationControls({ page, setPage, totalPages }) {
   );
 }
 
-// Shared button style
+// Shared responsive button style
 const iconStyle = {
   borderRadius: 2,
   boxShadow: 1,
+  fontSize: { xs: '1rem', sm: '1.5rem' },
+  padding: { xs: 0.5, sm: 1 },
+  minWidth: { xs: 32, sm: 40 },
+  minHeight: { xs: 32, sm: 40 },
+  transition: '0.2s ease',
   '&:hover': {
     backgroundColor: 'primary.light',
     color: 'primary.contrastText',
