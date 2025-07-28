@@ -29,24 +29,31 @@ export default function LoginForm() {
   }, [user, navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMsg('');
-    setLoading(true);
-    try {
-      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
-        email,
-        password,
-      });
+  e.preventDefault();
+  setMsg('');
+  setLoading(true);
+  try {
+    const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+      email,
+      password,
+    });
 
-      localStorage.setItem("token", res.data.token); // ✅ Store token here
-      login(res.data.user, res.data.token);
-      navigate('/');
-    } catch (err) {
-      setMsg(err.response?.data?.error || 'Login failed');
-    } finally {
-      setLoading(false);
+    localStorage.setItem("token", res.data.token); // ✅ Store token
+    login(res.data.user, res.data.token);           // ✅ Update context
+
+    // ✅ Redirect based on role
+    if (res.data.user.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/movies');
     }
-  };
+  } catch (err) {
+    setMsg(err.response?.data?.error || 'Login failed');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <Box maxWidth={400} mx="auto" mt={5}>
