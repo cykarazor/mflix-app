@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth');
 const commentRoutes = require('./routes/comments');
 const thumbsRoutes = require('./routes/thumbs');
 const { initSocket } = require('./socket'); // Import your socket module
+const adminRoutes = require('./routes/admin');
 
 // Ensure JWT_SECRET is defined
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -53,6 +54,7 @@ app.use('/api/movies', movieRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/thumbs', thumbsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/', (req, res) => {
