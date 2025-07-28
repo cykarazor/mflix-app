@@ -21,6 +21,8 @@ import { UserContext } from './UserContext';
 import UserProfile from './UserProfile';
 import ChangePassword from './ChangePassword'; // <-- ADD THIS LINE
 import { SnackbarProvider } from './contexts/SnackbarContext';
+import AdminDashboard from './admin/AdminDashboard';
+import PrivateAdminRoute from './components/PrivateAdminRoute';
 
 function App() {
   const { user } = useContext(UserContext);
@@ -75,6 +77,15 @@ function App() {
                 <ProtectedRoute>
                   <UserProfile />
                 </ProtectedRoute>
+              }
+            />
+            {/* NEW: Admin route */}
+            <Route
+              path="/admin"
+              element={
+                <PrivateAdminRoute>
+                  <AdminDashboard />
+                </PrivateAdminRoute>
               }
             />
 
