@@ -1,7 +1,7 @@
 //backend/routes/admin.js
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 const authenticateToken = require('../middleware/authenticateToken');
 const authorizeAdmin = require('../middleware/authorizeAdmin');
