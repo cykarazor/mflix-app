@@ -24,35 +24,33 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMsg('');
-    setLoading(true);
+  e.preventDefault();
+  setMsg('');
+  setLoading(true);
 
-    try {
-      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
-        email,
-        password,
-      });
+  try {
+    const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+      email,
+      password,
+    });
 
-      login(res.data.user, res.data.token);
+    const { user, token } = res.data;
 
-      console.log('✅ Login successful, redirecting to:', res.data.user.role === 'admin' ? '/admin' : '/movies');
+    login(user, token); // sets localStorage + updates context
 
+    console.log('✅ Login successful, redirecting to:', user.role === 'admin' ? '/admin' : '/movies');
 
-      setTimeout(() => {
-        if (res.data.user.role === 'admin') {
-          navigate('/admin', { replace: true });
-        } else {
-          navigate('/movies');
-        }
-      }, 0);
-      
-    } catch (err) {
-      setMsg(err.response?.data?.error || 'Login failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Delay navigation slightly to ensure context state is set
+    requestAnimationFrame(() => {
+      navigate(user.role === 'admin' ? '/admin' : '/movies');
+    });
+
+  } catch (err) {
+    setMsg(err.response?.data?.error || 'Login failed');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Box maxWidth={400} mx="auto" mt={5}>
