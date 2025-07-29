@@ -35,15 +35,14 @@ export default function LoginForm() {
     });
 
     const { user, token } = res.data;
+    login(user, token);
 
-    login(user, token); // sets localStorage + updates context
-
-    console.log('✅ Login successful, redirecting to:', user.role === 'admin' ? '/admin' : '/movies');
-
-    // Delay navigation slightly to ensure context state is set
-    requestAnimationFrame(() => {
-      navigate(user.role === 'admin' ? '/admin' : '/movies');
-    });
+    // Wait for UserContext to update before redirecting
+    // Use a small delay to ensure context has propagated
+    setTimeout(() => {
+      const target = user.role === 'admin' ? '/admin' : '/movies';
+      navigate(target, { replace: true });
+    }, 100);
 
   } catch (err) {
     setMsg(err.response?.data?.error || 'Login failed');
@@ -51,6 +50,7 @@ export default function LoginForm() {
     setLoading(false);
   }
 };
+
 
   return (
     <Box maxWidth={400} mx="auto" mt={5}>

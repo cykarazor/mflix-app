@@ -6,7 +6,7 @@ import { CircularProgress, Box } from '@mui/material';
 const PrivateAdminRoute = ({ children }) => {
   const { user } = useUser();
 
-  if (user === null) {
+  if (!user) {
     console.log('[PrivateAdminRoute] ⏳ Loading...');
     return (
       <Box display="flex" justifyContent="center" mt={4}>
