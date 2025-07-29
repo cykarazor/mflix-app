@@ -24,7 +24,7 @@ export default function LoginForm() {
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
   setMsg('');
   setLoading(true);
@@ -36,21 +36,7 @@ export default function LoginForm() {
     });
 
     console.log('Login response user:', res.data.user);
-
-    localStorage.setItem("token", res.data.token);
-    login(res.data.user, res.data.token);
-
-    // ✅ Wait one tick so context updates before using it
-    setTimeout(() => {
-      const storedUser = JSON.parse(localStorage.getItem('user'));
-      console.log('[Post-login localStorage user]', storedUser);
-
-      if (storedUser?.role === 'admin') {
-        navigate('/admin', { replace: true });
-      } else {
-        navigate('/movies', { replace: true });
-      }
-    }, 0);
+    login(res.data.user, res.data.token); // UserContext handles redirect now
 
   } catch (err) {
     setMsg(err.response?.data?.error || 'Login failed');
@@ -58,7 +44,6 @@ export default function LoginForm() {
     setLoading(false);
   }
 };
-
 
   return (
     <Box maxWidth={400} mx="auto" mt={5}>
