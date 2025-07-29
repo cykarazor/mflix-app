@@ -20,6 +20,7 @@ export function UserProvider({ children }) {
 }, []);
 
 const login = (userData, token) => {
+  console.log('login userData:', userData);
   const userWithToken = { ...userData, token }; // embed token in user
   localStorage.setItem('user', JSON.stringify(userWithToken));
   setUser(userWithToken);
