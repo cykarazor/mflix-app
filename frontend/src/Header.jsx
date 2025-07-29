@@ -26,6 +26,7 @@ import {
   AdminPanelSettings as AdminIcon,
   Login as LoginIcon,
   Logout as LogoutIcon,
+  AccountCircle as AccountCircleIcon,
 } from '@mui/icons-material';
 import { Link, useLocation } from 'react-router-dom';
 import { UserContext } from './UserContext';
@@ -43,6 +44,10 @@ export default function Header() {
     { label: 'Home', path: '/', icon: <HomeIcon /> },
     { label: 'Movies', path: '/movies', icon: <MovieIcon /> },
   ];
+
+  if (user) {
+    navItems.push({ label: 'Profile', path: '/profile', icon: <AccountCircleIcon /> });
+  }
 
   if (user?.isAdmin) {
     navItems.push({ label: 'Admin Dashboard', path: '/admin', icon: <AdminIcon /> });
