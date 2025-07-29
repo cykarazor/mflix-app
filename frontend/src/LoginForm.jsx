@@ -10,38 +10,49 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { UserContext } from './UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function LoginForm() {
+  const navigate = useNavigate();
   const { login } = useContext(UserContext);
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setMsg('');
-  setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMsg('');
+    setLoading(true);
 
-  try {
-    const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
-      email,
-      password,
-    });
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+        email,
+        password,
+      });
 
-    console.log('Login response user:', res.data.user);
-    login(res.data.user, res.data.token); // UserContext handles redirect now
+      login(res.data.user, res.data.token);
 
-  } catch (err) {
-    setMsg(err.response?.data?.error || 'Login failed');
-  } finally {
-    setLoading(false);
-  }
-};
+      console.log('✅ Login successful, redirecting to:', res.data.user.role === 'admin' ? '/admin' : '/movies');
+
+
+      setTimeout(() => {
+        if (res.data.user.role === 'admin') {
+          navigate('/admin', { replace: true });
+        } else {
+          navigate('/movies');
+        }
+      }, 0);
+      
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box maxWidth={400} mx="auto" mt={5}>
