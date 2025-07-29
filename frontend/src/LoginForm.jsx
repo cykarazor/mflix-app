@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -23,9 +23,10 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
+  // ✅ Redirect based on role after context is updated
   useEffect(() => {
-  if (user) {
+    if (user) {
       if (user.role === 'admin') {
         navigate('/admin');
       } else {
@@ -35,31 +36,23 @@ export default function LoginForm() {
   }, [user, navigate]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setMsg('');
-  setLoading(true);
-  try {
-    const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
-      email,
-      password,
-    });
+    e.preventDefault();
+    setMsg('');
+    setLoading(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+        email,
+        password,
+      });
 
-    localStorage.setItem("token", res.data.token); // ✅ Store token
-    login(res.data.user, res.data.token);           // ✅ Update context
-
-    // ✅ Redirect based on role
-    if (res.data.user.role === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/movies');
+      localStorage.setItem("token", res.data.token); // ✅ Store token
+      login(res.data.user, res.data.token);           // ✅ Update context only
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Login failed');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setMsg(err.response?.data?.error || 'Login failed');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <Box maxWidth={400} mx="auto" mt={5}>
