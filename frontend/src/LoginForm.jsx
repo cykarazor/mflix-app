@@ -25,33 +25,40 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMsg('');
-    setLoading(true);
-    try {
-      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
-        email,
-        password,
-      });
+  e.preventDefault();
+  setMsg('');
+  setLoading(true);
 
-      console.log('Login response user:', res.data.user); // 🔍 LOG THIS
+  try {
+    const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+      email,
+      password,
+    });
 
-      localStorage.setItem("token", res.data.token); // ✅ Store token
-      login(res.data.user, res.data.token);           // ✅ Update context only
-      
-      // ✅ Redirect based on role
-      if (res.data.user.role === 'admin') {
-        navigate('/admin');
+    console.log('Login response user:', res.data.user);
+
+    localStorage.setItem("token", res.data.token);
+    login(res.data.user, res.data.token);
+
+    // ✅ Wait one tick so context updates before using it
+    setTimeout(() => {
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      console.log('[Post-login localStorage user]', storedUser);
+
+      if (storedUser?.role === 'admin') {
+        navigate('/admin', { replace: true });
       } else {
-        navigate('/movies');
+        navigate('/movies', { replace: true });
       }
-    
-    } catch (err) {
-      setMsg(err.response?.data?.error || 'Login failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+    }, 0);
+
+  } catch (err) {
+    setMsg(err.response?.data?.error || 'Login failed');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <Box maxWidth={400} mx="auto" mt={5}>
