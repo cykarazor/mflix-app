@@ -16,7 +16,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const { user, login } = useContext(UserContext);
+  const { login } = useContext(UserContext);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
