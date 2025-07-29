@@ -23,9 +23,15 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
-
+  
   useEffect(() => {
-    if (user) navigate('/');
+  if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/movies');
+      }
+    }
   }, [user, navigate]);
 
   const handleSubmit = async (e) => {
