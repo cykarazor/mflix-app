@@ -24,17 +24,6 @@ export default function LoginForm() {
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ✅ Redirect based on role after context is updated
-  useEffect(() => {
-    if (user) {
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/movies');
-      }
-    }
-  }, [user, navigate]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg('');
@@ -47,6 +36,14 @@ export default function LoginForm() {
 
       localStorage.setItem("token", res.data.token); // ✅ Store token
       login(res.data.user, res.data.token);           // ✅ Update context only
+      
+      // ✅ Redirect based on role
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/movies');
+      }
+    
     } catch (err) {
       setMsg(err.response?.data?.error || 'Login failed');
     } finally {
