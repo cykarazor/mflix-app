@@ -41,17 +41,17 @@ export default function Header() {
   const isActive = (path) => location.pathname === path;
 
   const navItems = [
-    { label: 'Home', path: '/', icon: <HomeIcon /> },
-    { label: 'Movies', path: '/movies', icon: <MovieIcon /> },
-  ];
+  { label: 'Home', path: '/', icon: <HomeIcon /> },
+  { label: 'Movies', path: '/movies', icon: <MovieIcon /> },
+];
 
-  if (user) {
-    navItems.push({ label: 'Profile', path: '/profile', icon: <AccountCircleIcon /> });
-  }
+if (user) {
+  navItems.push({ label: 'Profile', path: '/profile', icon: <AccountCircleIcon /> });
 
-  if (user?.isAdmin) {
+  if (user.isAdmin) {
     navItems.push({ label: 'Admin Dashboard', path: '/admin', icon: <AdminIcon /> });
   }
+}
 
   const handleDrawerToggle = () => setDrawerOpen(!drawerOpen);
 
