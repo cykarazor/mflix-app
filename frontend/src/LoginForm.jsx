@@ -34,7 +34,7 @@ export default function LoginForm() {
         password,
       });
 
-      console.log('User response:', res.data.user); // 🔍 LOG THIS
+      console.log('Login response user:', res.data.user); // 🔍 LOG THIS
 
       localStorage.setItem("token", res.data.token); // ✅ Store token
       login(res.data.user, res.data.token);           // ✅ Update context only
