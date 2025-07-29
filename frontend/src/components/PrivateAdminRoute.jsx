@@ -5,15 +5,21 @@ import { useUser } from '../UserContext';
 const PrivateAdminRoute = ({ children }) => {
   const { user } = useUser();
 
-  console.log('[PrivateAdminRoute] Current user:', user);
+  console.log('[PrivateAdminRoute] user:', user);
 
-  if (!user || user.role !== 'admin') {
-    console.log('[Redirecting to /] Unauthorized or not admin');
+  if (!user) {
+    console.log('[PrivateAdminRoute] ❌ No user found');
     return <Navigate to="/" replace />;
   }
 
+  if (user.role !== 'admin') {
+    console.log('[PrivateAdminRoute] ❌ User is not admin, role:', user.role);
+    return <Navigate to="/" replace />;
+  }
+
+  console.log('[PrivateAdminRoute] ✅ Admin access granted');
   return children;
 };
 
-
 export default PrivateAdminRoute;
+
