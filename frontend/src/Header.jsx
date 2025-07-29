@@ -6,7 +6,8 @@ import { UserContext } from './UserContext';
 
 export default function Header() {
   const { user, logout } = useContext(UserContext);
-
+  console.log('Header user:', user);  // <-- debug here
+  
   return (
     <AppBar position="static">
       <Toolbar sx={{ justifyContent: 'space-between' }}>
