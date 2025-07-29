@@ -1,5 +1,4 @@
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   TextField,
@@ -15,7 +14,6 @@ import { UserContext } from './UserContext';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function LoginForm() {
-  const navigate = useNavigate();
   const { login } = useContext(UserContext);
 
   const [email, setEmail] = useState('');
