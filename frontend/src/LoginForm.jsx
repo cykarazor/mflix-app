@@ -34,11 +34,13 @@ export default function LoginForm() {
         password,
       });
 
+      console.log('User response:', res.data.user); // 🔍 LOG THIS
+
       localStorage.setItem("token", res.data.token); // ✅ Store token
       login(res.data.user, res.data.token);           // ✅ Update context only
       
       // ✅ Redirect based on role
-      if (user.role === 'admin') {
+      if (res.data.user.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/movies');
