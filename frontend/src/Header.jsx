@@ -35,7 +35,6 @@ export default function Header() {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
@@ -43,40 +42,18 @@ export default function Header() {
   const navItems = [
     { label: 'Home', path: '/', icon: <HomeIcon /> },
     { label: 'Movies', path: '/movies', icon: <MovieIcon /> },
-    ...(user?.isAdmin
-      ? [{ label: 'Admin Dashboard', path: '/admin', icon: <AdminIcon /> }]
-      : []),
   ];
+
+  if (user?.isAdmin) {
+    navItems.push({ label: 'Admin Dashboard', path: '/admin', icon: <AdminIcon /> });
+  }
 
   const handleDrawerToggle = () => setDrawerOpen(!drawerOpen);
 
-  const renderNavButtons = () =>
-    navItems.map((item) => (
-      <Button
-        key={item.path}
-        component={Link}
-        to={item.path}
-        color={isActive(item.path) ? 'secondary' : 'inherit'}
-        variant={isActive(item.path) ? 'contained' : 'text'}
-        startIcon={item.icon}
-        sx={{ textTransform: 'none' }}
-      >
-        {item.label}
-      </Button>
-    ));
-
   const drawer = (
     <Drawer anchor="left" open={drawerOpen} onClose={handleDrawerToggle}>
-      <Box
-        sx={{
-          width: 240,
-          pt: 2,
-        }}
-        role="presentation"
-        onClick={handleDrawerToggle}
-        onKeyDown={handleDrawerToggle}
-      >
-        <Box sx={{ px: 2, pb: 1 }}>
+      <Box sx={{ width: 240 }} role="presentation" onClick={handleDrawerToggle}>
+        <Box sx={{ p: 2 }}>
           {user ? (
             <Stack direction="row" spacing={2} alignItems="center">
               <Avatar>{user.username?.charAt(0).toUpperCase()}</Avatar>
@@ -89,7 +66,7 @@ export default function Header() {
           )}
         </Box>
 
-        <Divider sx={{ my: 1 }} />
+        <Divider />
 
         <List>
           {navItems.map((item) => (
@@ -106,7 +83,7 @@ export default function Header() {
           ))}
         </List>
 
-        <Divider sx={{ my: 1 }} />
+        <Divider />
 
         <List>
           {user ? (
@@ -144,13 +121,26 @@ export default function Header() {
               </IconButton>
             ) : (
               <Stack direction="row" spacing={1} alignItems="center">
-                {renderNavButtons()}
+                {navItems.map((item) => (
+                  <Button
+                    key={item.path}
+                    component={Link}
+                    to={item.path}
+                    color={isActive(item.path) ? 'secondary' : 'inherit'}
+                    variant={isActive(item.path) ? 'contained' : 'text'}
+                    startIcon={item.icon}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+
                 {user ? (
                   <>
                     <Avatar sx={{ width: 30, height: 30 }}>
                       {user.username?.charAt(0).toUpperCase()}
                     </Avatar>
-                    <Typography>{user.username}</Typography>
+                    <Typography sx={{ ml: 1 }}>{user.username}</Typography>
                     <Button onClick={logout} color="inherit" startIcon={<LogoutIcon />}>
                       Logout
                     </Button>
@@ -170,6 +160,7 @@ export default function Header() {
           </Toolbar>
         </AppBar>
       </Slide>
+
       {drawer}
     </>
   );
