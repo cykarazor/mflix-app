@@ -11,7 +11,16 @@ import {
   DialogActions,
   Button as MuiButton,
   Button,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Box,
 } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useLocation } from 'react-router-dom';
 import { UserContext } from './UserContext';
 
@@ -25,9 +34,11 @@ import { red } from '@mui/material/colors';
 
 export default function Header() {
   const { user, logout } = useContext(UserContext);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-
   const location = useLocation();
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const isActive = (path) => location.pathname === path;
 
   const navButtonStyle = (path) => ({
@@ -40,6 +51,47 @@ export default function Header() {
       backgroundColor: isActive(path) ? '#0d47a1' : 'rgba(255, 255, 255, 0.08)',
     },
   });
+
+  const drawerLinks = (
+    <Box sx={{ width: 250 }} role="presentation" onClick={() => setDrawerOpen(false)}>
+      <List>
+        {user ? (
+          <>
+            <ListItem button component={Link} to="/movies">
+              <ListItemIcon><MovieIcon /></ListItemIcon>
+              <ListItemText primary="Movies" />
+            </ListItem>
+            {user.role === 'admin' && (
+              <ListItem button component={Link} to="/admin">
+                <ListItemIcon><AdminPanelSettingsIcon /></ListItemIcon>
+                <ListItemText primary="Admin Dashboard" />
+              </ListItem>
+            )}
+            <ListItem button component={Link} to="/profile">
+              <ListItemIcon><AccountCircleIcon /></ListItemIcon>
+              <ListItemText primary="Profile" />
+            </ListItem>
+            <Divider />
+            <ListItem button onClick={() => setConfirmOpen(true)}>
+              <ListItemIcon><LogoutIcon sx={{ color: red[500] }} /></ListItemIcon>
+              <ListItemText primary="Logout" sx={{ color: red[500] }} />
+            </ListItem>
+          </>
+        ) : (
+          <>
+            <ListItem button component={Link} to="/login">
+              <ListItemIcon><LoginIcon /></ListItemIcon>
+              <ListItemText primary="Login" />
+            </ListItem>
+            <ListItem button component={Link} to="/register">
+              <ListItemIcon><AppRegistrationIcon /></ListItemIcon>
+              <ListItemText primary="Register" />
+            </ListItem>
+          </>
+        )}
+      </List>
+    </Box>
+  );
 
   return (
     <>
@@ -55,7 +107,23 @@ export default function Header() {
             MFlix
           </Typography>
 
-          <Stack direction="row" spacing={2}>
+          {/* Hamburger Icon for small screens */}
+          <IconButton
+            edge="end"
+            color="inherit"
+            sx={{ display: { xs: 'flex', sm: 'none' } }}
+            onClick={() => setDrawerOpen(true)}
+          >
+            <MenuIcon />
+          </IconButton>
+
+          {/* Stack for medium+ screens */}
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ display: { xs: 'none', sm: 'flex' } }}
+            alignItems="center"
+          >
             {user ? (
               <>
                 <Button
@@ -131,7 +199,16 @@ export default function Header() {
         </Toolbar>
       </AppBar>
 
-      {/* 🔒 Logout Confirmation Dialog */}
+      {/* Drawer for mobile nav */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        {drawerLinks}
+      </Drawer>
+
+      {/* Logout Confirmation Dialog */}
       <Dialog
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
