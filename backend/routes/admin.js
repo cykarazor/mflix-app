@@ -6,9 +6,16 @@ const bcrypt = require('bcrypt');
 const authenticateToken = require('../middleware/authenticateToken');
 const authorizeAdmin = require('../middleware/authorizeAdmin');
 const User = require('../models/User');
+const { getUserCount } = require('../controllers/adminController');
 
 // Middleware to ensure the user is authenticated and is an admin
 const adminOnly = [authenticateToken, authorizeAdmin];
+
+/**
+ * GET /api/admin/users/count
+ * Get total number of users
+ */
+router.get('/users/count', getUserCount);
 
 /**
  * GET /api/admin/users
