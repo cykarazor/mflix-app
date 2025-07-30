@@ -10,7 +10,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import LogoutIcon from '@mui/icons-material/Logout';
-
+import { red } from '@mui/material/colors';
 
 export default function Header() {
   const { user, logout } = useContext(UserContext);
@@ -79,12 +79,12 @@ export default function Header() {
               <Button
                 onClick={logout}
                 sx={{
-                  color: '#f44336',
+                  color: red[500],
                   backgroundColor: 'transparent',
                   borderRadius: 1,
                   textTransform: 'none',
                   '&:hover': {
-                    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                    backgroundColor: red[50],
                   },
                 }}
                 startIcon={<LogoutIcon />}
