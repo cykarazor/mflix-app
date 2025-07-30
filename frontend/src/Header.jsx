@@ -1,9 +1,20 @@
 // src/Header.jsx
-import { useContext } from 'react';
-import { AppBar, Toolbar, Typography, Stack, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button as MuiButton,
+  Button,
+} from '@mui/material';
+import { Link, useLocation } from 'react-router-dom';
 import { UserContext } from './UserContext';
-import { useLocation } from 'react-router-dom';
+
 import MovieIcon from '@mui/icons-material/Movie';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -14,7 +25,7 @@ import { red } from '@mui/material/colors';
 
 export default function Header() {
   const { user, logout } = useContext(UserContext);
-  console.log('Header user:', user);  // <-- debug here
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
@@ -29,90 +40,123 @@ export default function Header() {
       backgroundColor: isActive(path) ? '#0d47a1' : 'rgba(255, 255, 255, 0.08)',
     },
   });
-  
+
   return (
-    <AppBar position="static">
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        {/* Site Title */}
-        <Typography
-          variant="h6"
-          component={Link}
-          to="/"
-          sx={{ textDecoration: 'none', color: 'inherit' }}
-        >
-          MFlix
-        </Typography>
+    <>
+      <AppBar position="static">
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
+          {/* Site Title */}
+          <Typography
+            variant="h6"
+            component={Link}
+            to="/"
+            sx={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            MFlix
+          </Typography>
 
-        <Stack direction="row" spacing={2}>
-          {user ? (
-            <>
-              <Button 
-              component={Link} to="/movies" 
-              sx={navButtonStyle('/movies')} 
-              startIcon={<MovieIcon />}
-              >
-                Movies
-              </Button>
-
-              {user.role === 'admin' && (
-                <Button 
-                component={Link} to="/admin" 
-                sx={navButtonStyle('/admin')}
-                startIcon={<AdminPanelSettingsIcon />}
+          <Stack direction="row" spacing={2}>
+            {user ? (
+              <>
+                <Button
+                  component={Link}
+                  to="/movies"
+                  sx={navButtonStyle('/movies')}
+                  startIcon={<MovieIcon />}
                 >
-                  Admin Dashboard
+                  Movies
                 </Button>
-              )}
 
-              <Button 
-              component={Link} to="/profile" 
-              sx={navButtonStyle('/profile')}
-              startIcon={<AccountCircleIcon />}
-              >
-                Profile
-              </Button>
+                {user.role === 'admin' && (
+                  <Button
+                    component={Link}
+                    to="/admin"
+                    sx={navButtonStyle('/admin')}
+                    startIcon={<AdminPanelSettingsIcon />}
+                  >
+                    Admin Dashboard
+                  </Button>
+                )}
 
-              <Typography variant="body2" sx={{ alignSelf: 'center' }}>
-                Welcome, {user.name}
-              </Typography>
+                <Button
+                  component={Link}
+                  to="/profile"
+                  sx={navButtonStyle('/profile')}
+                  startIcon={<AccountCircleIcon />}
+                >
+                  Profile
+                </Button>
 
-              <Button
-                onClick={logout}
-                sx={{
-                  color: red[500],
-                  backgroundColor: 'transparent',
-                  borderRadius: 1,
-                  textTransform: 'none',
-                  '&:hover': {
-                    backgroundColor: red[50],
-                  },
-                }}
-                startIcon={<LogoutIcon />}
-              >
-                Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button 
-              component={Link} to="/login" 
-              sx={navButtonStyle('/login')}
-              startIcon={<LoginIcon />}
-              >
-                Login
-              </Button>
-              <Button 
-              component={Link} to="/register" 
-              sx={navButtonStyle('/register')}
-              startIcon={<AppRegistrationIcon />}
-              >
-                Register
-              </Button>
-            </>
-          )}
-        </Stack>
+                <Typography variant="body2" sx={{ alignSelf: 'center' }}>
+                  Welcome, {user.name}
+                </Typography>
 
-      </Toolbar>
-    </AppBar>
+                <Button
+                  onClick={() => setConfirmOpen(true)}
+                  sx={{
+                    color: red[500],
+                    backgroundColor: 'transparent',
+                    borderRadius: 1,
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: red[50],
+                    },
+                  }}
+                  startIcon={<LogoutIcon />}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  component={Link}
+                  to="/login"
+                  sx={navButtonStyle('/login')}
+                  startIcon={<LoginIcon />}
+                >
+                  Login
+                </Button>
+                <Button
+                  component={Link}
+                  to="/register"
+                  sx={navButtonStyle('/register')}
+                  startIcon={<AppRegistrationIcon />}
+                >
+                  Register
+                </Button>
+              </>
+            )}
+          </Stack>
+        </Toolbar>
+      </AppBar>
+
+      {/* 🔒 Logout Confirmation Dialog */}
+      <Dialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        aria-labelledby="logout-confirm-dialog"
+      >
+        <DialogTitle id="logout-confirm-dialog">Confirm Logout</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to log out?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <MuiButton onClick={() => setConfirmOpen(false)} color="primary">
+            Cancel
+          </MuiButton>
+          <MuiButton
+            onClick={() => {
+              setConfirmOpen(false);
+              logout();
+            }}
+            color="error"
+            variant="contained"
+          >
+            Logout
+          </MuiButton>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
