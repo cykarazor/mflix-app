@@ -4,6 +4,12 @@ import { AppBar, Toolbar, Typography, Stack, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
 import { useLocation } from 'react-router-dom';
+import MovieIcon from '@mui/icons-material/Movie';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LoginIcon from '@mui/icons-material/Login';
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 
 export default function Header() {
@@ -40,17 +46,29 @@ export default function Header() {
         <Stack direction="row" spacing={2}>
           {user ? (
             <>
-              <Button component={Link} to="/movies" sx={navButtonStyle('/movies')}>
+              <Button 
+              component={Link} to="/movies" 
+              sx={navButtonStyle('/movies')} 
+              startIcon={<MovieIcon />}
+              >
                 Movies
               </Button>
 
               {user.role === 'admin' && (
-                <Button component={Link} to="/admin" sx={navButtonStyle('/admin')}>
+                <Button 
+                component={Link} to="/admin" 
+                sx={navButtonStyle('/admin')}
+                startIcon={<AdminPanelSettingsIcon />}
+                >
                   Admin Dashboard
                 </Button>
               )}
 
-              <Button component={Link} to="/profile" sx={navButtonStyle('/profile')}>
+              <Button 
+              component={Link} to="/profile" 
+              sx={navButtonStyle('/profile')}
+              startIcon={<AccountCircleIcon />}
+              >
                 Profile
               </Button>
 
@@ -61,24 +79,33 @@ export default function Header() {
               <Button
                 onClick={logout}
                 sx={{
-                  color: 'inherit',
+                  color: '#f44336',
                   backgroundColor: 'transparent',
                   borderRadius: 1,
                   textTransform: 'none',
                   '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    backgroundColor: 'rgba(244, 67, 54, 0.1)',
                   },
                 }}
+                startIcon={<LogoutIcon />}
               >
                 Logout
               </Button>
             </>
           ) : (
             <>
-              <Button component={Link} to="/login" sx={navButtonStyle('/login')}>
+              <Button 
+              component={Link} to="/login" 
+              sx={navButtonStyle('/login')}
+              startIcon={<LoginIcon />}
+              >
                 Login
               </Button>
-              <Button component={Link} to="/register" sx={navButtonStyle('/register')}>
+              <Button 
+              component={Link} to="/register" 
+              sx={navButtonStyle('/register')}
+              startIcon={<AppRegistrationIcon />}
+              >
                 Register
               </Button>
             </>
