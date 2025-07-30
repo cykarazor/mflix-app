@@ -12,6 +12,17 @@ export default function Header() {
 
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
+
+  const navButtonStyle = (path) => ({
+    color: isActive(path) ? '#fff' : 'inherit',
+    backgroundColor: isActive(path) ? '#1565c0' : 'transparent',
+    borderRadius: 1,
+    textTransform: 'none',
+    fontWeight: isActive(path) ? 'bold' : 'normal',
+    '&:hover': {
+      backgroundColor: isActive(path) ? '#0d47a1' : 'rgba(255, 255, 255, 0.08)',
+    },
+  });
   
   return (
     <AppBar position="static">
@@ -29,29 +40,17 @@ export default function Header() {
         <Stack direction="row" spacing={2}>
           {user ? (
             <>
-              <Button
-                color={isActive('/movies') ? 'secondary' : 'inherit'}
-                component={Link}
-                to="/movies"
-              >
+              <Button component={Link} to="/movies" sx={navButtonStyle('/movies')}>
                 Movies
               </Button>
 
               {user.role === 'admin' && (
-                <Button
-                  color={isActive('/admin') ? 'secondary' : 'inherit'}
-                  component={Link}
-                  to="/admin"
-                >
+                <Button component={Link} to="/admin" sx={navButtonStyle('/admin')}>
                   Admin Dashboard
                 </Button>
               )}
 
-              <Button
-                color={isActive('/profile') ? 'secondary' : 'inherit'}
-                component={Link}
-                to="/profile"
-              >
+              <Button component={Link} to="/profile" sx={navButtonStyle('/profile')}>
                 Profile
               </Button>
 
@@ -59,24 +58,27 @@ export default function Header() {
                 Welcome, {user.name}
               </Typography>
 
-              <Button color="inherit" onClick={logout}>
+              <Button
+                onClick={logout}
+                sx={{
+                  color: 'inherit',
+                  backgroundColor: 'transparent',
+                  borderRadius: 1,
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  },
+                }}
+              >
                 Logout
               </Button>
             </>
           ) : (
             <>
-              <Button
-                color={isActive('/login') ? 'secondary' : 'inherit'}
-                component={Link}
-                to="/login"
-              >
+              <Button component={Link} to="/login" sx={navButtonStyle('/login')}>
                 Login
               </Button>
-              <Button
-                color={isActive('/register') ? 'secondary' : 'inherit'}
-                component={Link}
-                to="/register"
-              >
+              <Button component={Link} to="/register" sx={navButtonStyle('/register')}>
                 Register
               </Button>
             </>
