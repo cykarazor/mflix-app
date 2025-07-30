@@ -1,28 +1,26 @@
 // frontend/src/admin/AdminDashboard.jsx
-import { Grid, Card, CardContent, Typography, Box } from '@mui/material';
+import { Grid, Box, Typography } from '@mui/material';
+
+import TotalAdminsCard from './TotalAdminsCard';
+import TotalUsersCard from './TotalUsersCard';
+import TotalMoviesCard from './TotalMoviesCard';
+import TotalCommentsCard from './TotalCommentsCard';
+import TotalLikesCard from './TotalLikesCard';
+import TotalDislikesCard from './TotalDislikesCard';
 
 const AdminDashboard = () => {
   return (
     <Box p={4}>
-      <Typography variant="h4" gutterBottom>Admin Dashboard</Typography>
+      <Typography variant="h4" gutterBottom>
+        Admin Dashboard
+      </Typography>
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={4}>
-          <Card elevation={4}>
-            <CardContent>
-              <Typography variant="h6">Total Admins</Typography>
-              <Typography variant="h4">3</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <Card elevation={4}>
-            <CardContent>
-              <Typography variant="h6">Total Users</Typography>
-              <Typography variant="h4">24</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        {/* More cards can go here */}
+        <Grid item xs={12} sm={6} md={4}><TotalAdminsCard /></Grid>
+        <Grid item xs={12} sm={6} md={4}><TotalUsersCard /></Grid>
+        <Grid item xs={12} sm={6} md={4}><TotalMoviesCard /></Grid>
+        <Grid item xs={12} sm={6} md={4}><TotalCommentsCard /></Grid>
+        <Grid item xs={12} sm={6} md={4}><TotalLikesCard /></Grid>
+        <Grid item xs={12} sm={6} md={4}><TotalDislikesCard /></Grid>
       </Grid>
     </Box>
   );
