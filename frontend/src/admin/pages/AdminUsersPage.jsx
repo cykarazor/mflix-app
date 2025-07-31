@@ -1,32 +1,42 @@
-// frontend/src/admin/pages/AdminUsersPage.jsx
 import { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, CircularProgress } from '@mui/material';
 import { useUser } from '../../UserContext';
 import { API_BASE_URL } from '../../utils/api';
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useUser();
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       try {
         const res = await fetch(`${API_BASE_URL}/api/admin/users`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
+          headers: { Authorization: `Bearer ${user.token}` },
         });
         const data = await res.json();
         setUsers(data);
       } catch (err) {
         console.error('Failed to fetch users:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUsers();
   }, [user.token]);
 
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={4}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // your columns here with safe valueGetters
   const columns = [
     { field: '_id', headerName: 'ID', width: 220 },
     { field: 'name', headerName: 'Name', width: 150 },
@@ -36,19 +46,22 @@ const AdminUsersPage = () => {
       field: 'isActive',
       headerName: 'Status',
       width: 100,
-      valueGetter: (params) => (params.row.isActive ? 'Active' : 'Inactive'),
+      valueGetter: (params) => (params.row?.isActive ? 'Active' : 'Inactive'),
     },
     {
       field: 'createdAt',
       headerName: 'Joined',
       width: 180,
-      valueGetter: (params) => new Date(params.row.createdAt).toLocaleString(),
+      valueGetter: (params) =>
+        params.row?.createdAt ? new Date(params.row.createdAt).toLocaleString() : '',
     },
   ];
 
   return (
     <Box p={4}>
-      <Typography variant="h4" gutterBottom>All Users</Typography>
+      <Typography variant="h4" gutterBottom>
+        All Users
+      </Typography>
       <Box height={500} mt={2}>
         <DataGrid
           rows={users}
