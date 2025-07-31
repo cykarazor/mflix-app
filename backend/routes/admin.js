@@ -49,23 +49,29 @@ router.get('/users/:id', adminOnly, async (req, res) => {
  * Update user details (name, role, isActive)
  */
 router.put('/users/:id', adminOnly, async (req, res) => {
+  console.log('Incoming update:', req.body);
+  
   const { name, role, isActive } = req.body;
+
+  const updateFields = {
+    ...(name && { name }),
+    ...(role && { role }),
+    ...(typeof isActive === 'boolean' && { isActive }),
+    updatedAt: new Date(),
+  };
 
   try {
     const updated = await User.findByIdAndUpdate(
       req.params.id,
-      {
-        ...(name && { name }),
-        ...(role && { role }),
-        ...(typeof isActive === 'boolean' && { isActive }),
-        updatedAt: new Date(),
-      },
+      { $set: updateFields },
       { new: true }
     ).select('-password');
 
     if (!updated) return res.status(404).json({ message: 'User not found' });
+
     res.json(updated);
   } catch (err) {
+    console.error(err); // 🔍 log the error
     res.status(500).json({ message: 'Server error' });
   }
 });
