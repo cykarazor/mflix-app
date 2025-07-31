@@ -147,7 +147,8 @@ const AdminUsersPage = () => {
         <UserDetailModal
           open={isModalOpen}
           onClose={handleModalClose}
-          user={{ ...selectedUser, token: user.token }}
+          user={selectedUser}
+          token={user.token}
           onUserUpdated={handleUserUpdated}
         />
       )}
