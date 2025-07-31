@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react'; // ✅ Add useCallback
 import {
   Typography,
   Box,
@@ -20,8 +20,8 @@ const AdminUsersPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch users
-  const fetchUsers = async () => {
+  // ✅ Wrap fetchUsers in useCallback so it can safely go in useEffect deps
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
@@ -45,39 +45,40 @@ const AdminUsersPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.token]); // ✅ Dependency on user.token only
 
+  // ✅ Add fetchUsers to useEffect dependencies to fix ESLint warning
   useEffect(() => {
     if (user?.token) {
       fetchUsers();
     }
-  }, [user?.token]);
+  }, [user?.token, fetchUsers]);
 
-  // Handle row click to open modal
   const handleRowClick = (params) => {
     setSelectedUser(params.row);
     setIsModalOpen(true);
   };
 
-  // After modal close, reset selection
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedUser(null);
   };
 
-  // Update users list after user info changed in modal
-  // We expect the modal to call this with updated user info
   const handleUserUpdated = (updatedUser) => {
     setUsers((prev) =>
-      prev.map((u) => (u._id === updatedUser._id ? {
-        ...updatedUser,
-        createdAtFormatted: updatedUser.createdAt
-          ? format(new Date(updatedUser.createdAt), 'yyyy-MM-dd')
-          : 'N/A',
-        lastLoginFormatted: updatedUser.lastLogin
-          ? format(new Date(updatedUser.lastLogin), 'yyyy-MM-dd HH:mm')
-          : 'Never',
-      } : u))
+      prev.map((u) =>
+        u._id === updatedUser._id
+          ? {
+              ...updatedUser,
+              createdAtFormatted: updatedUser.createdAt
+                ? format(new Date(updatedUser.createdAt), 'yyyy-MM-dd')
+                : 'N/A',
+              lastLoginFormatted: updatedUser.lastLogin
+                ? format(new Date(updatedUser.lastLogin), 'yyyy-MM-dd HH:mm')
+                : 'Never',
+            }
+          : u
+      )
     );
   };
 
@@ -136,18 +137,17 @@ const AdminUsersPage = () => {
           pageSize={10}
           rowsPerPageOptions={[10, 20, 50]}
           disableRowSelectionOnClick
-          onRowClick={handleRowClick} // <== Open modal on row click
+          onRowClick={handleRowClick}
           sx={{ cursor: 'pointer' }}
         />
       </Box>
 
-      {/* User details modal */}
+      {/* ✅ Token is passed as prop inside `user` object */}
       {selectedUser && (
         <UserDetailModal
           open={isModalOpen}
           onClose={handleModalClose}
-          user={selectedUser}
-          token={user.token}         // Pass token explicitly
+          user={{ ...selectedUser, token: user.token }}
           onUserUpdated={handleUserUpdated}
         />
       )}
