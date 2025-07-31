@@ -65,33 +65,27 @@ const AdminUsersPage = () => {
   }
 
   const columns = [
-    { field: '_id', headerName: 'User ID', flex: 2, minWidth: 220 },
     { field: 'name', headerName: 'Name', flex: 1 },
     { field: 'email', headerName: 'Email', flex: 1.5 },
     { field: 'role', headerName: 'Role', flex: 1 },
     {
-      field: 'isActive',
-      headerName: 'Active',
-      flex: 0.7,
-      renderCell: (params) => (
+        field: 'isActive',
+        headerName: 'Active',
+        flex: 0.8,
+        renderCell: (params) => (
         <Chip
-          label={params.row?.isActive ? 'Active' : 'Inactive'}
-          color={params.row?.isActive ? 'success' : 'default'}
-          size="small"
+            label={params.row?.isActive ? 'Active' : 'Inactive'}
+            color={params.row?.isActive ? 'success' : 'default'}
+            size="small"
         />
-      ),
+        ),
     },
     {
-      field: 'createdAtFormatted',
-      headerName: 'Joined',
-      flex: 1.2,
+        field: 'lastLoginFormatted',
+        headerName: 'Last Login',
+        flex: 1.2,
     },
-    {
-      field: 'lastLoginFormatted',
-      headerName: 'Last Login',
-      flex: 1.2,
-    },
-  ];
+    ];
 
   return (
     <Box p={4}>
