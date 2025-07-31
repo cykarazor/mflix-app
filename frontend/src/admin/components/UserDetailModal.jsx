@@ -1,113 +1,279 @@
-import React from 'react';
+// frontend/src/admin/components/UserDetailModal.jsx
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  IconButton,
   TextField,
   Button,
-  Switch,
-  FormControlLabel,
-  MenuItem,
-  Stack,
   Typography,
+  IconButton,
+  Box,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Checkbox,
+  FormControlLabel,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { API_BASE_URL } from '../../utils/api';
 
-const roles = ['admin', 'user'];
+/**
+ * UserDetailModal shows user info in view mode,
+ * allows editing details and password reset,
+ * and notifies parent of updates.
+ * 
+ * Props:
+ * - open (bool): whether modal is open
+ * - onClose (func): called to close modal
+ * - user (object): the user data to display/edit
+ * - token (string): authorization token to send in API requests
+ * - onUserUpdated (func): callback(updatedUser) called after successful update
+ */
+const UserDetailModal = ({ open, onClose, user, token, onUserUpdated }) => {
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    role: '',
+    isActive: false,
+  });
+  const [passwordMode, setPasswordMode] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
-const UserDetailModal = ({ open, onClose, user, onSave, onChangePassword }) => {
-  const [formData, setFormData] = React.useState(user || {});
-
-  React.useEffect(() => {
+  // When modal opens or user changes, reset states and form data
+  useEffect(() => {
     if (user) {
-      setFormData(user);
+      setFormData({
+        name: user.name || '',
+        role: user.role || 'user',
+        isActive: !!user.isActive,
+      });
     }
-  }, [user]);
+    setEditMode(false);
+    setPasswordMode(false);
+    setNewPassword('');
+    setError('');
+    setPasswordError('');
+    setSuccessMsg('');
+  }, [user, open]);
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  if (!user) return null;
+
+  // Handle changes in form inputs (text/select/checkbox)
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
-  const handleSave = () => {
-    onSave(formData);
+  // Save edited user details
+  const handleSave = async () => {
+    setSaving(true);
+    setError('');
+    setSuccessMsg('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/users/${user._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // Use token from props
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || 'Failed to save user data');
+      }
+      const updatedUser = await res.json();
+      setSuccessMsg('User details updated successfully');
+      setEditMode(false);
+      // Notify parent of the update
+      if (onUserUpdated) onUserUpdated(updatedUser);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (!formData) return null;
+  // Reset user password
+  const handlePasswordReset = async () => {
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      return;
+    }
+    setPasswordSaving(true);
+    setPasswordError('');
+    setSuccessMsg('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/users/${user._id}/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // Use token from props
+        },
+        body: JSON.stringify({ newPassword }),
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || 'Failed to reset password');
+      }
+      setSuccessMsg('Password reset successfully');
+      setPasswordMode(false);
+      setNewPassword('');
+      // Optionally notify parent if needed, though user data unchanged except password
+    } catch (err) {
+      setPasswordError(err.message);
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ m: 0, p: 2 }}>
-        Edit User
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{ position: 'absolute', right: 8, top: 8 }}
-        >
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        User Details
+        <IconButton onClick={onClose} size="small" aria-label="close">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
       <DialogContent dividers>
-        <Stack spacing={2}>
-          <TextField
-            label="Name"
-            value={formData.name || ''}
-            fullWidth
-            onChange={(e) => handleChange('name', e.target.value)}
-          />
+        {/* Show error and success messages */}
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {successMsg && <Alert severity="success" sx={{ mb: 2 }}>{successMsg}</Alert>}
 
-          <TextField
-            label="Email"
-            value={formData.email || ''}
-            fullWidth
-            onChange={(e) => handleChange('email', e.target.value)}
-          />
-
-          <TextField
-            select
-            label="Role"
-            value={formData.role || 'user'}
-            fullWidth
-            onChange={(e) => handleChange('role', e.target.value)}
+        {/* View mode: show user info */}
+        {!editMode ? (
+          <Box>
+            <Typography><strong>Name:</strong> {user.name}</Typography>
+            <Typography><strong>Email:</strong> {user.email}</Typography>
+            <Typography><strong>Role:</strong> {user.role}</Typography>
+            <Typography><strong>Active:</strong> {user.isActive ? 'Yes' : 'No'}</Typography>
+            <Typography><strong>Joined:</strong> {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</Typography>
+            <Typography><strong>Last Login:</strong> {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</Typography>
+          </Box>
+        ) : (
+          // Edit mode: form inputs
+          <Box
+            component="form"
+            noValidate
+            autoComplete="off"
+            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
           >
-            {roles.map((role) => (
-              <MenuItem key={role} value={role}>
-                {role}
-              </MenuItem>
-            ))}
-          </TextField>
+            <TextField
+              label="Name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              fullWidth
+            />
+            <TextField
+              label="Email"
+              value={user.email}
+              fullWidth
+              disabled
+              helperText="Email cannot be changed"
+            />
+            <FormControl fullWidth>
+              <InputLabel id="role-label">Role</InputLabel>
+              <Select
+                labelId="role-label"
+                label="Role"
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+              >
+                <MenuItem value="admin">Admin</MenuItem>
+                <MenuItem value="user">User</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="isActive"
+                  checked={formData.isActive}
+                  onChange={handleInputChange}
+                />
+              }
+              label="Active"
+            />
+          </Box>
+        )}
 
-          <FormControlLabel
-            control={
-              <Switch
-                checked={formData.isActive || false}
-                onChange={(e) => handleChange('isActive', e.target.checked)}
-              />
-            }
-            label="Active"
-          />
+        {/* Buttons below info */}
+        {!editMode && !passwordMode && (
+          <Box mt={2}>
+            <Button variant="outlined" onClick={() => setEditMode(true)} sx={{ mr: 2 }}>
+              Edit
+            </Button>
+            <Button variant="outlined" onClick={() => setPasswordMode(true)} color="secondary">
+              Reset Password
+            </Button>
+          </Box>
+        )}
 
-          <Typography variant="body2" color="textSecondary">
-            Joined: {formData.createdAt ? new Date(formData.createdAt).toLocaleString() : 'N/A'}
-          </Typography>
-
-          <Typography variant="body2" color="textSecondary">
-            Last Login: {formData.lastLogin ? new Date(formData.lastLogin).toLocaleString() : 'Never'}
-          </Typography>
-        </Stack>
+        {/* Password reset form */}
+        {passwordMode && (
+          <Box mt={3} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {passwordError && <Alert severity="error">{passwordError}</Alert>}
+            <TextField
+              label="New Password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              fullWidth
+              autoFocus
+            />
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="contained"
+                onClick={handlePasswordReset}
+                disabled={passwordSaving}
+              >
+                {passwordSaving ? <CircularProgress size={24} /> : 'Save Password'}
+              </Button>
+              <Button variant="outlined" onClick={() => setPasswordMode(false)}>
+                Cancel
+              </Button>
+            </Box>
+          </Box>
+        )}
       </DialogContent>
 
-      <DialogActions>
-        <Button color="error" onClick={onChangePassword}>
-          Change Password
-        </Button>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSave}>
-          Save
-        </Button>
-      </DialogActions>
+      {/* Actions for editing */}
+      {editMode && (
+        <DialogActions>
+          <Button variant="contained" onClick={handleSave} disabled={saving}>
+            {saving ? <CircularProgress size={24} /> : 'Save'}
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setEditMode(false);
+              setFormData({
+                name: user.name,
+                role: user.role,
+                isActive: user.isActive,
+              });
+              setError('');
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      )}
     </Dialog>
   );
 };

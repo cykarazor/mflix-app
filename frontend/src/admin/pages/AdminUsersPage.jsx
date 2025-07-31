@@ -4,63 +4,81 @@ import {
   Box,
   CircularProgress,
   Chip,
-  IconButton,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useUser } from '../../UserContext';
 import { API_BASE_URL } from '../../utils/api';
 import { format } from 'date-fns';
 import UserDetailModal from '../components/UserDetailModal';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { user } = useUser();
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Fetch users
+  const fetchUsers = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/users`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      const data = await res.json();
+      const formattedUsers = data.map((u) => ({
+        ...u,
+        createdAtFormatted: u.createdAt
+          ? format(new Date(u.createdAt), 'yyyy-MM-dd')
+          : 'N/A',
+        lastLoginFormatted: u.lastLogin
+          ? format(new Date(u.lastLogin), 'yyyy-MM-dd HH:mm')
+          : 'Never',
+      }));
+      setUsers(formattedUsers);
+    } catch (err) {
+      console.error('Failed to fetch users:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      setError(false);
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/admin/users`, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        const data = await res.json();
+    if (user?.token) {
+      fetchUsers();
+    }
+  }, [user?.token]);
 
-        const formattedUsers = data.map((u) => ({
-          ...u,
-          createdAtFormatted: u.createdAt
-            ? format(new Date(u.createdAt), 'yyyy-MM-dd')
-            : 'N/A',
-          lastLoginFormatted: u.lastLogin
-            ? format(new Date(u.lastLogin), 'yyyy-MM-dd HH:mm')
-            : 'Never',
-        }));
-
-        setUsers(formattedUsers);
-      } catch (err) {
-        console.error('Failed to fetch users:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, [user.token]);
-
-  const handleViewUser = (user) => {
-    setSelectedUser(user);
+  // Handle row click to open modal
+  const handleRowClick = (params) => {
+    setSelectedUser(params.row);
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
+  // After modal close, reset selection
+  const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedUser(null);
+  };
+
+  // Update users list after user info changed in modal
+  // We expect the modal to call this with updated user info
+  const handleUserUpdated = (updatedUser) => {
+    setUsers((prev) =>
+      prev.map((u) => (u._id === updatedUser._id ? {
+        ...updatedUser,
+        createdAtFormatted: updatedUser.createdAt
+          ? format(new Date(updatedUser.createdAt), 'yyyy-MM-dd')
+          : 'N/A',
+        lastLoginFormatted: updatedUser.lastLogin
+          ? format(new Date(updatedUser.lastLogin), 'yyyy-MM-dd HH:mm')
+          : 'Never',
+      } : u))
+    );
   };
 
   if (loading) {
@@ -74,7 +92,9 @@ const AdminUsersPage = () => {
   if (error) {
     return (
       <Box display="flex" justifyContent="center" mt={4}>
-        <Typography color="error">⚠️ Failed to load users. Please try again later.</Typography>
+        <Typography color="error">
+          ⚠️ Failed to load users. Please try again later.
+        </Typography>
       </Box>
     );
   }
@@ -100,20 +120,6 @@ const AdminUsersPage = () => {
       headerName: 'Last Login',
       flex: 1.2,
     },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      flex: 0.6,
-      renderCell: (params) => (
-        <IconButton
-          color="primary"
-          onClick={() => handleViewUser(params.row)}
-          aria-label="View User"
-        >
-          <VisibilityIcon />
-        </IconButton>
-      ),
-    },
   ];
 
   return (
@@ -130,14 +136,21 @@ const AdminUsersPage = () => {
           pageSize={10}
           rowsPerPageOptions={[10, 20, 50]}
           disableRowSelectionOnClick
+          onRowClick={handleRowClick} // <== Open modal on row click
+          sx={{ cursor: 'pointer' }}
         />
       </Box>
 
-      <UserDetailModal
-        open={isModalOpen}
-        onClose={handleCloseModal}
-        user={selectedUser}
-      />
+      {/* User details modal */}
+      {selectedUser && (
+        <UserDetailModal
+          open={isModalOpen}
+          onClose={handleModalClose}
+          user={selectedUser}
+          token={user.token}         // Pass token explicitly
+          onUserUpdated={handleUserUpdated}
+        />
+      )}
     </Box>
   );
 };
