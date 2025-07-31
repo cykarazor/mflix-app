@@ -14,7 +14,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Checkbox,
+  Switch,
   FormControlLabel,
   Alert,
   CircularProgress,
@@ -76,6 +76,7 @@ const UserDetailModal = ({ open, onClose, user, token, onUserUpdated }) => {
       [name]: type === 'checkbox' ? checked : value,
     }));
   };
+
 
   // Save edited user details
   const handleSave = async () => {
@@ -201,10 +202,11 @@ const UserDetailModal = ({ open, onClose, user, token, onUserUpdated }) => {
             </FormControl>
             <FormControlLabel
               control={
-                <Checkbox
+                <Switch
                   name="isActive"
                   checked={formData.isActive}
                   onChange={handleInputChange}
+                  color="primary"
                 />
               }
               label="Active"
