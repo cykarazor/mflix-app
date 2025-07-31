@@ -37,34 +37,38 @@ const AdminUsersPage = () => {
     );
   }
 
-  // your columns here with safe valueGetters
   const columns = [
-  { field: '_id', headerName: 'User ID', flex: 2, minWidth: 220 },
-  { field: 'name', headerName: 'Name', flex: 1 },
-  { field: 'email', headerName: 'Email', flex: 1.5 },
-  { field: 'role', headerName: 'Role', flex: 1 },
-  {
-    field: 'isActive',
-    headerName: 'Active',
-    type: 'boolean',
-    flex: 0.7,
-    valueGetter: (params) => params.row?.isActive ?? false,
-  },
-  {
-    field: 'createdAt',
-    headerName: 'Joined',
-    flex: 1.2,
-    valueGetter: (params) =>
-      params.row?.createdAt ? format(new Date(params.row.createdAt), 'yyyy-MM-dd') : 'N/A',
-  },
-  {
-    field: 'lastLogin',
-    headerName: 'Last Login',
-    flex: 1.2,
-    valueGetter: (params) =>
-      params.row?.lastLogin ? format(new Date(params.row.lastLogin), 'yyyy-MM-dd HH:mm') : 'Never',
-  },
-];
+    { field: '_id', headerName: 'User ID', flex: 2, minWidth: 220 },
+    { field: 'name', headerName: 'Name', flex: 1 },
+    { field: 'email', headerName: 'Email', flex: 1.5 },
+    { field: 'role', headerName: 'Role', flex: 1 },
+    {
+      field: 'isActive',
+      headerName: 'Active',
+      type: 'boolean',
+      flex: 0.7,
+      valueGetter: (params) =>
+        params?.row?.isActive != null ? params.row.isActive : false,
+    },
+    {
+      field: 'createdAt',
+      headerName: 'Joined',
+      flex: 1.2,
+      valueGetter: (params) =>
+        params?.row?.createdAt
+          ? format(new Date(params.row.createdAt), 'yyyy-MM-dd')
+          : 'N/A',
+    },
+    {
+      field: 'lastLogin',
+      headerName: 'Last Login',
+      flex: 1.2,
+      valueGetter: (params) =>
+        params?.row?.lastLogin
+          ? format(new Date(params.row.lastLogin), 'yyyy-MM-dd HH:mm')
+          : 'Never',
+    },
+  ];
 
   return (
     <Box p={4}>
@@ -73,7 +77,7 @@ const AdminUsersPage = () => {
       </Typography>
       <Box height={500} mt={2}>
         <DataGrid
-          rows={users}
+          rows={users || []}
           columns={columns}
           getRowId={(row) => row._id}
           pageSize={10}
