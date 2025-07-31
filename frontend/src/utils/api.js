@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://mflix-app-a7wd.onrender.com';
 
 export async function fetchMovies({ page, limit, sortBy, sortOrder, search, token }) {
   const params = new URLSearchParams({

@@ -3,6 +3,7 @@ import StatCard from './StatCard';
 import PeopleIcon from '@mui/icons-material/People';
 import { Box, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../utils/api';
 
 const TotalUsersCard = () => {
   const [count, setCount] = useState(null);
@@ -10,7 +11,7 @@ const TotalUsersCard = () => {
   useEffect(() => {
     const fetchUserCount = async () => {
       try {
-        const res = await fetch('/api/admin/users/count');
+        const res = await fetch(`${API_BASE_URL}/api/admin/users/count`);
         const data = await res.json();
         setCount(data.count);
       } catch (err) {
@@ -28,7 +29,7 @@ const TotalUsersCard = () => {
         label={
           <Box display="flex" alignItems="center" gap={1}>
             <PeopleIcon color="primary" />
-            <Typography variant="h6">Users</Typography>
+            <Typography variant="h6">Total Users</Typography>
           </Box>
         }
         value={count !== null ? count : '...'}
