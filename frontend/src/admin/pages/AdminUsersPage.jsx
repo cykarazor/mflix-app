@@ -171,8 +171,9 @@ useEffect(() => {
           rows={filteredUsers || []}
           columns={columns}
           getRowId={(row) => row._id}
+          pagination
           pageSize={10}
-          rowsPerPageOptions={[10, 20, 50]}
+          rowsPerPageOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
           onRowClick={handleRowClick}
           sx={{ cursor: 'pointer' }}
