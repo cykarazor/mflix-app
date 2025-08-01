@@ -17,6 +17,7 @@ const AdminUsersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { user } = useUser();
+  const [pageSize, setPageSize] = useState(25);
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -172,7 +173,8 @@ useEffect(() => {
           columns={columns}
           getRowId={(row) => row._id}
           pagination
-          pageSize={10}
+          pageSize={pageSize}
+          onPageSizeChange={(newSize) => setPageSize(newSize)}
           rowsPerPageOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
           onRowClick={handleRowClick}
