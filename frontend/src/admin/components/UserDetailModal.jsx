@@ -48,6 +48,7 @@ const UserDetailModal = ({ open, onClose, user, token, onUserUpdated }) => {
   const [error, setError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // When modal opens or user changes, reset states and form data
   useEffect(() => {
@@ -113,36 +114,40 @@ const UserDetailModal = ({ open, onClose, user, token, onUserUpdated }) => {
 
   // Reset user password
   const handlePasswordReset = async () => {
-    if (newPassword.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
-      return;
+  if (newPassword.length < 6) {
+    setPasswordError('Password must be at least 6 characters');
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    setPasswordError('Passwords do not match');
+    return;
+  }
+  setPasswordSaving(true);
+  setPasswordError('');
+  setSuccessMsg('');
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/users/${user._id}/password`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ newPassword }),
+    });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.message || 'Failed to reset password');
     }
-    setPasswordSaving(true);
-    setPasswordError('');
-    setSuccessMsg('');
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/admin/users/${user._id}/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // Use token from props
-        },
-        body: JSON.stringify({ newPassword }),
-      });
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || 'Failed to reset password');
-      }
-      setSuccessMsg('Password reset successfully');
-      setPasswordMode(false);
-      setNewPassword('');
-      // Optionally notify parent if needed, though user data unchanged except password
-    } catch (err) {
-      setPasswordError(err.message);
-    } finally {
-      setPasswordSaving(false);
-    }
-  };
+    setSuccessMsg('Password reset successfully');
+    setPasswordMode(false);
+    setNewPassword('');
+    setConfirmPassword('');
+  } catch (err) {
+    setPasswordError(err.message);
+  } finally {
+    setPasswordSaving(false);
+  }
+};
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -240,6 +245,13 @@ const UserDetailModal = ({ open, onClose, user, token, onUserUpdated }) => {
               onChange={(e) => setNewPassword(e.target.value)}
               fullWidth
               autoFocus
+            />
+            <TextField
+              label="Confirm Password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              fullWidth
             />
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button
