@@ -56,10 +56,9 @@ router.put('/users/:id', adminOnly, async (req, res) => {
   const updateFields = {
     ...(name && { name }),
     ...(role && { role }),
-    ...(typeof isActive === 'boolean' && { isActive }),
+    ...(req.body.hasOwnProperty('isActive') && { isActive }),
     updatedAt: new Date(),
   };
-
   try {
     const updated = await User.findByIdAndUpdate(
       req.params.id,
