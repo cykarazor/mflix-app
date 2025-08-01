@@ -18,8 +18,11 @@ import {
   FormControlLabel,
   Alert,
   CircularProgress,
+  InputAdornment,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { API_BASE_URL } from '../../utils/api';
 
 /**
@@ -49,6 +52,12 @@ const UserDetailModal = ({ open, onClose, user, token, onUserUpdated }) => {
   const [passwordError, setPasswordError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Toggle password visibility handler
+  const handleToggleShowPassword = () => {
+    setShowPassword((show) => !show);
+  };
 
   // When modal opens or user changes, reset states and form data
   useEffect(() => {
@@ -239,20 +248,47 @@ const UserDetailModal = ({ open, onClose, user, token, onUserUpdated }) => {
           <Box mt={3} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {passwordError && <Alert severity="error">{passwordError}</Alert>}
             <TextField
-              label="New Password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              fullWidth
-              autoFocus
-            />
-            <TextField
-              label="Confirm Password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              fullWidth
-            />
+            label="New Password"
+            type={showPassword ? 'text' : 'password'}  // toggle type
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            fullWidth
+            autoFocus
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    onClick={handleToggleShowPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <TextField
+            label="Confirm Password"
+            type={showPassword ? 'text' : 'password'}  // toggle type
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    onClick={handleToggleShowPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button
                 variant="contained"
