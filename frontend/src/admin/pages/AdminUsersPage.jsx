@@ -161,7 +161,7 @@ useEffect(() => {
         All Users
       </Typography>
 
-      <Box sx={{ height: 500, width: '100%' }} mt={2}>
+      <Box display="flex" flexDirection="column" flex={1} minHeight="0">
         <UserFilters
           search={search}
           onSearchChange={setSearch}
@@ -171,7 +171,7 @@ useEffect(() => {
           onActiveToggle={setShowActiveOnly}
         />
         <DataGrid
-          rows={filteredUsers}
+          rows={filteredUsers || []}
           columns={columns}
           getRowId={(row) => row._id}
           pageSize={10}
