@@ -10,6 +10,7 @@ import { useUser } from '../../UserContext';
 import { API_BASE_URL } from '../../utils/api';
 import { format } from 'date-fns';
 import UserDetailModal from '../components/UserDetailModal';
+import UserFilters from '../components/UserFilters';
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -19,6 +20,37 @@ const AdminUsersPage = () => {
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [showActiveOnly, setShowActiveOnly] = useState(false);
+  const [filteredUsers, setFilteredUsers] = useState(users);
+
+  // Apply filters every time users or filter state changes
+useEffect(() => {
+  let filtered = users;
+
+  // Filter by search (name or email)
+  if (search.trim()) {
+    const lowerSearch = search.toLowerCase();
+    filtered = filtered.filter(
+      (u) =>
+        u.name.toLowerCase().includes(lowerSearch) ||
+        u.email.toLowerCase().includes(lowerSearch)
+    );
+  }
+
+  // Filter by role if selected
+  if (roleFilter) {
+    filtered = filtered.filter((u) => u.role === roleFilter);
+  }
+
+  // Filter by active status if toggled
+  if (showActiveOnly) {
+    filtered = filtered.filter((u) => u.isActive);
+  }
+
+  setFilteredUsers(filtered);
+}, [users, search, roleFilter, showActiveOnly]);
 
   // ✅ Wrap fetchUsers in useCallback so it can safely go in useEffect deps
   const fetchUsers = useCallback(async () => {
@@ -130,8 +162,16 @@ const AdminUsersPage = () => {
       </Typography>
 
       <Box sx={{ height: 500, width: '100%' }} mt={2}>
+        <UserFilters
+          search={search}
+          onSearchChange={setSearch}
+          roleFilter={roleFilter}
+          onRoleChange={setRoleFilter}
+          showActiveOnly={showActiveOnly}
+          onActiveToggle={setShowActiveOnly}
+        />
         <DataGrid
-          rows={users || []}
+          rows={filteredUsers}
           columns={columns}
           getRowId={(row) => row._id}
           pageSize={10}
