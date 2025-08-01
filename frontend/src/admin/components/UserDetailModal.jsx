@@ -83,6 +83,9 @@ const UserDetailModal = ({ open, onClose, user, token, onUserUpdated }) => {
     setSaving(true);
     setError('');
     setSuccessMsg('');
+
+    console.log('Sending to backend:', formData);
+
     try {
       const res = await fetch(`${API_BASE_URL}/api/admin/users/${user._id}`, {
         method: 'PUT',
