@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin', 'moderator'], // your roles
     default: 'user',
   },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
   lastLogin: {
     type: Date,
     default: null, // ✅ Default to null if not set
