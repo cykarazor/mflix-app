@@ -23,34 +23,31 @@ const AdminUsersPage = () => {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [showActiveOnly, setShowActiveOnly] = useState(false);
-  const [filteredUsers, setFilteredUsers] = useState(users);
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   // Apply filters every time users or filter state changes
 useEffect(() => {
-  let filtered = users;
+  let filtered = users || [];
 
-  // Filter by search (name or email)
-  if (search.trim()) {
-    const lowerSearch = search.toLowerCase();
-    filtered = filtered.filter(
-      (u) =>
-        u.name.toLowerCase().includes(lowerSearch) ||
-        u.email.toLowerCase().includes(lowerSearch)
-    );
-  }
+  const lowerSearch = search.trim().toLowerCase();
+    if (lowerSearch) {
+      filtered = filtered.filter(
+        (u) =>
+          u.name.toLowerCase().includes(lowerSearch) ||
+          u.email.toLowerCase().includes(lowerSearch)
+      );
+    }
 
-  // Filter by role if selected
-  if (roleFilter) {
-    filtered = filtered.filter((u) => u.role === roleFilter);
-  }
+    if (roleFilter) {
+      filtered = filtered.filter((u) => u.role === roleFilter);
+    }
 
-  // Filter by active status if toggled
-  if (showActiveOnly) {
-    filtered = filtered.filter((u) => u.isActive);
-  }
+    if (showActiveOnly) {
+      filtered = filtered.filter((u) => u.isActive);
+    }
 
-  setFilteredUsers(filtered);
-}, [users, search, roleFilter, showActiveOnly]);
+    setFilteredUsers(filtered);
+  }, [users, search, roleFilter, showActiveOnly]);
 
   // ✅ Wrap fetchUsers in useCallback so it can safely go in useEffect deps
   const fetchUsers = useCallback(async () => {
