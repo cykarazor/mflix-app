@@ -32,10 +32,10 @@ useEffect(() => {
   const lowerSearch = search.trim().toLowerCase();
     if (lowerSearch) {
       filtered = filtered.filter(
-        (u) =>
-          u.name.toLowerCase().includes(lowerSearch) ||
-          u.email.toLowerCase().includes(lowerSearch)
-      );
+      (u) =>
+        (u.name?.toLowerCase() || '').includes(lowerSearch) ||
+        (u.email?.toLowerCase() || '').includes(lowerSearch)
+    );
     }
 
     if (roleFilter) {
