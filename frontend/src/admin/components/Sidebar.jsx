@@ -8,7 +8,6 @@ import {
   ListItemText,
   Toolbar,
   Divider,
-  IconButton,
   Typography,
   useMediaQuery,
   Box,
@@ -21,7 +20,6 @@ import {
 
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import GroupIcon from '@mui/icons-material/Group';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
