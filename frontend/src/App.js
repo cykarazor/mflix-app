@@ -17,15 +17,11 @@ import AdminDashboard from './admin/AdminDashboard';
 import AdminUsersPage from './admin/pages/AdminUsersPage';
 
 import Layout from './components/Layout'; // ✅ NEW: shared layout
+import AdminLayout from './admin/AdminLayout';
 import PrivateAdminRoute from './components/PrivateAdminRoute';
 import { UserContext } from './UserContext';
 import { SnackbarProvider } from './contexts/SnackbarContext';
 
-// ❌ REMOVED: These are now inside Layout
-// import Header from './Header';
-// import Footer from './Footer';
-// import Container from '@mui/material/Container';
-// import Box from '@mui/material/Box';
 
 function App() {
   const { user } = useContext(UserContext);
@@ -86,23 +82,19 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
 
-          {/* ✅ Admin-only routes (can use separate layout later) */}
-          <Route
-            path="/admin"
-            element={
-              <PrivateAdminRoute>
-                <AdminDashboard />
-              </PrivateAdminRoute>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <PrivateAdminRoute>
-                <AdminUsersPage />
-              </PrivateAdminRoute>
-            }
-          />
+          {/* ✅ Admin-only routes with AdminLayout */}
+            <Route
+              path="/admin"
+              element={
+                <PrivateAdminRoute>
+                  <AdminLayout />
+                </PrivateAdminRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              {/* Add more nested admin routes here as needed */}
+            </Route>
         </Routes>
       </Router>
     </SnackbarProvider>
