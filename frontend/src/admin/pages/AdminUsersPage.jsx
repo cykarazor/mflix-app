@@ -183,11 +183,13 @@ useEffect(() => {
             setPage(model.page);
             localStorage.setItem('adminUsersPageSize', model.pageSize);
           }}
-          rowsPerPageOptions={[10, 25, 50, 100]}
+          pageSizeOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
           onRowClick={handleRowClick}
+          paginationMode="client" // default but explicit is better
           sx={{ cursor: 'pointer' }}
         />
+
       </Box>
 
       {/* ✅ Token is passed as prop inside `user` object */}
