@@ -1,10 +1,6 @@
 // src/App.jsx
 import { useContext } from 'react';
 import {
-  Container,
-  Box,
-} from '@mui/material';
-import {
   BrowserRouter as Router,
   Routes,
   Route,
@@ -15,15 +11,21 @@ import LandingPage from './LandingPage';
 import MovieList from './MovieList';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
-import Footer from './Footer';
-import Header from './Header'; // <-- Use the new Header component
-import { UserContext } from './UserContext';
 import UserProfile from './UserProfile';
-import ChangePassword from './ChangePassword'; // <-- ADD THIS LINE
-import { SnackbarProvider } from './contexts/SnackbarContext';
+import ChangePassword from './ChangePassword';
 import AdminDashboard from './admin/AdminDashboard';
-import PrivateAdminRoute from './components/PrivateAdminRoute';
 import AdminUsersPage from './admin/pages/AdminUsersPage';
+
+import Layout from './components/Layout'; // ✅ NEW: shared layout
+import PrivateAdminRoute from './components/PrivateAdminRoute';
+import { UserContext } from './UserContext';
+import { SnackbarProvider } from './contexts/SnackbarContext';
+
+// ❌ REMOVED: These are now inside Layout
+// import Header from './Header';
+// import Footer from './Footer';
+// import Container from '@mui/material/Container';
+// import Box from '@mui/material/Box';
 
 function App() {
   const { user } = useContext(UserContext);
@@ -35,14 +37,14 @@ function App() {
 
   return (
     <SnackbarProvider>
-      {/* Wrap the entire app in the SnackbarProvider */}
-    <Router>
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Header />  {/* Use the new Header component */}
-
-        <Container maxWidth="md" sx={{ mt: 4, flexGrow: 1 }}>
-          <Routes>
-            <Route path="/" element={!user ? <LandingPage /> : <Navigate to="/movies" />} />
+      <Router>
+        <Routes>
+          {/* ✅ Public + user-auth routes go inside the shared layout */}
+          <Route element={<Layout />}>
+            <Route
+              path="/"
+              element={!user ? <LandingPage /> : <Navigate to="/movies" />}
+            />
 
             <Route
               path="/movies"
@@ -53,7 +55,6 @@ function App() {
               }
             />
 
-            {/* NEW: Change Password route */}
             <Route
               path="/change-password"
               element={
@@ -63,15 +64,6 @@ function App() {
               }
             />
 
-            <Route path="/login" element={user ? <Navigate to="/movies" replace /> : <LoginForm />} />
-            <Route
-              path="/register"
-              element={user ? <Navigate to="/movies" replace /> : <RegisterForm />}
-            />
-
-            <Route path="*" element={<Navigate to="/" replace />} />
-
-            {/* NEW: User Profile route */}
             <Route
               path="/profile"
               element={
@@ -80,32 +72,39 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* NEW: Admin route */}
-            <Route
-              path="/admin"
-              element={
-                <PrivateAdminRoute>
-                  <AdminDashboard />
-                </PrivateAdminRoute>
-              }
-            />
-            {/* NEW: Admin Users Page route */}
-            
-            <Route
-              path="/admin/users"
-              element={
-                <PrivateAdminRoute>
-                  <AdminUsersPage />
-                </PrivateAdminRoute>
-              }
-            />
-            
-          </Routes>
-        </Container>
 
-        <Footer />
-      </Box>
-    </Router>
+            <Route
+              path="/login"
+              element={user ? <Navigate to="/movies" replace /> : <LoginForm />}
+            />
+
+            <Route
+              path="/register"
+              element={user ? <Navigate to="/movies" replace /> : <RegisterForm />}
+            />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+
+          {/* ✅ Admin-only routes (can use separate layout later) */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateAdminRoute>
+                <AdminDashboard />
+              </PrivateAdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <PrivateAdminRoute>
+                <AdminUsersPage />
+              </PrivateAdminRoute>
+            }
+          />
+        </Routes>
+      </Router>
     </SnackbarProvider>
   );
 }
