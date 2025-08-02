@@ -7,6 +7,11 @@ import {
   IconButton,
   Box,
   useMediaQuery,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button as MuiButton,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -20,8 +25,10 @@ const AdminHeader = ({ onDrawerToggle }) => {
   const { user, logout } = React.useContext(UserContext);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   return (
+    <>
     <AppBar
       position="fixed"
       color="primary"
@@ -55,16 +62,47 @@ const AdminHeader = ({ onDrawerToggle }) => {
         {/* Right side: Welcome + Logout */}
         <Box display="flex" alignItems="center" gap={1}>
           <AccountCircleIcon />
-          <Typography variant="body1" component="span" sx={{ whiteSpace: 'nowrap' }}>
+          <Typography
+            variant="body1"
+            component="span"
+            sx={{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: isMobile ? 100 : 'none',
+            }}
+          >
             Welcome, {user?.name || 'Admin'}
           </Typography>
 
-          <IconButton color="inherit" onClick={logout} title="Logout">
-            <LogoutIcon />
-          </IconButton>
+          {/* ✅ Logout only on large screens */}
+          {!isMobile && (
+            <IconButton color="inherit" onClick={() => setConfirmOpen(true)} title="Logout">
+              <LogoutIcon />
+            </IconButton>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
+
+    {/* ✅ Logout Confirmation Dialog */}
+      <Dialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        aria-labelledby="logout-confirm-dialog"
+      >
+        <DialogTitle>Confirm Logout</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to log out?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <MuiButton onClick={() => setConfirmOpen(false)}>Cancel</MuiButton>
+          <MuiButton onClick={() => { setConfirmOpen(false); logout(); }} color="error" variant="contained">
+            Logout
+          </MuiButton>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
