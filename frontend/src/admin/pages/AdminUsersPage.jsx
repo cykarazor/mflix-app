@@ -17,7 +17,11 @@ const AdminUsersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { user } = useUser();
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(() => {
+  return Number(localStorage.getItem('adminUsersPageSize')) || 10;
+  });
+  const [page, setPage] = useState(0);
+
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -173,11 +177,13 @@ useEffect(() => {
           columns={columns}
           getRowId={(row) => row._id}
           pagination
-          paginationModel={{ pageSize, page: 0 }}
+          paginationModel={{ pageSize, page }}
           onPaginationModelChange={(model) => {
             setPageSize(model.pageSize);
+            setPage(model.page);
+            localStorage.setItem('adminUsersPageSize', model.pageSize);
           }}
-          rowsPerPageOptions={[10, 25, 50, 100]} // 👈 Ensure 10 is listed
+          rowsPerPageOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
           onRowClick={handleRowClick}
           sx={{ cursor: 'pointer' }}
