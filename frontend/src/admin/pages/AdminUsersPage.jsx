@@ -17,7 +17,7 @@ const AdminUsersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { user } = useUser();
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize, setPageSize] = useState(10);
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
