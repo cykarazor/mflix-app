@@ -36,7 +36,7 @@ const AdminHeader = ({ onDrawerToggle }) => {
         )}
 
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Admin Dashboard
+          M-Flix Administrator
         </Typography>
 
         {/* Welcome message and logout */}

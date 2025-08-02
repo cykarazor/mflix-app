@@ -7,8 +7,6 @@ import {
   ListItemText,
   Toolbar,
   Divider,
-  Typography,
-  Box,
   useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -28,16 +26,6 @@ const Sidebar = ({ mobileOpen, onClose }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Stats (replace with API data or props later)
-  const stats = {
-    admins: 3,
-    users: 120,
-    movies: 45,
-    comments: 178,
-    likes: 540,
-    dislikes: 32,
-  };
-
   const handleMenuClick = (path) => {
     navigate(path);
     if (isMobile && onClose) {
@@ -45,53 +33,12 @@ const Sidebar = ({ mobileOpen, onClose }) => {
     }
   };
 
-  const drawerContent = (
-    <>
-      <Toolbar />
-      <Divider />
-      <Box p={2}>
-        <Typography variant="h6">Admin Panel Stats</Typography>
-        <List>
-          <ListItemButton onClick={() => handleMenuClick('/admin/users?role=admin')}>
-            <ListItemIcon><AdminPanelSettingsIcon /></ListItemIcon>
-            <ListItemText primary={`Admins: ${stats.admins}`} />
-          </ListItemButton>
-
-          <ListItemButton onClick={() => handleMenuClick('/admin/users?role=user')}>
-            <ListItemIcon><GroupIcon /></ListItemIcon>
-            <ListItemText primary={`Users: ${stats.users}`} />
-          </ListItemButton>
-
-          <ListItemButton onClick={() => handleMenuClick('/admin/movies')}>
-            <ListItemIcon><MovieIcon /></ListItemIcon>
-            <ListItemText primary={`Movies: ${stats.movies}`} />
-          </ListItemButton>
-
-          <ListItemButton onClick={() => handleMenuClick('/admin/comments')}>
-            <ListItemIcon><CommentIcon /></ListItemIcon>
-            <ListItemText primary={`Comments: ${stats.comments}`} />
-          </ListItemButton>
-
-          <ListItemButton onClick={() => handleMenuClick('/admin/likes')}>
-            <ListItemIcon><ThumbUpIcon color="success" /></ListItemIcon>
-            <ListItemText primary={`Likes: ${stats.likes}`} />
-          </ListItemButton>
-
-          <ListItemButton onClick={() => handleMenuClick('/admin/dislikes')}>
-            <ListItemIcon><ThumbDownIcon color="error" /></ListItemIcon>
-            <ListItemText primary={`Dislikes: ${stats.dislikes}`} />
-          </ListItemButton>
-        </List>
-      </Box>
-    </>
-  );
-
   return (
     <Drawer
       variant={isMobile ? 'temporary' : 'permanent'}
       open={isMobile ? mobileOpen : true}
       onClose={onClose}
-      ModalProps={{ keepMounted: true }} // Better performance on mobile
+      ModalProps={{ keepMounted: true }}
       sx={{
         width: drawerWidth,
         flexShrink: 0,
@@ -101,7 +48,38 @@ const Sidebar = ({ mobileOpen, onClose }) => {
         },
       }}
     >
-      {drawerContent}
+      <Toolbar />
+      <Divider />
+      <List>
+        <ListItemButton onClick={() => handleMenuClick('/admin')}>
+          <ListItemIcon><AdminPanelSettingsIcon /></ListItemIcon>
+          <ListItemText primary="Dashboard" />
+        </ListItemButton>
+        <ListItemButton onClick={() => handleMenuClick('/admin/users?role=admin')}>
+          <ListItemIcon><AdminPanelSettingsIcon /></ListItemIcon>
+          <ListItemText primary="Admins" />
+        </ListItemButton>
+        <ListItemButton onClick={() => handleMenuClick('/admin/users?role=user')}>
+          <ListItemIcon><GroupIcon /></ListItemIcon>
+          <ListItemText primary="Users" />
+        </ListItemButton>
+        <ListItemButton onClick={() => handleMenuClick('/admin/movies')}>
+          <ListItemIcon><MovieIcon /></ListItemIcon>
+          <ListItemText primary="Movies" />
+        </ListItemButton>
+        <ListItemButton onClick={() => handleMenuClick('/admin/comments')}>
+          <ListItemIcon><CommentIcon /></ListItemIcon>
+          <ListItemText primary="Comments" />
+        </ListItemButton>
+        <ListItemButton onClick={() => handleMenuClick('/admin/likes')}>
+          <ListItemIcon><ThumbUpIcon color="success" /></ListItemIcon>
+          <ListItemText primary="Likes" />
+        </ListItemButton>
+        <ListItemButton onClick={() => handleMenuClick('/admin/dislikes')}>
+          <ListItemIcon><ThumbDownIcon color="error" /></ListItemIcon>
+          <ListItemText primary="Dislikes" />
+        </ListItemButton>
+      </List>
     </Drawer>
   );
 };
