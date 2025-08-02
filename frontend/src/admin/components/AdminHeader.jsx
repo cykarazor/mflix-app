@@ -17,6 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useTheme } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
 import { UserContext } from '../../UserContext';
 
 const drawerWidth = 240;
@@ -62,18 +63,20 @@ const AdminHeader = ({ onDrawerToggle }) => {
         {/* Right side: Welcome + Logout */}
         <Box display="flex" alignItems="center" gap={1}>
           <AccountCircleIcon />
-          <Typography
-            variant="body1"
-            component="span"
-            sx={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: isMobile ? 100 : 'none',
-            }}
-          >
-            Welcome, {user?.name || 'Admin'}
-          </Typography>
+          <Tooltip title={user?.name || 'Admin'}>
+            <Typography
+              variant="body1"
+              component="span"
+              sx={{
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: isMobile ? 140 : 'none', // more room than 100
+              }}
+            >
+              Welcome, {user?.name || 'Admin'}
+            </Typography>
+          </Tooltip>
 
           {/* ✅ Logout only on large screens */}
           {!isMobile && (
