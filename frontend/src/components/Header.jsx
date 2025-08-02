@@ -22,7 +22,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useLocation } from 'react-router-dom';
-import { UserContext } from './UserContext';
+import { UserContext } from '../UserContext';
 
 import MovieIcon from '@mui/icons-material/Movie';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';

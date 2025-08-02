@@ -1,5 +1,4 @@
 // src/LandingPage.jsx
-import React from 'react';
 import bgImage from './assets/landing-bg.jpg'; // ✅ Local import
 import { Button, Container, Typography, Stack, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
