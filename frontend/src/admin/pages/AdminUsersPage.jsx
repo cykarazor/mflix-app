@@ -173,9 +173,11 @@ useEffect(() => {
           columns={columns}
           getRowId={(row) => row._id}
           pagination
-          pageSize={pageSize}
-          onPageSizeChange={(newSize) => setPageSize(newSize)}
-          rowsPerPageOptions={[10, 25, 50, 100]}
+          paginationModel={{ pageSize, page: 0 }}
+          onPaginationModelChange={(model) => {
+            setPageSize(model.pageSize);
+          }}
+          rowsPerPageOptions={[10, 25, 50, 100]} // 👈 Ensure 10 is listed
           disableRowSelectionOnClick
           onRowClick={handleRowClick}
           sx={{ cursor: 'pointer' }}
