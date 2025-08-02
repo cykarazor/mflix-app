@@ -47,7 +47,7 @@ const Sidebar = ({ mobileOpen, onClose }) => {
 
   return (
     <>
-      {/* Mobile menu icon */}
+      {/* Mobile menu icon 
       {isMobile && (
         <IconButton
           color="inherit"
@@ -63,7 +63,7 @@ const Sidebar = ({ mobileOpen, onClose }) => {
         >
           <MenuIcon />
         </IconButton>
-      )}
+      )} */}
 
       <Drawer
         variant={isMobile ? 'temporary' : 'permanent'}
