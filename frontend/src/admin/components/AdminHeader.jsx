@@ -14,32 +14,45 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useTheme } from '@mui/material/styles';
 import { UserContext } from '../../UserContext';
 
+const drawerWidth = 240;
+
 const AdminHeader = ({ onDrawerToggle }) => {
   const { user, logout } = React.useContext(UserContext);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
-    <AppBar position="static" color="primary" enableColorOnDark>
-      <Toolbar>
-        {/* Hamburger menu on mobile */}
-        {isMobile && (
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={onDrawerToggle}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-        )}
+    <AppBar
+      position="fixed"
+      color="primary"
+      enableColorOnDark
+      sx={{
+        width: { md: `calc(100% - ${drawerWidth}px)` },
+        ml: { md: `${drawerWidth}px` },
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+      }}
+    >
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        {/* Left side: title + hamburger */}
+        <Box display="flex" alignItems="center">
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={onDrawerToggle}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
 
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          M-Flix Administrator
-        </Typography>
+          <Typography variant="h6" noWrap component="div">
+            M-Flix Administrator
+          </Typography>
+        </Box>
 
-        {/* Welcome message and logout */}
+        {/* Right side: Welcome + Logout */}
         <Box display="flex" alignItems="center" gap={1}>
           <AccountCircleIcon />
           <Typography variant="body1" component="span" sx={{ whiteSpace: 'nowrap' }}>
