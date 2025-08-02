@@ -1,28 +1,27 @@
-// src/admin/AdminLayout.jsx
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import AdminHeader from './components/AdminHeader';
 import AdminFooter from './components/AdminFooter';
 import { Box } from '@mui/material';
 
-const AdminLayout = () => (
-  <Box display="flex" height="100vh">
-    <Sidebar />
-    <Box
-      sx={{
-        flexGrow: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-      }}
-    >
-      <AdminHeader />
-      <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
-        <Outlet />
+const AdminLayout = () => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <AdminHeader onDrawerToggle={handleDrawerToggle} />
+      <Box sx={{ display: 'flex', flexGrow: 1 }}>
+        <Sidebar mobileOpen={mobileOpen} onClose={handleDrawerToggle} />
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Outlet />
+        </Box>
       </Box>
       <AdminFooter />
     </Box>
-  </Box>
-);
+  );
+};
 
 export default AdminLayout;
