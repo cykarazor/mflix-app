@@ -5,115 +5,47 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  ToggleButton,
-  ToggleButtonGroup,
+  MenuItem,
+  Select,
   Box,
-  Typography,
 } from '@mui/material';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  LabelList,
-} from 'recharts';
+import UsersByRoleChart from './charts/UsersByRoleChart';
+import ActiveStatusPieChart from './charts/ActiveStatusPieChart';
 
-const COLORS = ['#4caf50', '#2196f3', '#f44336', '#ff9800', '#9c27b0'];
-
-const AnalyticsModal = ({ open, onClose, users }) => {
+export default function AnalyticsModal({ open, onClose, users }) {
   const [chartType, setChartType] = React.useState('role');
 
-  // Prepare role distribution data
-  const roleCounts = users.reduce((acc, user) => {
-    acc[user.role] = (acc[user.role] || 0) + 1;
-    return acc;
-  }, {});
-  const roleData = Object.keys(roleCounts).map((role, index) => ({
-    name: role,
-    value: roleCounts[role],
-    color: COLORS[index % COLORS.length],
-  }));
-
-  // Prepare Active vs Inactive data
-  const activeCount = users.filter((u) => u.isActive).length;
-  const inactiveCount = users.length - activeCount;
-  const activeData = [
-    { name: 'Active', value: activeCount, color: '#4caf50' },
-    { name: 'Inactive', value: inactiveCount, color: '#f44336' },
-  ];
-
-  const handleChartChange = (_, newType) => {
-    if (newType !== null) setChartType(newType);
+  const renderChart = () => {
+    switch (chartType) {
+      case 'role':
+        return <UsersByRoleChart users={users} />;
+      case 'active':
+        return <ActiveStatusPieChart users={users} />;
+      default:
+        return null;
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>📊 User Analytics</DialogTitle>
-
+      <DialogTitle>User Analytics</DialogTitle>
       <DialogContent>
         <Box mb={2}>
-          <ToggleButtonGroup
+          <Select
             value={chartType}
-            exclusive
-            onChange={handleChartChange}
-            size="small"
+            onChange={(e) => setChartType(e.target.value)}
+            fullWidth
           >
-            <ToggleButton value="role">Role Distribution</ToggleButton>
-            <ToggleButton value="active">Active vs Inactive</ToggleButton>
-          </ToggleButtonGroup>
+            <MenuItem value="role">Users by Role</MenuItem>
+            <MenuItem value="active">Active vs Inactive</MenuItem>
+            {/* You can add more chart options here */}
+          </Select>
         </Box>
-
-        <Box height={400}>
-          {chartType === 'role' ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={roleData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="value" name="Users" fill="#2196f3">
-                  <LabelList dataKey="value" position="top" />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={activeData}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={120}
-                  innerRadius={60}
-                  label={({ name, value }) => `${name}: ${value}`}
-                >
-                  {activeData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-        </Box>
+        {renderChart()}
       </DialogContent>
-
       <DialogActions>
-        <Button onClick={onClose} color="primary" variant="outlined">
-          Close
-        </Button>
+        <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>
   );
-};
-
-export default AnalyticsModal;
+}
