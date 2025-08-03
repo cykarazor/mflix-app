@@ -1,11 +1,12 @@
 // backend/routes/admin/movies.js
 const express = require('express');
 const router = express.Router();
-const { authMiddleware, adminOnly } = require('../../middleware/auth');
+const authenticateToken = require('../../middleware/authenticiateToken');
+const authorizeAdmin = require('../../middleware/authorizeAdmin');
 const Movie = require('../../models/Movie');
 
 // GET /api/admin/movies?countOnly=true
-router.get('/', authMiddleware, adminOnly, async (req, res) => {
+router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
   try {
     if (req.query.countOnly === 'true') {
       const count = await Movie.countDocuments();
