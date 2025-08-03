@@ -15,6 +15,7 @@ import UserProfile from './UserProfile';
 import ChangePassword from './ChangePassword';
 import AdminDashboard from './admin/AdminDashboard';
 import AdminUsersPage from './admin/pages/AdminUsersPage';
+import AdminMoviesPage from './admin/pages/AdminMoviesPage';
 
 import Layout from './components/Layout'; // ✅ NEW: shared layout
 import AdminLayout from './admin/AdminLayout';
@@ -93,6 +94,7 @@ function App() {
             >
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsersPage />} />
+              <Route path="movies" element={<AdminMoviesPage />} />
               {/* Add more nested admin routes here as needed */}
             </Route>
         </Routes>

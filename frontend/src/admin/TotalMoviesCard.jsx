@@ -1,10 +1,12 @@
 // frontend/src/admin/TotalMoviesCard.jsx
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import StatCard from './StatCard';
 import { API_BASE_URL } from '../utils/api';
 
-const TotalMoviesCard = ({ token, onClick }) => {
+const TotalMoviesCard = ({ token }) => {
   const [count, setCount] = useState(0);
+  const navigate = useNavigate(); // ✅ for navigation on click
 
   useEffect(() => {
     const fetchMovieCount = async () => {
@@ -16,7 +18,7 @@ const TotalMoviesCard = ({ token, onClick }) => {
         const data = await res.json();
         setCount(data.count || 0);
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching movie count:', err);
       }
     };
 
@@ -24,7 +26,7 @@ const TotalMoviesCard = ({ token, onClick }) => {
   }, [token]);
 
   return (
-    <div onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
+    <div onClick={() => navigate('/admin/movies')} style={{ cursor: 'pointer' }}>
       <StatCard label="Total Movies" value={count} />
     </div>
   );
