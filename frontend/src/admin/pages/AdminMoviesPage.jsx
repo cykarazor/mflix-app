@@ -18,55 +18,53 @@ const AdminMoviesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { user } = useUser();
-  const [pageSize, setPageSize] = useState(() => {
-    return Number(localStorage.getItem('adminMoviesPageSize')) || 10;
-  });
+
+  const [pageSize, setPageSize] = useState(() => Number(localStorage.getItem('adminMoviesPageSize')) || 10);
   const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [search, setSearch] = useState('');
   const [yearFilter, setYearFilter] = useState('');
-  const [filteredMovies, setFilteredMovies] = useState([]);
   const [showAnalytics, setShowAnalytics] = useState(false);
 
-  // Apply filters
-  useEffect(() => {
-    let filtered = movies || [];
-    const lowerSearch = search.trim().toLowerCase();
-
-    if (lowerSearch) {
-      filtered = filtered.filter(
-        (m) =>
-          m.title.toLowerCase().includes(lowerSearch) ||
-          (m.director?.toLowerCase().includes(lowerSearch) ?? false)
-      );
-    }
-
-    if (yearFilter) {
-      filtered = filtered.filter((m) => m.year?.toString() === yearFilter);
-    }
-
-    setFilteredMovies(filtered);
-  }, [movies, search, yearFilter]);
-
-  // Fetch movies
+  // Fetch paginated movies from backend with page, pageSize, and optionally filters
   const fetchMovies = useCallback(async () => {
     setLoading(true);
     setError(false);
+
     try {
-      const res = await fetch(`${API_BASE_URL}/api/admin/movies`, {
+      // Build URL with pagination and filter params
+      const params = new URLSearchParams();
+      params.append('page', page);
+      params.append('pageSize', pageSize);
+
+      if (search.trim()) {
+        params.append('search', search.trim());
+      }
+      if (yearFilter) {
+        params.append('year', yearFilter);
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/admin/movies?${params.toString()}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
+
+      if (!res.ok) throw new Error('Failed to fetch movies');
+
       const data = await res.json();
-      setMovies(data);
+
+      setMovies(data.movies);
+      setTotalCount(data.totalCount);
     } catch (err) {
       console.error('Failed to fetch movies:', err);
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, [user.token]);
+  }, [page, pageSize, user.token, search, yearFilter]);
 
   useEffect(() => {
     if (user?.token) {
@@ -162,20 +160,23 @@ const AdminMoviesPage = () => {
           </Button>
         </Box>
         <DataGrid
-          rows={filteredMovies || []}
+          rows={movies}
           columns={columns}
           getRowId={(row) => row._id}
           pagination
-          paginationModel={{ pageSize, page }}
-          onPaginationModelChange={(model) => {
-            setPageSize(model.pageSize);
-            setPage(model.page);
-            localStorage.setItem('adminMoviesPageSize', model.pageSize);
+          paginationMode="server"  // <-- switch to server mode
+          rowCount={totalCount}    // <-- total rows from backend
+          page={page}
+          pageSize={pageSize}
+          onPageChange={(newPage) => setPage(newPage)}
+          onPageSizeChange={(newPageSize) => {
+            setPageSize(newPageSize);
+            localStorage.setItem('adminMoviesPageSize', newPageSize);
+            setPage(0); // reset to first page on pageSize change
           }}
           pageSizeOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
           onRowClick={handleRowClick}
-          paginationMode="client"
           sx={{ cursor: 'pointer' }}
         />
       </Box>
@@ -193,7 +194,7 @@ const AdminMoviesPage = () => {
       <AnalyticsModal
         open={showAnalytics}
         onClose={() => setShowAnalytics(false)}
-        movies={filteredMovies}
+        movies={movies}
       />
     </Box>
   );
