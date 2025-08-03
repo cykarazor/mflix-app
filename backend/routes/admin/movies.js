@@ -1,7 +1,7 @@
 // backend/routes/admin/movies.js
 const express = require('express');
 const router = express.Router();
-const authenticateToken = require('../../middleware/authenticiateToken');
+const authenticateToken = require('../../middleware/authenticateToken');
 const authorizeAdmin = require('../../middleware/authorizeAdmin');
 const Movie = require('../../models/Movie');
 
