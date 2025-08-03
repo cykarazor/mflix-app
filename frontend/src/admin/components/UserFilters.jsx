@@ -7,7 +7,13 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
 
 const UserFilters = ({
   search,
@@ -33,6 +39,25 @@ const UserFilters = ({
         onChange={(e) => onSearchChange(e.target.value)}
         size="small"
         sx={{ minWidth: 250 }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon fontSize="small" />
+            </InputAdornment>
+          ),
+          endAdornment: search ? (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="clear search"
+                onClick={() => onSearchChange('')}
+                edge="end"
+                size="small"
+              >
+                <ClearIcon />
+              </IconButton>
+            </InputAdornment>
+          ) : null,
+        }}
       />
 
       <FormControl size="small" sx={{ minWidth: 120 }}>
