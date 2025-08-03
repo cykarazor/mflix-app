@@ -4,6 +4,7 @@ import {
   Box,
   CircularProgress,
   Chip,
+  Button,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useUser } from '../../UserContext';
@@ -11,6 +12,8 @@ import { API_BASE_URL } from '../../utils/api';
 import { format } from 'date-fns';
 import UserDetailModal from '../components/UserDetailModal';
 import UserFilters from '../components/UserFilters';
+import AnalyticsModal from '../components/AnalyticsModal';
+
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -29,6 +32,7 @@ const AdminUsersPage = () => {
   const [roleFilter, setRoleFilter] = useState('');
   const [showActiveOnly, setShowActiveOnly] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Apply filters every time users or filter state changes
 useEffect(() => {
@@ -172,6 +176,12 @@ useEffect(() => {
           showActiveOnly={showActiveOnly}
           onActiveToggle={setShowActiveOnly}
         />
+        <Box display="flex" justifyContent="space-between" alignItems="center" my={2}>
+          <Typography variant="h6">User Table</Typography>
+          <Button variant="contained" color="primary" onClick={() => setShowAnalytics(true)}>
+            View Analytics
+          </Button>
+        </Box>
         <DataGrid
           rows={filteredUsers || []}
           columns={columns}
@@ -202,6 +212,11 @@ useEffect(() => {
           onUserUpdated={handleUserUpdated}
         />
       )}
+      <AnalyticsModal
+        open={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
+        users={filteredUsers}
+      />
     </Box>
   );
 };
