@@ -1,24 +1,63 @@
 // src/admin/AdminFooter.jsx
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Link, Stack } from '@mui/material';
 
 const AdminFooter = () => {
   return (
     <Box
       component="footer"
       sx={{
-        py: 1,
-        px: 2,
+        py: 2,
+        px: 4,
         mt: 'auto',
         backgroundColor: (theme) =>
           theme.palette.mode === 'light'
-            ? theme.palette.grey[200]
-            : theme.palette.grey[800],
-        textAlign: 'center',
+            ? theme.palette.grey[100]
+            : theme.palette.grey[900],
+        borderTop: '1px solid',
+        borderColor: (theme) =>
+          theme.palette.mode === 'light'
+            ? theme.palette.grey[300]
+            : theme.palette.grey[700],
       }}
     >
-      <Typography variant="body2" color="text.secondary">
-        © {new Date().getFullYear()} Mflix
-      </Typography>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={2}
+        justifyContent="space-between"
+        alignItems="center"
+        textAlign={{ xs: 'center', sm: 'left' }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          © {new Date().getFullYear()} Mflix Admin Panel. All rights reserved.
+        </Typography>
+
+        <Stack direction="row" spacing={2}>
+          <Link
+            href="#"
+            underline="hover"
+            color="primary"
+            sx={{ fontSize: 14 }}
+          >
+            Help
+          </Link>
+          <Link
+            href="#"
+            underline="hover"
+            color="primary"
+            sx={{ fontSize: 14 }}
+          >
+            Privacy
+          </Link>
+          <Link
+            href="#"
+            underline="hover"
+            color="primary"
+            sx={{ fontSize: 14 }}
+          >
+            Terms
+          </Link>
+        </Stack>
+      </Stack>
     </Box>
   );
 };
