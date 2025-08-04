@@ -13,6 +13,8 @@ import { format } from 'date-fns';
 import UserDetailModal from '../components/UserDetailModal';
 import UserFilters from '../components/UserFilters';
 import AnalyticsModal from '../components/AnalyticsModal';
+import CustomPagination from '../components/CustomPagination';
+
 
 
 const AdminUsersPage = () => {
@@ -182,8 +184,9 @@ useEffect(() => {
             View Analytics
           </Button>
         </Box>
+        <>
         <DataGrid
-          rows={filteredUsers || []}
+          rows={(filteredUsers || []).slice(page * pageSize, (page + 1) * pageSize)}
           columns={columns}
           getRowId={(row) => row._id}
           pagination
@@ -197,9 +200,16 @@ useEffect(() => {
           disableRowSelectionOnClick
           onRowClick={handleRowClick}
           paginationMode="client" // default but explicit is better
+          hideFooterPagination
           sx={{ cursor: 'pointer' }}
         />
-
+        <CustomPagination
+        page={page}
+        rowCount={totalUserCount}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
+      </>
       </Box>
 
       {/* ✅ Token is passed as prop inside `user` object */}
