@@ -61,6 +61,14 @@ useEffect(() => {
     setPage(0); // Reset to first page on filter change
   }, [users, search, roleFilter, showActiveOnly]);
 
+  useEffect(() => {
+  const totalPages = Math.ceil(filteredUsers.length / pageSize);
+  if (page >= totalPages) {
+    setPage(0);
+  }
+}, [filteredUsers, page, pageSize]);
+
+
   // ✅ Wrap fetchUsers in useCallback so it can safely go in useEffect deps
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -164,7 +172,10 @@ useEffect(() => {
     },
   ];
 
-  const visibleUsers = filteredUsers.slice(page * pageSize, page * pageSize + pageSize);
+  const visibleUsers = filteredUsers.slice(
+    page * pageSize,
+    page * pageSize + pageSize
+  );
   console.log('Showing users:', visibleUsers);
 
   return (
@@ -194,17 +205,15 @@ useEffect(() => {
           rows={visibleUsers}
           columns={columns}
           getRowId={(row) => row._id}
-          pagination
-          paginationModel={{ pageSize, page }}
-          onPaginationModelChange={(model) => {
-            setPageSize(model.pageSize);
-            setPage(model.page);
-            localStorage.setItem('adminUsersPageSize', model.pageSize);
+          pageSize={pageSize}
+          onPageSizeChange={(newPageSize) => {
+            setPageSize(newPageSize);
+            setPage(0);
+            localStorage.setItem('adminUsersPageSize', newPageSize);
           }}
           pageSizeOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
           onRowClick={handleRowClick}
-          paginationMode="client" // default but explicit is better
           hideFooterPagination
           sx={{ cursor: 'pointer' }}
         />
