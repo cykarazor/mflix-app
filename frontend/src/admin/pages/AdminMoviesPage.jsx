@@ -204,6 +204,7 @@ const AdminMoviesPage = () => {
             }}
             disableRowSelectionOnClick
             onRowClick={handleRowClick}
+            hideFooterPagination
             sx={{ cursor: 'pointer' }}
           />
 
