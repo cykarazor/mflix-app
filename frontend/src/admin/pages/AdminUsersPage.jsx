@@ -58,6 +58,7 @@ useEffect(() => {
     }
 
     setFilteredUsers(filtered);
+    setPage(0); // Reset to first page on filter change
   }, [users, search, roleFilter, showActiveOnly]);
 
   // ✅ Wrap fetchUsers in useCallback so it can safely go in useEffect deps
@@ -163,6 +164,9 @@ useEffect(() => {
     },
   ];
 
+  const visibleUsers = filteredUsers.slice(page * pageSize, page * pageSize + pageSize);
+  console.log('Showing users:', visibleUsers);
+
   return (
     <Box p={4}>
       <Typography variant="h4" gutterBottom>
@@ -185,8 +189,9 @@ useEffect(() => {
           </Button>
         </Box>
         <>
+        
         <DataGrid
-          rows={filteredUsers.slice(page * pageSize, page * pageSize + pageSize)}
+          rows={visibleUsers}
           columns={columns}
           getRowId={(row) => row._id}
           pagination
