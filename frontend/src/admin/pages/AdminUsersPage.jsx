@@ -205,7 +205,7 @@ useEffect(() => {
         />
         <CustomPagination
         page={page}
-        rowCount={totalUserCount}
+        rowCount={(filteredUsers || []).length}
         pageSize={pageSize}
         onPageChange={setPage}
       />
