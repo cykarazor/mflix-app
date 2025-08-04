@@ -19,7 +19,9 @@ const AdminMoviesPage = () => {
   const [error, setError] = useState(false);
   const { user } = useUser();
 
-  const [pageSize, setPageSize] = useState(() => Number(localStorage.getItem('adminMoviesPageSize')) || 10);
+  const [pageSize, setPageSize] = useState(() =>
+    Number(localStorage.getItem('adminMoviesPageSize')) || 10
+  );
   const [page, setPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -30,13 +32,11 @@ const AdminMoviesPage = () => {
   const [yearFilter, setYearFilter] = useState('');
   const [showAnalytics, setShowAnalytics] = useState(false);
 
-  // Fetch paginated movies from backend with page, pageSize, and optionally filters
   const fetchMovies = useCallback(async () => {
     setLoading(true);
     setError(false);
 
     try {
-      // Build URL with pagination and filter params
       const params = new URLSearchParams();
       params.append('page', page);
       params.append('pageSize', pageSize);
@@ -48,13 +48,24 @@ const AdminMoviesPage = () => {
         params.append('year', yearFilter);
       }
 
-      const res = await fetch(`${API_BASE_URL}/api/admin/movies?${params.toString()}`, {
+      const requestUrl = `${API_BASE_URL}/api/admin/movies?${params.toString()}`;
+
+      // ✅ DEBUG LOGS
+      console.log('[DEBUG] Fetching movies...');
+      console.log('[DEBUG] page:', page, 'pageSize:', pageSize);
+      console.log('[DEBUG] URL:', requestUrl);
+
+      const res = await fetch(requestUrl, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
 
       if (!res.ok) throw new Error('Failed to fetch movies');
 
       const data = await res.json();
+
+      console.log('[DEBUG] Movies received:', data.movies.length);
+      console.log('[DEBUG] Total count:', data.totalCount);
+      console.log('[DEBUG] Sample movie:', data.movies[0]);
 
       setMovies(data.movies);
       setTotalCount(data.totalCount);
@@ -119,7 +130,17 @@ const AdminMoviesPage = () => {
         />
       ),
     },
-    { field: 'title', headerName: 'Title', flex: 1.5 },
+    {
+      field: 'title',
+      headerName: 'Title',
+      flex: 1.5,
+      renderCell: (params) => (
+        <>
+          <span>{params.api.getRowIndex(params.id) + 1}. </span>
+          {params.row.title}
+        </>
+      ),
+    },
     { field: 'year', headerName: 'Year', width: 100 },
     { field: 'genre', headerName: 'Genre', flex: 1 },
     {
@@ -164,15 +185,15 @@ const AdminMoviesPage = () => {
           columns={columns}
           getRowId={(row) => row._id}
           pagination
-          paginationMode="server"  // <-- switch to server mode
-          rowCount={totalCount}    // <-- total rows from backend
+          paginationMode="server"
+          rowCount={totalCount}
           page={page}
           pageSize={pageSize}
           onPageChange={(newPage) => setPage(newPage)}
           onPageSizeChange={(newPageSize) => {
             setPageSize(newPageSize);
+            setPage(0);
             localStorage.setItem('adminMoviesPageSize', newPageSize);
-            setPage(0); // reset to first page on pageSize change
           }}
           pageSizeOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
