@@ -186,25 +186,23 @@ const AdminMoviesPage = () => {
           </Button>
         </Box>
         <DataGrid
-          rows={movies}
-          columns={columns}
-          getRowId={(row) => row._id}
-          pagination
-          paginationMode="server"
-          rowCount={totalCount}
-          page={page}
-          pageSize={pageSize}
-          onPageChange={(newPage) => setPage(newPage)}
-          onPageSizeChange={(newPageSize) => {
-            setPageSize(newPageSize);
-            setPage(0);
-            localStorage.setItem('adminMoviesPageSize', newPageSize);
-          }}
-          pageSizeOptions={[10, 25, 50, 100]}
-          disableRowSelectionOnClick
-          onRowClick={handleRowClick}
-          sx={{ cursor: 'pointer' }}
-        />
+        rows={movies}
+        columns={columns}
+        getRowId={(row) => row._id}
+        pagination
+        paginationMode="server"
+        rowCount={totalCount}
+        paginationModel={{ page, pageSize }}
+        onPaginationModelChange={(model) => {
+          setPage(model.page);
+          setPageSize(model.pageSize);
+          localStorage.setItem('adminMoviesPageSize', model.pageSize);
+        }}
+        pageSizeOptions={[10, 25, 50, 100]}
+        disableRowSelectionOnClick
+        onRowClick={handleRowClick}
+        sx={{ cursor: 'pointer' }}
+      />
       </Box>
 
       {selectedMovie && (
