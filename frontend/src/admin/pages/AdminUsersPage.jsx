@@ -186,7 +186,7 @@ useEffect(() => {
         </Box>
         <>
         <DataGrid
-          rows={(filteredUsers || []).slice(page * pageSize, (page + 1) * pageSize)}
+          rows={filteredUsers.slice(page * pageSize, page * pageSize + pageSize)}
           columns={columns}
           getRowId={(row) => row._id}
           pagination
