@@ -131,16 +131,21 @@ const AdminMoviesPage = () => {
       ),
     },
     {
-      field: 'title',
+    field: 'title',
       headerName: 'Title',
       flex: 1.5,
-      renderCell: (params) => (
-        <>
-          <span>{params.api.getRowIndex(params.id) + 1}. </span>
-          {params.row.title}
-        </>
-      ),
+      renderCell: (params) => {
+        const index = movies.findIndex((m) => m._id === params.row._id);
+        const globalIndex = page * pageSize + index + 1;
+        return (
+          <>
+            <span>{globalIndex}. </span>
+            {params.row.title}
+          </>
+        );
+      },
     },
+
     { field: 'year', headerName: 'Year', width: 100 },
     { field: 'genre', headerName: 'Genre', flex: 1 },
     {
