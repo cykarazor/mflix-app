@@ -20,6 +20,8 @@ router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
       .limit(pageSize)
       .sort({ year: -1, title: 1 });  // Optional sort
 
+      console.log('Sample movie from DB:', movies[0]);
+
     res.json({ movies, totalCount });
   } catch (err) {
     console.error('Error fetching movies:', err);
