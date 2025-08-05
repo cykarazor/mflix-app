@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -6,28 +7,32 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
 
 const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange }) => {
   const [localSearch, setLocalSearch] = useState(search);
 
-  // Debounce logic
+  // Sync with parent `search` prop if it changes externally
+  useEffect(() => {
+    setLocalSearch(search);
+  }, [search]);
+
+  // Debounced update to parent
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       if (localSearch !== search) {
         onSearchChange(localSearch);
       }
-    }, 400); // Delay in ms
+    }, 400);
 
-    return () => clearTimeout(delayDebounce); // Cleanup on new keystroke
-  }, [localSearch]);
+    return () => clearTimeout(delayDebounce);
+  }, [localSearch, search, onSearchChange]);
 
   const yearOptions = ['2025', '2024', '2023', '2022', '2021', '2020', ''];
 
   return (
     <Box display="flex" flexWrap="wrap" gap={2} my={2}>
       <TextField
-        label="Search by title, cast, director, plot"
+        label="Search by title / plot / cast / director"
         variant="outlined"
         value={localSearch}
         onChange={(e) => setLocalSearch(e.target.value)}
@@ -43,7 +48,7 @@ const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange }) => {
           <MenuItem value="">All Years</MenuItem>
           {yearOptions.map((year) => (
             <MenuItem key={year} value={year}>
-              {year}
+              {year || 'All'}
             </MenuItem>
           ))}
         </Select>

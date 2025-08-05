@@ -181,6 +181,10 @@ const AdminMoviesPage = () => {
   },
 ];
 
+const handleSearchChange = useCallback((value) => {
+  setSearch(value);
+  setPage(0); // Reset to first page on new search
+}, []);
 
 
   return (
@@ -192,9 +196,12 @@ const AdminMoviesPage = () => {
       <Box display="flex" flexDirection="column" flex={1} minHeight="0">
         <MovieFilters
           search={search}
-          onSearchChange={setSearch}
+          onSearchChange={handleSearchChange}
           yearFilter={yearFilter}
-          onYearChange={setYearFilter}
+          onYearChange={(val) => {
+            setYearFilter(val);
+            setPage(0); // Reset to first page on new year filter
+          }}
         />
         <Box display="flex" justifyContent="space-between" alignItems="center" my={2}>
           <Typography variant="h6">Movie Table</Typography>
