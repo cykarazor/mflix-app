@@ -8,6 +8,13 @@ const Movie = require('../../models/Movie');
 // GET /api/admin/movies with search and pagination
 router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
   try {
+    // ✅ Handle countOnly before pagination
+    if (req.query.countOnly === 'true') {
+      const count = await Movie.countDocuments(); // or add filtering logic here if needed
+      return res.json({ count });
+    }
+
+    // Pagination and search logic
     const page = parseInt(req.query.page, 10) || 0;       // zero-based page
     const pageSize = parseInt(req.query.pageSize, 10) || 10;
     const search = req.query.search || '';
