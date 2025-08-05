@@ -12,7 +12,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 
-const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange }) => {
+const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange, years }) => {
   const [localSearch, setLocalSearch] = useState(search);
 
   useEffect(() => {
@@ -81,20 +81,20 @@ const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange }) => {
       </IconButton>
 
       <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
-        <InputLabel>Filter by Year</InputLabel>
-        <Select
-          value={yearFilter}
-          onChange={(e) => onYearChange(e.target.value)}
-          label="Filter by Year"
-        >
-          <MenuItem value="">All Years</MenuItem>
-          {yearOptions.map((year) => (
-            <MenuItem key={year} value={year}>
-              {year || 'All'}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <InputLabel>Filter by Year</InputLabel>
+      <Select
+        value={yearFilter}
+        onChange={(e) => onYearChange(e.target.value)}
+        label="Filter by Year"
+      >
+        <MenuItem value="">All Years</MenuItem>
+        {years.map((year) => (
+          <MenuItem key={year} value={String(year)}>
+            {year}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
     </Box>
   );
 };

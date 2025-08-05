@@ -32,11 +32,32 @@ const AdminMoviesPage = () => {
   const [search, setSearch] = useState('');
   const [yearFilter, setYearFilter] = useState('');
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [availableYears, setAvailableYears] = useState([]);
+
 
   const handleSearchChange = useCallback((value) => {
   setSearch(value);
   setPage(0); // Reset to first page on new search
 }, []);
+
+  useEffect(() => {
+  if (!user?.token) return;
+
+  const fetchYears = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/movies/years`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch years');
+      const data = await res.json();
+      setAvailableYears(data.years);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchYears();
+}, [user?.token]);
 
   const fetchMovies = useCallback(async () => {
     setLoading(true);
@@ -204,6 +225,7 @@ const AdminMoviesPage = () => {
             setYearFilter(val);
             setPage(0); // Reset to first page on new year filter
           }}
+          years={availableYears}
         />
         <Box display="flex" justifyContent="space-between" alignItems="center" my={2}>
           <Typography variant="h6">Movie Table</Typography>
