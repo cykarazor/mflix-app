@@ -3,7 +3,6 @@ import {
   Typography,
   Box,
   CircularProgress,
-  Chip,
   Button,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
@@ -188,6 +187,18 @@ const AdminMoviesPage = () => {
     headerName: 'Genre',
     flex: 1,
     renderCell: (params) => (params.row.genres || []).join(', ')
+  },
+  {
+    field: 'viewerScore',
+    headerName: '🍅 Viewer',
+    width: 110,
+    valueGetter: (params) => params.row.tomatoes?.viewer?.meter ?? 'N/A',
+  },
+  {
+    field: 'criticScore',
+    headerName: '🧑‍⚖️ Critic',
+    width: 110,
+    valueGetter: (params) => params.row.tomatoes?.critic?.meter ?? 'N/A',
   },
 ];
 
