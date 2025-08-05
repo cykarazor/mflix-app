@@ -66,7 +66,17 @@ const AdminMoviesPage = () => {
 
       console.log('[DEBUG] Movies received:', data.movies.length);
       console.log('[DEBUG] Total count:', data.totalCount);
-      console.log('[DEBUG] Sample movie:', data.movies[0]);
+      //console.log('[DEBUG] Sample movie:', data.movies[0]);
+
+      const sample = data.movies[0];
+      console.log('[DEBUG] Sample movie:', {
+        title: sample?.title,
+        year: sample?.year,
+        genres: sample?.genres,
+        likes: sample?.likes,
+        dislikes: sample?.dislikes,
+      });
+
 
       setMovies(data.movies);
       setTotalCount(data.totalCount);
@@ -119,53 +129,59 @@ const AdminMoviesPage = () => {
   }
 
   const columns = [
-    {
-      field: 'poster',
-      headerName: 'Poster',
-      width: 90,
-      renderCell: (params) => (
-        <img
-          src={params.row.poster}
-          alt="poster"
-          style={{ width: 50, height: 70, objectFit: 'cover' }}
-        />
-      ),
-    },
-    {
+  {
+    field: 'poster',
+    headerName: 'Poster',
+    width: 90,
+    renderCell: (params) => (
+      <img
+        src={params.row.poster}
+        alt="poster"
+        style={{ width: 50, height: 70, objectFit: 'cover' }}
+      />
+    ),
+  },
+  {
     field: 'title',
-      headerName: 'Title',
-      flex: 1.5,
-      renderCell: (params) => {
-        const index = movies.findIndex((m) => m._id === params.row._id);
-        const globalIndex = page * pageSize + index + 1;
-        return (
-          <>
-            <span>{globalIndex}. </span>
-            {params.row.title}
-          </>
-        );
-      },
+    headerName: 'Title',
+    flex: 1.5,
+    renderCell: (params) => {
+      const index = movies.findIndex((m) => m._id === params.row._id);
+      const globalIndex = page * pageSize + index + 1;
+      return (
+        <>
+          <span>{globalIndex}. </span>
+          {params.row.title}
+        </>
+      );
     },
+  },
+  { field: 'year', headerName: 'Year', width: 100 },
+  {
+    field: 'genres',
+    headerName: 'Genre',
+    flex: 1,
+    renderCell: (params) => (params.row.genres || []).join(', ')
+  },
+  {
+    field: 'likes',
+    headerName: '👍 Likes',
+    width: 100,
+    renderCell: (params) => (
+      <Chip label={params.row.likes || 0} color="success" size="small" />
+    ),
+  },
+  {
+    field: 'dislikes',
+    headerName: '👎 Dislikes',
+    width: 110,
+    renderCell: (params) => (
+      <Chip label={params.row.dislikes || 0} color="error" size="small" />
+    ),
+  },
+];
 
-    { field: 'year', headerName: 'Year', width: 100 },
-    { field: 'genre', headerName: 'Genre', flex: 1 },
-    {
-      field: 'likes',
-      headerName: '👍 Likes',
-      width: 100,
-      renderCell: (params) => (
-        <Chip label={params.row.likes || 0} color="success" size="small" />
-      ),
-    },
-    {
-      field: 'dislikes',
-      headerName: '👎 Dislikes',
-      width: 110,
-      renderCell: (params) => (
-        <Chip label={params.row.dislikes || 0} color="error" size="small" />
-      ),
-    },
-  ];
+
 
   return (
     <Box p={4}>
