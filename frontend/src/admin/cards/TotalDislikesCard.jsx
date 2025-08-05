@@ -1,8 +1,8 @@
-import StatCard from '../StatCard';
+import AdminStatCard from '../components/AdminStatCard';
 
 const TotalDislikesCard = () => {
   const value = 150;
-  return <StatCard label="Dislikes (Thumbs Down)" value={value} />;
+  return <AdminStatCard label="Dislikes (Thumbs Down)" value={value} />;
 };
 
 export default TotalDislikesCard;

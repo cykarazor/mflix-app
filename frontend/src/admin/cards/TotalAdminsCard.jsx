@@ -1,9 +1,9 @@
 // frontend/src/admin/TotalAdminsCard.jsx
-import StatCard from '../StatCard';
+import AdminStatCard from '../components/AdminStatCard';
 
 const TotalAdminsCard = () => {
   const value = 3; // static for now
-  return <StatCard label="Total Admins" value={value} />;
+  return <AdminStatCard label="Total Admins" value={value} />;
 };
 
 export default TotalAdminsCard;

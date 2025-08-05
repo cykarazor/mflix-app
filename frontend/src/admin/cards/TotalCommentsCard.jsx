@@ -1,8 +1,8 @@
-import StatCard from '../StatCard';
+import AdminStatCard from '../components/AdminStatCard';
 
 const TotalCommentsCard = () => {
   const value = 320;
-  return <StatCard label="Total Comments" value={value} />;
+  return <AdminStatCard label="Total Comments" value={value} />;
 };
 
 export default TotalCommentsCard;
