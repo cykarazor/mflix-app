@@ -12,7 +12,6 @@ import { API_BASE_URL } from '../../utils/api';
 import MovieDetailModal from '../components/MovieDetailModal';
 import MovieFilters from '../components/MovieFilters';
 import AnalyticsModal from '../components/AnalyticsModal';
-import CustomPagination from '../components/CustomPagination';
 
 const AdminMoviesPage = () => {
   const [movies, setMovies] = useState([]);
