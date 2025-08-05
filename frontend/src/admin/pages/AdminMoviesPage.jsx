@@ -189,22 +189,6 @@ const AdminMoviesPage = () => {
     flex: 1,
     renderCell: (params) => (params.row.genres || []).join(', ')
   },
-  {
-    field: 'likes',
-    headerName: '👍 Likes',
-    width: 100,
-    renderCell: (params) => (
-      <Chip label={params.row.likes || 0} color="success" size="small" />
-    ),
-  },
-  {
-    field: 'dislikes',
-    headerName: '👎 Dislikes',
-    width: 110,
-    renderCell: (params) => (
-      <Chip label={params.row.dislikes || 0} color="error" size="small" />
-    ),
-  },
 ];
 
 
