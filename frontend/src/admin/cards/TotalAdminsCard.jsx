@@ -1,5 +1,5 @@
 // frontend/src/admin/TotalAdminsCard.jsx
-import StatCard from './StatCard';
+import StatCard from '../StatCard';
 
 const TotalAdminsCard = () => {
   const value = 3; // static for now
