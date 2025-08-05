@@ -2,14 +2,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StatCard from './StatCard';
+import MovieIcon from '@mui/icons-material/Movie';
 import { API_BASE_URL } from '../utils/api';
 
-const TotalMoviesCard = ({ token }) => {
+const TotalMoviesCard = () => {
   const [count, setCount] = useState(0);
-  const navigate = useNavigate(); // ✅ for navigation on click
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMovieCount = async () => {
+      const token = localStorage.getItem('token'); // ✅ safely get token here
+
       try {
         const res = await fetch(`${API_BASE_URL}/api/admin/movies?countOnly=true`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -23,11 +26,11 @@ const TotalMoviesCard = ({ token }) => {
     };
 
     fetchMovieCount();
-  }, [token]);
+  }, []);
 
   return (
     <div onClick={() => navigate('/admin/movies')} style={{ cursor: 'pointer' }}>
-      <StatCard label="Total Movies" value={count} />
+      <StatCard label="Total Movies" value={count} icon={<MovieIcon />} />
     </div>
   );
 };
