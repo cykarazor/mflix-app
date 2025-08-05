@@ -1,4 +1,5 @@
 // AdminMovieDetailsModal.jsx
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -15,6 +16,23 @@ import {
 import dayjs from 'dayjs';
 
 export default function AdminMovieDetailsModal({ open, onClose, movie }) {
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    if (open && movie?._id) {
+      fetch(`/api/comments?movie_id=${movie._id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.comments) {
+            setComments(data.comments);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to fetch comments:', err);
+        });
+    }
+  }, [open, movie]);
+  
   if (!movie) return null;
 
   const {
@@ -141,6 +159,35 @@ export default function AdminMovieDetailsModal({ open, onClose, movie }) {
             <Typography>Released: {formatDate(released)}</Typography>
             <Typography>Last Updated: {formatDate(lastupdated)}</Typography>
             <Typography>Comments: {num_mflix_comments}</Typography>
+          </Grid>
+          
+          {/* Comments */}
+          <Grid item xs={12}>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle2">Comments ({comments.length}):</Typography>
+            {comments.length === 0 ? (
+              <Typography>No comments found.</Typography>
+            ) : (
+              comments.map((comment) => (
+                <Box
+                  key={comment._id}
+                  sx={{
+                    mt: 1,
+                    mb: 2,
+                    p: 1,
+                    border: '1px solid #ddd',
+                    borderRadius: 1,
+                    backgroundColor: '#fafafa',
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    By: {comment.name || comment.email} on{' '}
+                    {dayjs(comment.date).format('YYYY-MM-DD')}
+                  </Typography>
+                  <Typography variant="body1">{comment.text}</Typography>
+                </Box>
+              ))
+            )}
           </Grid>
         </Grid>
       </DialogContent>
