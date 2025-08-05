@@ -15,12 +15,24 @@ router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
     const totalCount = await Movie.countDocuments();
 
     // Fetch paginated movies
-    const movies = await Movie.find()
+    const moviesRaw = await Movie.find()
       .skip(page * pageSize)
       .limit(pageSize)
       .sort({ year: -1, title: 1 });  // Optional sort
 
-      console.log('Sample movie from DB:', movies[0]);
+    // Fix missing year from 'released' date if needed
+    const movies = moviesRaw.map((movie) => {
+      let year = movie.year;
+      if (!year && movie.released instanceof Date && !isNaN(movie.released)) {
+        year = movie.released.getFullYear();
+      }
+      return {
+        ...movie.toObject(),
+        year,
+      };
+    });
+
+    // console.log('Sample movie from DB:', movies[0]); // Enable for debugging
 
     res.json({ movies, totalCount });
   } catch (err) {
