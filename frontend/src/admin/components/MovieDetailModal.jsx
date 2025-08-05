@@ -20,7 +20,8 @@ export default function AdminMovieDetailsModal({ open, onClose, movie }) {
 
   useEffect(() => {
     if (open && movie?._id) {
-      fetch(`/api/comments?movie_id=${movie._id}`)
+        const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
+        fetch(`${API_BASE}/api/comments?movie_id=${movie._id}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.comments) {
