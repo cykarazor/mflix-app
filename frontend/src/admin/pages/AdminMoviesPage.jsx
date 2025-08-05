@@ -4,6 +4,7 @@ import {
   Box,
   CircularProgress,
   Button,
+  Chip,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useUser } from '../../UserContext';
@@ -191,14 +192,32 @@ const AdminMoviesPage = () => {
   {
     field: 'viewerScore',
     headerName: '🍅 Viewer',
-    width: 110,
-    valueGetter: (params) => params.row.tomatoes?.viewer?.meter ?? 'N/A',
+    width: 120,
+    renderCell: (params) => {
+      const score = params.row?.tomatoes?.viewer?.meter;
+      return (
+        <Chip
+          label={score !== undefined ? `${score}%` : 'N/A'}
+          color={score >= 75 ? 'success' : score >= 50 ? 'warning' : 'default'}
+          size="small"
+        />
+      );
+    },
   },
   {
     field: 'criticScore',
     headerName: '🧑‍⚖️ Critic',
-    width: 110,
-    valueGetter: (params) => params.row.tomatoes?.critic?.meter ?? 'N/A',
+    width: 120,
+    renderCell: (params) => {
+      const score = params.row?.tomatoes?.critic?.meter;
+      return (
+        <Chip
+          label={score !== undefined ? `${score}%` : 'N/A'}
+          color={score >= 75 ? 'success' : score >= 50 ? 'warning' : 'default'}
+          size="small"
+        />
+      );
+    },
   },
 ];
 
