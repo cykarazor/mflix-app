@@ -41,4 +41,41 @@ router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/movies with search and pagination
+router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page, 10) || 0;       // zero-based page
+    const pageSize = parseInt(req.query.pageSize, 10) || 10;
+    const search = req.query.search || '';
+
+    // Build MongoDB query object
+    const query = {};
+
+    if (search.trim()) {
+      const regex = new RegExp(search.trim(), 'i'); // case-insensitive search
+      query.$or = [
+        { title: regex },
+        { plot: regex },
+        { cast: { $elemMatch: regex } },       // match any cast member
+        { directors: { $elemMatch: regex } },  // match any director
+      ];
+    }
+
+    // Count total filtered documents
+    const totalCount = await Movie.countDocuments(query);
+
+    // Fetch filtered and paginated movies
+    const movies = await Movie.find(query)
+      .skip(page * pageSize)
+      .limit(pageSize)
+      .sort({ year: -1, title: 1 });
+
+    res.json({ movies, totalCount });
+  } catch (err) {
+    console.error('Error fetching movies:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
 module.exports = router;

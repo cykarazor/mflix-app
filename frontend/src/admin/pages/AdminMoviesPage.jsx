@@ -39,7 +39,7 @@ const AdminMoviesPage = () => {
 
     try {
       const params = new URLSearchParams();
-      params.append('page', page + 1);
+      params.append('page', page);
       params.append('pageSize', pageSize);
 
       if (search.trim()) {
