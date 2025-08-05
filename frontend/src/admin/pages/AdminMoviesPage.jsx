@@ -12,6 +12,7 @@ import { API_BASE_URL } from '../../utils/api';
 import MovieDetailModal from '../components/MovieDetailModal';
 import MovieFilters from '../components/MovieFilters';
 import AnalyticsModal from '../components/AnalyticsModal';
+import CustomPagination from '../components/CustomPagination';
 
 const AdminMoviesPage = () => {
   const [movies, setMovies] = useState([]);
@@ -210,26 +211,35 @@ const AdminMoviesPage = () => {
             View Analytics
           </Button>
         </Box>
-        <DataGrid
-        rows={movies}
-        columns={columns}
-        getRowId={(row) => row._id}
-        pagination
-        paginationMode="server"
-        page={page}
-        onPageChange={(newPage) => setPage(newPage)}
-        pageSize={pageSize}
-        onPageSizeChange={(newPageSize) => {
-          setPageSize(newPageSize);
-          setPage(0);
-          localStorage.setItem('adminMoviesPageSize', newPageSize);
-        }}
-        rowCount={totalCount}
-        rowsPerPageOptions={[5, 10, 25, 50, 100]} // ✅ REQUIRED
-        disableRowSelectionOnClick
-        onRowClick={handleRowClick}
-        sx={{ cursor: 'pointer' }}
-      />
+        <>
+          <DataGrid
+            rows={movies}
+            columns={columns}
+            getRowId={(row) => row._id}
+            pagination={false}          // disable built-in UI
+            paginationMode="server"     // server-side data fetch
+            page={page}                // for internal logic, optional now
+            pageSize={pageSize}        // keep track of pageSize
+            rowCount={totalCount}      // total rows from server
+            onPageChange={(newPage) => setPage(newPage)}
+            onPageSizeChange={(newPageSize) => {
+              setPageSize(newPageSize);
+              setPage(0);
+              localStorage.setItem('adminMoviesPageSize', newPageSize);
+            }}
+            disableRowSelectionOnClick
+            onRowClick={handleRowClick}
+            hideFooterPagination
+            sx={{ cursor: 'pointer' }}
+          />
+
+          <CustomPagination
+            page={page}
+            rowCount={totalCount}
+            pageSize={pageSize}
+            onPageChange={setPage}
+          />
+        </>
       </Box>
 
       {selectedMovie && (

@@ -5,6 +5,7 @@ const authenticateToken = require('../../middleware/authenticateToken');
 const authorizeAdmin = require('../../middleware/authorizeAdmin');
 const Movie = require('../../models/Movie');
 
+/*
 // GET /api/admin/movies?page=0&pageSize=10
 router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
   try {
@@ -40,6 +41,7 @@ router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+*/
 
 // GET /api/admin/movies with search and pagination
 router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
