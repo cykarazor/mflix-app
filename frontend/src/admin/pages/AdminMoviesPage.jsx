@@ -33,6 +33,11 @@ const AdminMoviesPage = () => {
   const [yearFilter, setYearFilter] = useState('');
   const [showAnalytics, setShowAnalytics] = useState(false);
 
+  const handleSearchChange = useCallback((value) => {
+  setSearch(value);
+  setPage(0); // Reset to first page on new search
+}, []);
+
   const fetchMovies = useCallback(async () => {
     setLoading(true);
     setError(false);
@@ -181,10 +186,7 @@ const AdminMoviesPage = () => {
   },
 ];
 
-const handleSearchChange = useCallback((value) => {
-  setSearch(value);
-  setPage(0); // Reset to first page on new search
-}, []);
+
 
 
   return (
