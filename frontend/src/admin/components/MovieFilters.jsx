@@ -29,7 +29,7 @@ const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange, years 
     onSearchChange('');
   };
 
-  const yearOptions = ['2025', '2024', '2023', '2022', '2021', '2020', ''];
+  //const yearOptions = ['2025', '2024', '2023', '2022', '2021', '2020', ''];
 
   return (
     <Box
