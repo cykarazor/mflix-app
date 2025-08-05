@@ -211,35 +211,25 @@ const AdminMoviesPage = () => {
             View Analytics
           </Button>
         </Box>
-        <>
-          <DataGrid
-            rows={movies}
-            columns={columns}
-            getRowId={(row) => row._id}
-            pagination={false}          // disable built-in UI
-            paginationMode="server"     // server-side data fetch
-            page={page}                // for internal logic, optional now
-            pageSize={pageSize}        // keep track of pageSize
-            rowCount={totalCount}      // total rows from server
-            onPageChange={(newPage) => setPage(newPage)}
-            onPageSizeChange={(newPageSize) => {
-              setPageSize(newPageSize);
-              setPage(0);
-              localStorage.setItem('adminMoviesPageSize', newPageSize);
-            }}
-            disableRowSelectionOnClick
-            onRowClick={handleRowClick}
-            hideFooterPagination
-            sx={{ cursor: 'pointer' }}
-          />
-
-          <CustomPagination
-            page={page}
-            rowCount={totalCount}
-            pageSize={pageSize}
-            onPageChange={setPage}
-          />
-        </>
+        <DataGrid
+          rows={movies}
+          columns={columns}
+          getRowId={(row) => row._id}
+          pagination                          // ✅ Enable built-in pagination UI
+          paginationMode="server"            // ✅ Tell it to request data from server
+          page={page}
+          pageSize={pageSize}
+          rowCount={totalCount}
+          onPageChange={(newPage) => setPage(newPage)}
+          onPageSizeChange={(newPageSize) => {
+            setPageSize(newPageSize);
+            setPage(0); // reset to first page
+            localStorage.setItem('adminMoviesPageSize', newPageSize);
+          }}
+          disableRowSelectionOnClick
+          onRowClick={handleRowClick}
+          sx={{ cursor: 'pointer' }}
+        />
       </Box>
 
       {selectedMovie && (
