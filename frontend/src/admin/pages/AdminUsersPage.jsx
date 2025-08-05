@@ -176,7 +176,7 @@ useEffect(() => {
     page * pageSize,
     page * pageSize + pageSize
   );
-  console.log('Showing users:', visibleUsers);
+  //console.log('Showing users:', visibleUsers);
 
   return (
     <Box p={4}>
