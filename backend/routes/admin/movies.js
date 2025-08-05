@@ -11,6 +11,7 @@ router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
     const page = parseInt(req.query.page, 10) || 0;       // zero-based page
     const pageSize = parseInt(req.query.pageSize, 10) || 10;
     const search = req.query.search || '';
+    const year = parseInt(req.query.year, 10);
 
     // Build MongoDB query object
     const query = {};
@@ -23,6 +24,11 @@ router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
         { cast: { $in: [regex] } },
         { directors: { $in: [regex] } },
       ];
+    }
+
+    // 👇 Add year filter if provided
+    if (!isNaN(year)) {
+      query.year = year;
     }
 
     // Count total filtered documents
