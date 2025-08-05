@@ -58,8 +58,8 @@ router.get('/', authenticateToken, authorizeAdmin, async (req, res) => {
       query.$or = [
         { title: regex },
         { plot: regex },
-        { cast: { $elemMatch: regex } },       // match any cast member
-        { directors: { $elemMatch: regex } },  // match any director
+        { cast: { $in: [regex] } },
+        { directors: { $in: [regex] } },
       ];
     }
 
