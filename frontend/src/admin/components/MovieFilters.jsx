@@ -6,9 +6,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Button,
-  InputAdornment,
   IconButton,
+  InputAdornment,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -27,7 +26,7 @@ const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange }) => {
 
   const handleClear = () => {
     setLocalSearch('');
-    onSearchChange(''); // Also clear search in parent
+    onSearchChange('');
   };
 
   const yearOptions = ['2025', '2024', '2023', '2022', '2021', '2020', ''];
@@ -48,6 +47,7 @@ const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange }) => {
         value={localSearch}
         onChange={(e) => setLocalSearch(e.target.value)}
         size="small"
+        sx={{ flexGrow: 1, minWidth: 200 }}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -69,6 +69,17 @@ const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange }) => {
         }}
       />
 
+      {/* Search icon button */}
+      <IconButton
+        type="submit"
+        color="primary"
+        aria-label="submit search"
+        sx={{ ml: 0 }}
+        size="large"
+      >
+        <SearchIcon />
+      </IconButton>
+
       <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
         <InputLabel>Filter by Year</InputLabel>
         <Select
@@ -84,10 +95,6 @@ const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange }) => {
           ))}
         </Select>
       </FormControl>
-
-      <Button variant="contained" color="primary" type="submit">
-        Search
-      </Button>
     </Box>
   );
 };
