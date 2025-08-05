@@ -6,18 +6,31 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 const MovieFilters = ({ search, onSearchChange, yearFilter, onYearChange }) => {
-  // We'll use static year options for now — you can make it dynamic later
+  const [localSearch, setLocalSearch] = useState(search);
+
+  // Debounce logic
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (localSearch !== search) {
+        onSearchChange(localSearch);
+      }
+    }, 400); // Delay in ms
+
+    return () => clearTimeout(delayDebounce); // Cleanup on new keystroke
+  }, [localSearch]);
+
   const yearOptions = ['2025', '2024', '2023', '2022', '2021', '2020', ''];
 
   return (
     <Box display="flex" flexWrap="wrap" gap={2} my={2}>
       <TextField
-        label="Search by title or director"
+        label="Search by title, cast, director, plot"
         variant="outlined"
-        value={search}
-        onChange={(e) => onSearchChange(e.target.value)}
+        value={localSearch}
+        onChange={(e) => setLocalSearch(e.target.value)}
         size="small"
       />
       <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
